@@ -71,6 +71,7 @@ export function SimpleBarChart({
             allowDecimals={false}
           />
           <Tooltip
+            cursor={{ fill: colors.grid, fillOpacity: 0.3 }}
             contentStyle={{
               backgroundColor: colors.tooltipBg,
               border: `1px solid ${colors.tooltipBorder}`,
