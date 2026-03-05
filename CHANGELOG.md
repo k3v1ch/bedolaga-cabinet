@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.24.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.23.1...v1.24.0) (2026-03-05)
+
+
+### Features
+
+* account linking and merge UI for cabinet ([93f97d4](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/93f97d45bec4ac4ac893475edd3e79107fe5806b))
+* account merge flow — merge redirect, error handling, server-complete linking ([2fc0759](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/2fc0759f89da90b7a349deb8a502417a4f790827))
+* add sales_stats RBAC permission section to frontend ([262303d](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/262303d623a6e8a597b3aa9310d1b8290b494595))
+* add Telegram account linking UI with CSRF protection ([a6fabb1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/a6fabb1d9d79c6a233e1ac52fcd006d9dea31a3e))
+* open OAuth linking in external browser from Telegram Mini App ([7c30a1e](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/7c30a1eab616846253df1ec2c93b97259a54c8b8))
+* кликабельные имена пользователей в последних платежах ([e278fec](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/e278fec506e17281d0fb92cb04348b269dc8e30e))
+
+
+### Bug Fixes
+
+* accessibility, query cache clear, post-merge navigation ([e447e99](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/e447e993cb10989f55525d9bb57ed8a5d5ad9d97))
+* add Referrer-Policy to prevent merge token leakage via Referer header ([584f002](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/584f00297bfc38fefc372f28ba0947300b8a6064))
+* double-click guard on link, wall-clock timer, blur cleanup ([8ad0500](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/8ad0500cc80fee51b03880e7988ffe1192e7f214))
+* harden merge UI and improve error handling ([58cf1e3](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/58cf1e3b504c8577e6d6aa081bf861cb871fb765))
+* **merge:** accessibility, token guard, state cleanup ([579f47e](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/579f47e563a13f4a56ca92064949d594bfe66063))
+* move useState before useMutation for consistent hook ordering ([fba4481](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/fba4481799081b05f0b082bcf983c6ac4c4daf1b))
+* prevent onBlur race cancelling unlink confirmation ([3418ba9](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/3418ba9b8da69ec8ea3822971729bd16fcfcd1ce))
+* remove unused linkTelegramWidget i18n key from all locales ([9b4a851](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/9b4a8512c2e3cedf1f075aef62415fa5464b69e6))
+* replace window.confirm with inline confirmation for unlink ([d0c01a0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/d0c01a0e5cb656661b75175416ccf98c5aff8911))
+* review findings — polling fallback, sessionStorage cleanup, UX ([da1926f](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/da1926f0e1ab7f117aef120ac7648bdd50add72c))
+* second round review fixes for merge UI ([aa26059](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/aa26059e004dc7ce96b3b0953343ace5e86696c3))
+* заменить Tailwind green/emerald классы на success из темы ([86f75f2](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/86f75f25a78cd4b14c544ccb385474390d12d993))
+* заменить хардкодный зелёный ([#3](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/issues/3)EDBB0) на акцентный цвет из темы ([d526d09](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/d526d095dec1c4dc80f45ccd7940516a49051f3b))
+
 ## [1.23.1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.23.0...v1.23.1) (2026-03-04)
 
 
