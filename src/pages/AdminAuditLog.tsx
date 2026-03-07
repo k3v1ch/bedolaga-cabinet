@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -415,11 +415,6 @@ function LogEntryCard({ entry, isExpanded, onToggle }: LogEntryCardProps) {
 
 // === Main Page ===
 
-interface KnownUser {
-  name: string;
-  email: string | null;
-}
-
 export default function AdminAuditLog() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -439,9 +434,6 @@ export default function AdminAuditLog() {
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
-
-  // Known users accumulated from audit log entries
-  const [knownUsers, setKnownUsers] = useState<Map<number, KnownUser>>(new Map());
 
   // Build query params
   const queryParams = useMemo((): AuditLogFilters => {
@@ -480,23 +472,12 @@ export default function AdminAuditLog() {
     refetchInterval: autoRefresh ? AUTO_REFRESH_INTERVAL : false,
   });
 
-  // Accumulate unique users from audit log entries
-  useEffect(() => {
-    if (!data?.items?.length) return;
-    setKnownUsers((prev) => {
-      const next = new Map(prev);
-      let changed = false;
-      for (const entry of data.items) {
-        const name = entry.user_first_name || entry.user_email || `#${entry.user_id}`;
-        const existing = next.get(entry.user_id);
-        if (!existing || existing.name !== name || existing.email !== entry.user_email) {
-          next.set(entry.user_id, { name, email: entry.user_email });
-          changed = true;
-        }
-      }
-      return changed ? next : prev;
-    });
-  }, [data?.items]);
+  // RBAC users for filter chips
+  const { data: rbacUsers } = useQuery({
+    queryKey: ['rbac-users'],
+    queryFn: () => rbacApi.getRbacUsers(),
+    staleTime: 5 * 60 * 1000,
+  });
 
   const entries = data?.items ?? [];
   const total = data?.total ?? 0;
@@ -669,23 +650,25 @@ export default function AdminAuditLog() {
           <div className="border-t border-dark-700 p-4">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {/* User filter */}
-              {knownUsers.size > 0 && (
+              {rbacUsers && rbacUsers.length > 0 && (
                 <div className="sm:col-span-2 lg:col-span-3">
                   <label className="mb-1 block text-sm font-medium text-dark-300">
                     {t('admin.auditLog.filters.user')}
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    {Array.from(knownUsers.entries()).map(([uid, user]) => {
-                      const isSelected = filters.userId === String(uid);
+                    {rbacUsers.map((ru) => {
+                      const isSelected = filters.userId === String(ru.user_id);
+                      const displayName =
+                        ru.first_name || ru.email || ru.username || `#${ru.user_id}`;
                       return (
                         <button
-                          key={uid}
+                          key={ru.user_id}
                           type="button"
                           aria-pressed={isSelected}
                           onClick={() =>
                             setFilters((prev) => ({
                               ...prev,
-                              userId: isSelected ? '' : String(uid),
+                              userId: isSelected ? '' : String(ru.user_id),
                             }))
                           }
                           className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-1 focus-visible:ring-offset-dark-900 ${
@@ -703,7 +686,7 @@ export default function AdminAuditLog() {
                           >
                             {isSelected && '✓'}
                           </span>
-                          <span>{user.name}</span>
+                          <span>{displayName}</span>
                         </button>
                       );
                     })}
