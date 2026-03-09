@@ -317,14 +317,14 @@ export function AppShell({ children }: AppShellProps) {
           </Link>
 
           {/* Center Navigation */}
-          <nav className="flex items-center justify-center gap-1">
+          <nav className="scrollbar-hide flex items-center gap-1 overflow-x-auto">
             {desktopNavItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 onClick={handleNavClick}
                 className={cn(
-                  'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                  'flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                   isActive(item.path)
                     ? 'bg-dark-800 text-dark-50'
                     : 'text-dark-400 hover:bg-dark-800/50 hover:text-dark-200',
@@ -339,7 +339,7 @@ export function AppShell({ children }: AppShellProps) {
                 to="/referral"
                 onClick={handleNavClick}
                 className={cn(
-                  'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                  'flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                   isActive('/referral')
                     ? 'bg-dark-800 text-dark-50'
                     : 'text-dark-400 hover:bg-dark-800/50 hover:text-dark-200',
@@ -354,7 +354,7 @@ export function AppShell({ children }: AppShellProps) {
                 to="/gift"
                 onClick={handleNavClick}
                 className={cn(
-                  'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                  'flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                   isActive('/gift')
                     ? 'bg-dark-800 text-dark-50'
                     : 'text-dark-400 hover:bg-dark-800/50 hover:text-dark-200',
@@ -367,12 +367,12 @@ export function AppShell({ children }: AppShellProps) {
             {isAdmin && (
               <>
                 {/* Separator before admin */}
-                <div className="mx-2 h-5 w-px bg-dark-700" />
+                <div className="mx-2 h-5 w-px shrink-0 bg-dark-700" />
                 <Link
                   to="/admin"
                   onClick={handleNavClick}
                   className={cn(
-                    'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                    'flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                     location.pathname.startsWith('/admin')
                       ? 'bg-warning-500/10 text-warning-400'
                       : 'text-warning-500/70 hover:bg-warning-500/10 hover:text-warning-400',
