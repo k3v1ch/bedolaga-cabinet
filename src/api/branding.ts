@@ -265,6 +265,14 @@ export const brandingApi = {
     }
   },
 
+  // Update gift enabled (admin only)
+  updateGiftEnabled: async (enabled: boolean): Promise<GiftEnabled> => {
+    const response = await apiClient.patch<GiftEnabled>('/cabinet/branding/gift-enabled', {
+      enabled,
+    });
+    return response.data;
+  },
+
   // Get analytics counters (public, no auth required)
   getAnalyticsCounters: async (): Promise<AnalyticsCounters> => {
     try {

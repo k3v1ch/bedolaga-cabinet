@@ -1696,6 +1696,8 @@
       "darkTheme": "Dark theme",
       "emailAuth": "Email auth",
       "emailAuthDesc": "Allow login via email",
+      "giftEnabled": "Gift subscription",
+      "giftEnabledDesc": "Allow users to gift a subscription to another user",
       "favoritesEmpty": "No favorites yet",
       "favoritesHint": "Star settings to add them here",
       "interfaceOptions": "Interface options",

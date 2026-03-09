@@ -1405,6 +1405,8 @@
       "darkTheme": "暗色主题",
       "emailAuth": "邮箱认证",
       "emailAuthDesc": "允许通过邮箱登录",
+      "giftEnabled": "赠送订阅",
+      "giftEnabledDesc": "允许用户将订阅作为礼物赠送给其他用户",
       "favoritesEmpty": "暂无收藏",
       "favoritesHint": "点击星标将设置添加到这里",
       "interfaceOptions": "界面选项",

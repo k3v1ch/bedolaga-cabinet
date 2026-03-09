@@ -1706,6 +1706,8 @@
       "autoFullscreenDesc": "В Telegram WebApp",
       "emailAuth": "Email авторизация",
       "emailAuthDesc": "Регистрация и вход через email",
+      "giftEnabled": "Подписка в подарок",
+      "giftEnabledDesc": "Возможность отправить подписку в подарок другому пользователю",
       "availableThemes": "Доступные темы",
       "darkTheme": "Тёмная",
       "lightTheme": "Светлая",
