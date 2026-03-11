@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.30.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.29.1...v1.30.0) (2026-03-10)
+
+
+### Features
+
+* gift subscription redesign — code-only purchase + 3-tab UI ([af3e535](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/af3e535c698e7046f420b80a781991505f0c0ffb))
+* show localized error for self-activation attempt ([7549ae7](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/7549ae70eb3ae14ae0cd4a45e5033675f4555c6a))
+* split my gifts into Active/Activated/Received sections ([51ec799](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/51ec799c0c47189f9388dd6b19ca3329a55cf653))
+
+
+### Bug Fixes
+
+* activation broken — token uppercased + wrong env var for bot username ([d852bfe](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/d852bfe969ed140f53872c5bdd8104ac20aecd34))
+* add null guard for purchase_token before rendering CodeOnlySuccessState ([51cc122](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/51cc1221d0129018828b2abf0f273caada599649))
+* CopiedToast not visible due to CSS transform context ([39bdf8b](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/39bdf8b5c3e79e2c224db29f3c87d17135e2e0fb))
+* gift code display + share modal backdrop ([a627eb0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/a627eb0b30a6f65a8a0f40c13a891b4beb8e2e79))
+* gift UI improvements — declension, GB display, share modal, deep links ([1bafcca](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/1bafcca1ef58d98f044575511bbccf2c17825aa2))
+* hide Quick Renew for expired trial subscriptions ([8b056e0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/8b056e0b463d05106d389c41eae671684df7b043))
+* remove dark backdrop overlay from share modal ([b213535](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/b213535738d1261fbd7a68bb89ccaa21348615e7))
+* replace orphaned shareModal i18n keys in GiftResult ([0322974](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/0322974ebdf0d904a5f39809c0e0da5dbdfe03b7))
+* route PendingGiftCard to gift activation tab instead of landing endpoint ([8ab740f](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/8ab740f8cb6ed9654b5f2d7d99d7f37a31e7de90))
+* use short 12-char code in bot and cabinet share links ([73d67bc](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/73d67bceedb84248992848c04d2792ae13c225a6))
+
 ## [1.29.1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.29.0...v1.29.1) (2026-03-10)
 
 
