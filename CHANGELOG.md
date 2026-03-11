@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.31.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.30.0...v1.31.0) (2026-03-11)
+
+
+### Features
+
+* add gifts tab to admin user detail page ([695ab42](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/695ab42e03a0a77ecdbede1f8621dca6baf4b374))
+* desktop nav expand-on-hover with larger icons ([8dab6dc](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/8dab6dc8fb8ef7ba97c94fa71cff5b4ed750198d))
+* display promo group and active discount banners on gift page ([03c9e73](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/03c9e73a372f0357757a1835a933bedceaa7749a))
+* responsive desktop nav — icon-only on lg, icon+text on xl ([e7cd370](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/e7cd3702997144725ac90289e5aecd101856bc92))
+
+
+### Bug Fixes
+
+* desktop nav always icon-only with tooltips ([f0777f0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/f0777f0b5db9115b84bdcb37eb9dab6650bd725b))
+* display zero-amount transactions with neutral styling ([6fd76c8](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/6fd76c8dc89c5fb4d766a94a47048dde0f0afc83))
+* show nav labels from 2xl (1536px) instead of xl (1280px) ([3bae6cf](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/3bae6cf1e1e40c8f1434d64cdc4e99079856bc56))
+
 ## [1.30.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.29.1...v1.30.0) (2026-03-10)
 
 
