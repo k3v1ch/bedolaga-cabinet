@@ -483,6 +483,46 @@ export default function Support() {
         </Button>
       </motion.div>
 
+      {/* Contact support card for "both" mode */}
+      {supportConfig?.support_type === 'both' && supportConfig.support_username && (
+        <motion.div variants={staggerItem}>
+          <Card className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-dark-800">
+                <svg
+                  className="h-5 w-5 text-dark-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <div className="text-sm font-medium text-dark-100">{t('support.contactUs')}</div>
+                <div className="text-xs text-dark-400">{supportConfig.support_username}</div>
+              </div>
+            </div>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                const username = supportConfig.support_username!.startsWith('@')
+                  ? supportConfig.support_username!.slice(1)
+                  : supportConfig.support_username!;
+                openTelegramLink(`https://t.me/${username}`);
+              }}
+            >
+              {t('support.contactUs')}
+            </Button>
+          </Card>
+        </motion.div>
+      )}
+
       <motion.div variants={staggerItem} className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Tickets List */}
         <Card className="lg:col-span-1">
