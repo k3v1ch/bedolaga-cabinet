@@ -14,4 +14,5 @@ export const METHOD_LABELS: Record<string, string> = {
   cloudpayments: 'CloudPayments',
   kassa_ai: 'Kassa AI',
   riopay: 'RioPay',
+  severpay: 'SeverPay',
 };

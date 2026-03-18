@@ -634,6 +634,15 @@
       },
       "tribute": {
         "description": "Pay with bank card via Tribute"
+      },
+      "severpay": {
+        "description": "Pay via SeverPay"
+      },
+      "riopay": {
+        "description": "Pay via RioPay"
+      },
+      "kassa_ai": {
+        "description": "Pay via Kassa AI"
       }
     },
     "transactionHistory": "Transaction History",

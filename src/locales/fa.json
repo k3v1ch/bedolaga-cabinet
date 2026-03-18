@@ -487,6 +487,9 @@
       },
       "tribute": {
         "description": "پرداخت با کارت بانکی از طریق Tribute"
+      },
+      "severpay": {
+        "description": "پرداخت از طریق SeverPay"
       }
     },
     "transactionHistory": "تاریخچه تراکنش‌ها",

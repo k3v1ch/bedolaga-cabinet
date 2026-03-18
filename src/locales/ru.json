@@ -662,6 +662,15 @@
       },
       "tribute": {
         "description": "Оплата банковской картой через Tribute"
+      },
+      "severpay": {
+        "description": "Оплата через SeverPay"
+      },
+      "riopay": {
+        "description": "Оплата через RioPay"
+      },
+      "kassa_ai": {
+        "description": "Оплата через Kassa AI"
       }
     },
     "transactionHistory": "История операций",

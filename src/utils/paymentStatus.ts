@@ -20,6 +20,7 @@ export const FAILED_STATUSES = new Set([
   'cancel',
   'system_fail',
   'refund_paid',
+  'decline',
 ]);
 
 export function isPaidStatus(status: string): boolean {
