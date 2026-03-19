@@ -66,7 +66,6 @@ export default function Dashboard() {
     staleTime: 60_000,
   });
   const isMultiTariff = multiSubData?.multi_tariff_enabled ?? false;
-  const multiSubCount = multiSubData?.subscriptions?.length ?? 0;
 
   const { data: trialInfo, isLoading: trialLoading } = useQuery({
     queryKey: ['trial-info'],
