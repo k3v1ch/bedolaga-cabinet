@@ -21,7 +21,7 @@ export function ReferralNetwork() {
   const removeScope = useReferralNetworkStore((s) => s.removeScope);
   const clearScope = useReferralNetworkStore((s) => s.clearScope);
 
-  const { mobile: mobileHeaderHeight } = useHeaderHeight();
+  const { mobile: mobileHeaderHeight, bottomSafeArea } = useHeaderHeight();
 
   const hasScope = scope.length > 0;
 
@@ -41,8 +41,13 @@ export function ReferralNetwork() {
   return createPortal(
     <div
       id="referral-network-container"
-      className="fixed inset-x-0 bottom-0 z-40 grid grid-rows-[auto_1fr] bg-[#0a0a0f] lg:!top-14"
-      style={{ top: mobileHeaderHeight }}
+      className="fixed inset-x-0 bottom-0 z-50 grid grid-rows-[auto_1fr] bg-[#0a0a0f] lg:!top-14"
+      style={
+        {
+          top: mobileHeaderHeight,
+          '--safe-bottom': `${bottomSafeArea}px`,
+        } as React.CSSProperties
+      }
     >
       <div className="z-20 border-b border-dark-700/50 bg-dark-900/90 backdrop-blur-md">
         {/* Mobile: two rows — title on top, selector below */}
@@ -122,15 +127,15 @@ export function ReferralNetwork() {
             <>
               <NetworkGraph data={networkData} className="absolute inset-0 h-full w-full" />
 
-              <div className="absolute bottom-3 left-3 z-10 sm:bottom-4 sm:left-4">
+              <div className="absolute bottom-[calc(12px+var(--safe-bottom,0px))] left-3 z-10 sm:bottom-4 sm:left-4">
                 <NetworkStats data={networkData} />
               </div>
 
-              <div className="absolute bottom-3 right-3 z-10 hidden sm:bottom-4 sm:right-4 sm:block">
+              <div className="absolute bottom-[calc(12px+var(--safe-bottom,0px))] right-3 z-10 hidden sm:bottom-4 sm:right-4 sm:block">
                 <NetworkLegend />
               </div>
 
-              <div className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 sm:bottom-4">
+              <div className="absolute bottom-[calc(12px+var(--safe-bottom,0px))] left-1/2 z-10 -translate-x-1/2 sm:bottom-4">
                 <NetworkControls />
               </div>
             </>

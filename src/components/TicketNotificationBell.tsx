@@ -37,7 +37,7 @@ export default function TicketNotificationBell({ isAdmin = false }: TicketNotifi
   const { showToast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { mobile: dropdownTop } = useHeaderHeight();
+  const { mobile: dropdownTop, isMobileFullscreen } = useHeaderHeight();
 
   // Show toast for WebSocket notification
   const showWSNotificationToast = useCallback(
@@ -255,7 +255,7 @@ export default function TicketNotificationBell({ isAdmin = false }: TicketNotifi
       {isOpen && (
         <div
           className="fixed left-4 right-4 z-50 mt-0 w-auto animate-scale-in overflow-hidden rounded-2xl border border-dark-700/50 bg-dark-900/95 shadow-2xl shadow-black/30 backdrop-blur-xl sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-96"
-          style={{ top: dropdownTop }}
+          style={isMobileFullscreen ? { top: dropdownTop } : undefined}
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-dark-700/50 bg-dark-800/30 px-4 py-3">
