@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.38.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.37.1...v1.38.0) (2026-03-18)
+
+
+### Features
+
+* clickable user link to user card in admin payments ([aa8fbd1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/aa8fbd1e23c9ee503b871d0de945eee5d4af4d2c))
+* display manual admin top-ups in sales statistics ([a3a6fad](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/a3a6fad9b76f9908b8240a05629d9d7eac1af98f))
+* display user promo group badge on dashboard ([c579abe](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/c579abe6a35cf86a7e001567eb1328b768b71772))
+
+
+### Bug Fixes
+
+* handle long promo group names with truncation and flex-wrap ([4a33a61](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/4a33a61641ac6bf325988a5d60a2d07cd15c2a71))
+
 ## [1.37.1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.37.0...v1.37.1) (2026-03-18)
 
 
