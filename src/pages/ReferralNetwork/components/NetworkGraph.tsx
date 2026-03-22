@@ -127,6 +127,10 @@ const BorderedNodeProgram = createNodeBorderProgram({
       size: { attribute: 'borderSize', defaultValue: 0 },
       color: { attribute: 'borderColor' },
     },
+    {
+      size: { fill: true },
+      color: { attribute: 'color' },
+    },
   ],
 });
 
