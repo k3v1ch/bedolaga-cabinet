@@ -1110,7 +1110,8 @@
       "auditLog": "Audit Log",
       "salesStats": "Sales Statistics",
       "landings": "Landings",
-      "referralNetwork": "Referral Network"
+      "referralNetwork": "Referral Network",
+      "news": "News"
     },
     "panel": {
       "title": "Admin Panel",
@@ -1145,7 +1146,8 @@
       "auditLogDesc": "Review system activity and access history",
       "salesStatsDesc": "Sales analytics and trends",
       "landingsDesc": "Quick purchase landing pages",
-      "referralNetworkDesc": "Referral graph and campaign visualization"
+      "referralNetworkDesc": "Referral graph and campaign visualization",
+      "newsDesc": "Manage news articles and publications"
     },
     "salesStats": {
       "title": "Sales Statistics",

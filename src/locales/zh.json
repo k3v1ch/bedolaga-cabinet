@@ -944,7 +944,8 @@
       "auditLog": "审计日志",
       "salesStats": "销售统计",
       "landings": "落地页",
-      "referralNetwork": "推荐网络"
+      "referralNetwork": "推荐网络",
+      "news": "新闻"
     },
     "panel": {
       "title": "管理面板",
@@ -979,7 +980,8 @@
       "auditLogDesc": "查看系统活动和访问历史",
       "salesStatsDesc": "销售分析与趋势",
       "landingsDesc": "快速购买落地页",
-      "referralNetworkDesc": "推荐图表和广告活动可视化"
+      "referralNetworkDesc": "推荐图表和广告活动可视化",
+      "newsDesc": "管理新闻文章和出版物"
     },
     "salesStats": {
       "title": "销售统计",

@@ -944,7 +944,8 @@
       "auditLog": "گزارش بازرسی",
       "salesStats": "آمار فروش",
       "landings": "صفحات فرود",
-      "referralNetwork": "شبکه ارجاع"
+      "referralNetwork": "شبکه ارجاع",
+      "news": "اخبار"
     },
     "panel": {
       "title": "پنل مدیریت",
@@ -979,7 +980,8 @@
       "auditLogDesc": "بررسی فعالیت سیستم و تاریخچه دسترسی",
       "salesStatsDesc": "تحلیل فروش و روندها",
       "landingsDesc": "صفحات خرید سریع",
-      "referralNetworkDesc": "نمایش بصری گراف ارجاعات و کمپین‌ها"
+      "referralNetworkDesc": "نمایش بصری گراف ارجاعات و کمپین‌ها",
+      "newsDesc": "مدیریت مقالات خبری و انتشارات"
     },
     "salesStats": {
       "title": "آمار فروش",
