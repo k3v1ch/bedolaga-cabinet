@@ -1330,7 +1330,7 @@ export default function Subscription() {
 
           {/* Web: Sheet confirmation */}
           <Sheet open={showDeleteSheet} onOpenChange={setShowDeleteSheet}>
-            <SheetContent>
+            <SheetContent className="sm:inset-x-auto sm:left-1/2 sm:right-auto sm:mb-4 sm:max-w-md sm:-translate-x-1/2 sm:rounded-2xl">
               <SheetHeader>
                 <SheetTitle>{t('subscription.deleteTitle', 'Удалить подписку?')}</SheetTitle>
                 <SheetDescription>
