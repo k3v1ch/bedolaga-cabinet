@@ -1757,67 +1757,66 @@ export default function AdminUserDetail() {
               </>
             ) : null}
 
-            {/* Create new subscription (shown when no subs, or single-tariff mode) */}
-            {hasPermission('users:subscription') &&
-              !(subscriptionDetailView && userSubscriptions.length > 1) && (
-                <div className="rounded-xl bg-dark-800/50 p-4">
-                  {userSubscriptions.length === 0 && (
-                    <div className="mb-4 text-center text-dark-400">
-                      {t('admin.users.detail.subscription.noActive')}
-                    </div>
-                  )}
-                  <div className="mb-3 text-sm font-medium text-dark-200">
-                    {t('admin.users.detail.subscription.createNew', 'Создать подписку')}
+            {/* Create new subscription — only for single-sub users or no subs */}
+            {hasPermission('users:subscription') && userSubscriptions.length <= 1 && (
+              <div className="rounded-xl bg-dark-800/50 p-4">
+                {userSubscriptions.length === 0 && (
+                  <div className="mb-4 text-center text-dark-400">
+                    {t('admin.users.detail.subscription.noActive')}
                   </div>
-                  <div className="space-y-3">
-                    <select
-                      value={selectedTariffId || ''}
-                      onChange={(e) =>
-                        setSelectedTariffId(e.target.value ? parseInt(e.target.value) : null)
-                      }
-                      className="input"
-                    >
-                      <option value="">{t('admin.users.detail.subscription.selectTariff')}</option>
-                      {tariffs
-                        .filter((tariffItem) => {
-                          // In multi-tariff: hide tariffs user already has
-                          if (userSubscriptions.length > 0) {
-                            const purchasedIds = new Set(
-                              userSubscriptions
-                                .filter((s) => s.is_active || s.status === 'trial')
-                                .map((s) => s.tariff_id),
-                            );
-                            return !purchasedIds.has(tariffItem.id);
-                          }
-                          return true;
-                        })
-                        .map((tariffItem) => (
-                          <option key={tariffItem.id} value={tariffItem.id}>
-                            {tariffItem.name}
-                          </option>
-                        ))}
-                    </select>
-                    <input
-                      type="number"
-                      value={subDays}
-                      onChange={createNumberInputHandler(setSubDays, 1)}
-                      placeholder={t('admin.users.detail.subscription.days')}
-                      className="input"
-                      min={1}
-                      max={3650}
-                    />
-                    <button
-                      onClick={() => handleUpdateSubscription('create')}
-                      disabled={actionLoading}
-                      className="btn-primary w-full"
-                    >
-                      {actionLoading
-                        ? t('admin.users.detail.subscription.creating')
-                        : t('admin.users.detail.subscription.create')}
-                    </button>
-                  </div>
+                )}
+                <div className="mb-3 text-sm font-medium text-dark-200">
+                  {t('admin.users.detail.subscription.createNew', 'Создать подписку')}
                 </div>
-              )}
+                <div className="space-y-3">
+                  <select
+                    value={selectedTariffId || ''}
+                    onChange={(e) =>
+                      setSelectedTariffId(e.target.value ? parseInt(e.target.value) : null)
+                    }
+                    className="input"
+                  >
+                    <option value="">{t('admin.users.detail.subscription.selectTariff')}</option>
+                    {tariffs
+                      .filter((tariffItem) => {
+                        // In multi-tariff: hide tariffs user already has
+                        if (userSubscriptions.length > 0) {
+                          const purchasedIds = new Set(
+                            userSubscriptions
+                              .filter((s) => s.is_active || s.status === 'trial')
+                              .map((s) => s.tariff_id),
+                          );
+                          return !purchasedIds.has(tariffItem.id);
+                        }
+                        return true;
+                      })
+                      .map((tariffItem) => (
+                        <option key={tariffItem.id} value={tariffItem.id}>
+                          {tariffItem.name}
+                        </option>
+                      ))}
+                  </select>
+                  <input
+                    type="number"
+                    value={subDays}
+                    onChange={createNumberInputHandler(setSubDays, 1)}
+                    placeholder={t('admin.users.detail.subscription.days')}
+                    className="input"
+                    min={1}
+                    max={3650}
+                  />
+                  <button
+                    onClick={() => handleUpdateSubscription('create')}
+                    disabled={actionLoading}
+                    className="btn-primary w-full"
+                  >
+                    {actionLoading
+                      ? t('admin.users.detail.subscription.creating')
+                      : t('admin.users.detail.subscription.create')}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Panel Info */}
             {panelInfoLoading ? (
