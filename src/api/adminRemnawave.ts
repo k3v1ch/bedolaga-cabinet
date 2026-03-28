@@ -170,6 +170,8 @@ export interface InboundTraffic {
 export interface NodeRealtimeStats {
   nodeUuid: string;
   nodeName: string;
+  countryEmoji?: string;
+  providerName?: string;
   downloadBytes: number;
   uploadBytes: number;
   totalBytes: number;

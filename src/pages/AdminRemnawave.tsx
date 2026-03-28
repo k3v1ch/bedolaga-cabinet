@@ -914,8 +914,13 @@ function TrafficTab({ data, isLoading, onRefresh }: TrafficTabProps) {
         <div key={node.nodeUuid} className="rounded-xl border border-dark-700 bg-dark-800/50 p-4">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <GlobeIcon className="h-4 w-4 text-accent-400" />
+              {node.countryEmoji && <span className="text-lg">{node.countryEmoji}</span>}
               <h3 className="font-medium text-dark-100">{node.nodeName}</h3>
+              {node.providerName && (
+                <span className="rounded bg-dark-700/50 px-1.5 py-0.5 text-xs text-dark-400">
+                  {node.providerName}
+                </span>
+              )}
               <span className="text-xs text-dark-500">
                 {node.usersOnline} {t('admin.remnawave.traffic.online', 'online')}
               </span>
