@@ -3629,6 +3629,8 @@
           "noReferrals": "Рефералов пока нет",
           "removeReferral": "Удалить реферала",
           "referralRemoved": "Реферал удалён",
+          "addReferral": "Добавить реферала",
+          "referralAdded": "Реферал добавлен",
           "searchPlaceholder": "Поиск по имени, email или Telegram ID...",
           "alreadyReferred": "уже чей-то реферал",
           "noUsersFound": "Пользователи не найдены"

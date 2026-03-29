@@ -2735,6 +2735,8 @@
           "noReferrals": "暂无推荐",
           "removeReferral": "移除推荐",
           "referralRemoved": "推荐已移除",
+          "addReferral": "添加推荐",
+          "referralAdded": "推荐已添加",
           "searchPlaceholder": "按名称、邮箱或 Telegram ID 搜索...",
           "alreadyReferred": "已有推荐人",
           "noUsersFound": "未找到用户"

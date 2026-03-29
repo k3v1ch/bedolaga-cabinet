@@ -315,6 +315,12 @@ export default function AdminUserDetail() {
   const [referrerSearchResults, setReferrerSearchResults] = useState<UserListItem[]>([]);
   const [referrerSearchLoading, setReferrerSearchLoading] = useState(false);
   const referrerSearchRef = useRef<HTMLDivElement>(null);
+  // Add referral (bind someone as this user's referral)
+  const [showAddReferral, setShowAddReferral] = useState(false);
+  const [addReferralSearchQuery, setAddReferralSearchQuery] = useState('');
+  const [addReferralSearchResults, setAddReferralSearchResults] = useState<UserListItem[]>([]);
+  const [addReferralSearchLoading, setAddReferralSearchLoading] = useState(false);
+  const addReferralSearchRef = useRef<HTMLDivElement>(null);
 
   // Panel info & node usage
   const [panelInfo, setPanelInfo] = useState<UserPanelInfo | null>(null);
@@ -950,6 +956,26 @@ export default function AdminUserDetail() {
     }
   };
 
+  // Add a referral: assign current user as referrer of selected user
+  const handleAddReferral = async (targetUserId: number) => {
+    if (!userId) return;
+    setActionLoading(true);
+    try {
+      await adminUsersApi.assignReferrer(targetUserId, userId);
+      await loadReferralsList();
+      await loadUser();
+      setShowAddReferral(false);
+      setAddReferralSearchQuery('');
+      setAddReferralSearchResults([]);
+      notify.success(t('admin.users.detail.referrals.referralAdded'));
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { data?: { detail?: string } } };
+      notify.error(axiosErr?.response?.data?.detail || t('common.error'));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   // Referrals tab: debounced user search for referrer assignment
   useEffect(() => {
     if (referrerSearchQuery.length < 2 || !showReferrerSearch) {
@@ -993,6 +1019,53 @@ export default function AdminUserDetail() {
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [showReferrerSearch]);
+
+  // Referrals tab: debounced search for adding referral
+  useEffect(() => {
+    if (addReferralSearchQuery.length < 2 || !showAddReferral) {
+      setAddReferralSearchResults([]);
+      setAddReferralSearchLoading(false);
+      return;
+    }
+    setAddReferralSearchLoading(true);
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      try {
+        const data = await adminUsersApi.getUsers({ search: addReferralSearchQuery, limit: 10 });
+        if (!cancelled) {
+          setAddReferralSearchResults(data.users || []);
+          setAddReferralSearchLoading(false);
+        }
+      } catch {
+        if (!cancelled) {
+          setAddReferralSearchResults([]);
+          setAddReferralSearchLoading(false);
+        }
+      }
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [addReferralSearchQuery, showAddReferral]);
+
+  // Referrals tab: close add-referral dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        addReferralSearchRef.current &&
+        !addReferralSearchRef.current.contains(e.target as Node)
+      ) {
+        setShowAddReferral(false);
+        setAddReferralSearchQuery('');
+        setAddReferralSearchResults([]);
+      }
+    };
+    if (showAddReferral) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showAddReferral]);
 
   const handleResetTrial = async () => {
     if (!userId) return;
@@ -3146,7 +3219,79 @@ export default function AdminUserDetail() {
                 <h3 className="text-base font-semibold text-dark-100">
                   {t('admin.users.detail.referrals.referralsList')} ({referralsTotal})
                 </h3>
+                {!showAddReferral && (
+                  <button
+                    onClick={() => setShowAddReferral(true)}
+                    className="rounded-lg bg-accent-500/15 px-3 py-2 text-sm text-accent-400 transition-colors hover:bg-accent-500/25"
+                  >
+                    {t('admin.users.detail.referrals.addReferral')}
+                  </button>
+                )}
               </div>
+
+              {/* Add referral search */}
+              {showAddReferral && (
+                <div ref={addReferralSearchRef} className="relative mb-4">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={addReferralSearchQuery}
+                      onChange={(e) => setAddReferralSearchQuery(e.target.value)}
+                      placeholder={t('admin.users.detail.referrals.searchPlaceholder')}
+                      className="flex-1 rounded-lg border border-dark-600 bg-dark-700 px-3 py-2.5 text-sm text-dark-100 placeholder-dark-500 focus:border-accent-500 focus:outline-none"
+                      autoFocus
+                    />
+                    <button
+                      onClick={() => {
+                        setShowAddReferral(false);
+                        setAddReferralSearchQuery('');
+                        setAddReferralSearchResults([]);
+                      }}
+                      className="rounded-lg bg-dark-700 px-3 py-2.5 text-sm text-dark-400 hover:bg-dark-600"
+                    >
+                      {t('common.cancel')}
+                    </button>
+                  </div>
+                  {addReferralSearchQuery.length >= 2 && addReferralSearchResults.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-xl border border-dark-700 bg-dark-800 py-1 shadow-xl">
+                      {addReferralSearchResults
+                        .filter((u) => u.id !== userId)
+                        .map((u) => (
+                          <button
+                            key={u.id}
+                            onClick={() => handleAddReferral(u.id)}
+                            disabled={actionLoading}
+                            className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-dark-700/50 disabled:opacity-50"
+                          >
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-dark-600/50 text-xs font-bold text-dark-300">
+                              {(u.full_name || u.username || '?')[0].toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="text-sm text-dark-100">
+                                {u.full_name || u.username || `ID: ${u.id}`}
+                              </div>
+                              <div className="text-xs text-dark-500">
+                                {u.telegram_id ? `TG: ${u.telegram_id}` : `ID: ${u.id}`}
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      {addReferralSearchResults.filter((u) => u.id !== userId).length === 0 && (
+                        <div className="px-3 py-4 text-center text-sm text-dark-500">
+                          {t('admin.users.detail.referrals.noUsersFound')}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {addReferralSearchQuery.length >= 2 &&
+                    !addReferralSearchLoading &&
+                    addReferralSearchResults.length === 0 && (
+                      <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-xl border border-dark-700 bg-dark-800 py-4 text-center text-sm text-dark-500 shadow-xl">
+                        {t('admin.users.detail.referrals.noUsersFound')}
+                      </div>
+                    )}
+                </div>
+              )}
 
               {referralsListLoading ? (
                 <div className="flex items-center justify-center py-8">

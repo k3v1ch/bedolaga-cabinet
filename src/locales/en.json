@@ -3118,6 +3118,8 @@
           "noReferrals": "No referrals yet",
           "removeReferral": "Remove referral",
           "referralRemoved": "Referral removed successfully",
+          "addReferral": "Add Referral",
+          "referralAdded": "Referral added successfully",
           "searchPlaceholder": "Search by name, email, or Telegram ID...",
           "alreadyReferred": "already has referrer",
           "noUsersFound": "No users found"

@@ -2736,6 +2736,8 @@
           "noReferrals": "هنوز معرفی‌ای نیست",
           "removeReferral": "حذف معرفی",
           "referralRemoved": "معرفی حذف شد",
+          "addReferral": "افزودن معرفی",
+          "referralAdded": "معرفی اضافه شد",
           "searchPlaceholder": "جستجو بر اساس نام، ایمیل یا شناسه تلگرام...",
           "alreadyReferred": "قبلاً معرفی شده",
           "noUsersFound": "کاربری یافت نشد"
