@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.48.0](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.47.1...v1.48.0) (2026-04-23)
+
+
+### Features
+
+* improve squad management UX — rename, swap icons, color gift button ([33f3264](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/33f32648f0c070a26ad5c63532465448fa4c8f5c))
+
+
+### Bug Fixes
+
+* complete is_limited status handling across all views ([1d5ce2d](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/1d5ce2d4eac02d51604ae853b776c9c393732f02))
+* gift page shows only 1 tariff when tariffs have different periods ([e6403eb](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/e6403eb7d0973f828d61f485fe98bc1a551b03c0))
+* landing page currency symbol not changing with locale ([2d6815a](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/2d6815a88e49b4a2f19a00d1e1003780ee93dad7))
+* limited (traffic exhausted) subscription shows as expired ([f68b466](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/commit/f68b46699c06accd6b47510ae9d6d3ca4da29817))
+
 ## [1.47.1](https://github.com/BEDOLAGA-DEV/bedolaga-cabinet/compare/v1.47.0...v1.47.1) (2026-04-22)
 
 
