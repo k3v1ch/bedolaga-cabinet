@@ -284,7 +284,8 @@
       "tariffs": "Тарифы",
       "traffic": "Трафик",
       "devices": "Устройства",
-      "expiredDate": "Истекла"
+      "expiredDate": "Истекла",
+      "activeUntil": "Активна до"
     },
     "suspended": {
       "title": "Подписка приостановлена",
@@ -582,8 +583,8 @@
       "unlimited": "Безлимит",
       "buyTrafficGb": "Купить {{gb}} ГБ",
       "buyUnlimited": "Купить Безлимит",
-      "manageServers": "Управление серверами",
-      "manageServersTitle": "Управление серверами"
+      "manageServers": "Управление сквадами",
+      "manageServersTitle": "Управление сквадами"
     },
     "serverManagement": {
       "statusLegend": "✅ — подключено • ➕ — будет добавлено (платно) • ➖ — будет отключено",
@@ -1120,7 +1121,7 @@
       "apps": "Приложения",
       "wheel": "Колесо",
       "tariffs": "Тарифы",
-      "servers": "Серверы",
+      "servers": "Сквады",
       "banSystem": "Мониторинг банов",
       "broadcasts": "Рассылки",
       "users": "Пользователи",
@@ -2856,8 +2857,8 @@
       }
     },
     "servers": {
-      "title": "Управление серверами",
-      "subtitle": "Настройка серверов VPN",
+      "title": "Управление сквадами",
+      "subtitle": "Настройка сквадов",
       "sync": "Синхронизировать",
       "syncing": "Синхронизация...",
       "syncNow": "Синхронизировать сейчас",

@@ -386,8 +386,8 @@
       "unlimited": "无限制",
       "buyTrafficGb": "购买 {{gb}} GB",
       "buyUnlimited": "购买无限流量",
-      "manageServers": "服务器管理",
-      "manageServersTitle": "服务器管理"
+      "manageServers": "小队管理",
+      "manageServersTitle": "小队管理"
     },
     "serverManagement": {
       "statusLegend": "✅ — 已连接 • ➕ — 将添加（付费）• ➖ — 将断开",
@@ -924,7 +924,7 @@
       "apps": "应用",
       "wheel": "转盘",
       "tariffs": "套餐",
-      "servers": "服务器",
+      "servers": "小队",
       "broadcasts": "群发",
       "emailTemplates": "邮件模板",
       "paymentMethods": "支付方式",
