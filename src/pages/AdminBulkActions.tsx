@@ -332,7 +332,7 @@ function ProgressView({ progress }: { progress: ProgressState }) {
                 <span className={entry.success ? 'text-dark-300' : 'text-error-300'}>
                   {entry.success
                     ? entry.message || t('admin.bulkActions.progress.ok')
-                    : entry.error || t('admin.bulkActions.progress.errorGeneric')}
+                    : entry.message || entry.error || t('admin.bulkActions.progress.errorGeneric')}
                 </span>
               </div>
             ))}
