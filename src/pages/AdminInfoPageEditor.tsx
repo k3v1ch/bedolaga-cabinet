@@ -540,7 +540,12 @@ function FaqBuilder({ items, onChange, locale, localeLabel }: FaqBuilderProps) {
   const keyCounter = useRef(0);
   const [itemKeys, setItemKeys] = useState<number[]>(() => items.map(() => keyCounter.current++));
 
-  // Sync key count when items change externally (e.g., locale switch resets items)
+  // Regenerate all keys on locale switch (items are semantically different)
+  useEffect(() => {
+    setItemKeys(items.map(() => keyCounter.current++));
+  }, [locale]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sync key count when items added/removed within the same locale
   useEffect(() => {
     setItemKeys((prev) => {
       if (prev.length === items.length) return prev;
@@ -580,7 +585,8 @@ function FaqBuilder({ items, onChange, locale, localeLabel }: FaqBuilderProps) {
   );
 
   const handleAdd = useCallback(() => {
-    setItemKeys((prev) => [...prev, keyCounter.current++]);
+    const newKey = keyCounter.current++;
+    setItemKeys((prev) => [...prev, newKey]);
     onChange([...items, { q: '', a: '' }]);
   }, [items, onChange]);
 
@@ -613,8 +619,6 @@ function FaqBuilder({ items, onChange, locale, localeLabel }: FaqBuilderProps) {
     },
     [items, onChange],
   );
-
-  void locale;
 
   return (
     <div className="space-y-4">
