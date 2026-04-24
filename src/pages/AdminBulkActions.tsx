@@ -1563,25 +1563,24 @@ export default function AdminBulkActions() {
     loadUsers();
   }, [loadUsers]);
 
-  // Load tariffs, promo groups, campaigns, and partners once
+  // Load tariffs, promo groups, campaigns, and partners once (independent — one failure won't block others)
   useEffect(() => {
-    const load = async () => {
-      try {
-        const [tariffData, pgData, campaignData, partnerData] = await Promise.all([
-          tariffsApi.getTariffs(true),
-          promocodesApi.getPromoGroups({ limit: 200 }),
-          campaignsApi.getCampaigns(true, 0, 200),
-          partnerApi.getPartners({ limit: 200 }),
-        ]);
-        setTariffs(tariffData.tariffs);
-        setPromoGroups(pgData.items);
-        setCampaigns(campaignData.campaigns);
-        setPartners(partnerData.items);
-      } catch {
-        // silently fail
-      }
-    };
-    load();
+    tariffsApi
+      .getTariffs(true)
+      .then((d) => setTariffs(d.tariffs))
+      .catch(() => {});
+    promocodesApi
+      .getPromoGroups({ limit: 200 })
+      .then((d) => setPromoGroups(d.items))
+      .catch(() => {});
+    campaignsApi
+      .getCampaigns(true, 0, 200)
+      .then((d) => setCampaigns(d.campaigns))
+      .catch(() => {});
+    partnerApi
+      .getPartners({ limit: 200 })
+      .then((d) => setPartners(d.items))
+      .catch(() => {});
   }, []);
 
   // ---- Handlers ----
