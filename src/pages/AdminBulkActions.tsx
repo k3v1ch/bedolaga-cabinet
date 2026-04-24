@@ -1503,7 +1503,6 @@ export default function AdminBulkActions() {
     searchTimerRef.current = setTimeout(() => {
       setOffset(0);
       setCommittedSearch(value);
-      clearAllSelections();
     }, 400);
   };
 
@@ -1517,29 +1516,24 @@ export default function AdminBulkActions() {
     clearTimeout(searchTimerRef.current);
     setOffset(0);
     setCommittedSearch(searchInput);
-    clearAllSelections();
   };
 
   const handleStatusFilterChange = (v: string) => {
     setStatusFilter(v as SubscriptionStatusFilter);
     setOffset(0);
-    clearAllSelections();
   };
 
   const handleTariffFilterChange = (ids: number[]) => {
     setTariffFilter(ids);
     setOffset(0);
-    clearAllSelections();
   };
 
   const handlePromoGroupFilterChange = (v: string) => {
     setPromoGroupFilter(v);
     setOffset(0);
-    clearAllSelections();
   };
 
   const handleRefresh = () => {
-    clearAllSelections();
     loadUsers();
   };
 
@@ -2103,7 +2097,6 @@ export default function AdminBulkActions() {
             onClick={() => {
               setTrialOnly((prev) => !prev);
               setOffset(0);
-              clearAllSelections();
             }}
             className={cn(
               'flex h-5 w-5 items-center justify-center rounded-md border-2 transition-all duration-150',
@@ -2225,7 +2218,6 @@ export default function AdminBulkActions() {
               onChange={(e) => {
                 setLimit(Number(e.target.value));
                 setOffset(0);
-                clearAllSelections();
               }}
               className="rounded-lg border border-dark-700 bg-dark-800 px-2 py-1.5 text-xs text-dark-200 outline-none transition-colors focus:border-accent-500/40"
             >
@@ -2242,7 +2234,6 @@ export default function AdminBulkActions() {
             <button
               onClick={() => {
                 setOffset(Math.max(0, offset - limit));
-                clearAllSelections();
               }}
               disabled={offset === 0}
               className="rounded-lg border border-dark-700 bg-dark-800 p-2 transition-colors hover:bg-dark-700 disabled:opacity-50"
@@ -2256,7 +2247,6 @@ export default function AdminBulkActions() {
             <button
               onClick={() => {
                 setOffset(offset + limit);
-                clearAllSelections();
               }}
               disabled={offset + limit >= total}
               className="rounded-lg border border-dark-700 bg-dark-800 p-2 transition-colors hover:bg-dark-700 disabled:opacity-50"
