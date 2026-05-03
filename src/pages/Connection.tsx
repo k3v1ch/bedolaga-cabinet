@@ -12,6 +12,8 @@ import { useAuthStore } from '../store/auth';
 import type { AppConfig, RemnawavePlatformData } from '../types';
 import InstallationGuide from '../components/connection/InstallationGuide';
 
+const USE_NEW_SHELL = import.meta.env.VITE_USE_NEW_SHELL !== 'false';
+
 export default function Connection() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -106,7 +108,7 @@ export default function Connection() {
         username: user?.username ?? undefined,
       });
     },
-    [appConfig?.subscriptionUrl, user?.username],
+    [appConfig, user?.username],
   );
 
   const openDeepLink = useCallback(
@@ -229,6 +231,7 @@ export default function Connection() {
       isTelegramWebApp={isTelegramWebApp}
       onGoBack={handleGoBack}
       onOpenQR={handleOpenQR}
+      variant={USE_NEW_SHELL ? 'verno' : 'legacy'}
     />
   );
 }

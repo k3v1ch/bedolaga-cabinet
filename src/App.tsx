@@ -43,6 +43,20 @@ import OAuthCallback from './pages/OAuthCallback';
 
 // Dashboard - load eagerly (default route, LCP-critical)
 import Dashboard from './pages/Dashboard';
+// New cabinet pages (ported from VernoVPN). Toggle via VITE_USE_NEW_SHELL.
+import CabinetHome from './pages/CabinetHome';
+import CabinetSubscription from './pages/CabinetSubscription';
+import CabinetBalance from './pages/CabinetBalance';
+import CabinetTopUp from './pages/CabinetTopUp';
+import CabinetLogin from './pages/CabinetLogin';
+import CabinetSupport from './pages/CabinetSupport';
+import CabinetProfile from './pages/CabinetProfile';
+import CabinetReferral from './pages/CabinetReferral';
+import CabinetPartnerApply from './pages/CabinetPartnerApply';
+import CabinetLanding from './pages/CabinetLanding';
+import CabinetGifts from './pages/CabinetGifts';
+const USE_NEW_SHELL = import.meta.env.VITE_USE_NEW_SHELL !== 'false';
+const HomePage = USE_NEW_SHELL ? CabinetHome : Dashboard;
 
 // User pages - lazy load
 const Subscriptions = lazyWithRetry(() => import('./pages/Subscriptions'));
@@ -68,6 +82,7 @@ const AutoLogin = lazyWithRetry(() => import('./pages/AutoLogin'));
 const TopUpMethodSelect = lazyWithRetry(() => import('./pages/TopUpMethodSelect'));
 const TopUpAmount = lazyWithRetry(() => import('./pages/TopUpAmount'));
 const TopUpResult = lazyWithRetry(() => import('./pages/TopUpResult'));
+const CabinetTopUpResult = lazyWithRetry(() => import('./pages/CabinetTopUpResult'));
 const ConnectedAccounts = lazyWithRetry(() => import('./pages/ConnectedAccounts'));
 const LinkTelegramCallback = lazyWithRetry(() => import('./pages/LinkTelegramCallback'));
 const MergeAccounts = lazyWithRetry(() => import('./pages/MergeAccounts'));
@@ -203,6 +218,28 @@ function LazyPage({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<PageLoader variant="dark" />}>{children}</Suspense>;
 }
 
+/** Root route: shows the public landing for guests, or the cabinet home for authenticated users. */
+function RootRoute() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isLoading = useAuthStore((state) => state.isLoading);
+
+  if (isLoading) {
+    return <PageLoader variant="dark" />;
+  }
+
+  if (!isAuthenticated) {
+    return <CabinetLanding />;
+  }
+
+  return (
+    <Layout>
+      <LazyPage>
+        <HomePage />
+      </LazyPage>
+    </Layout>
+  );
+}
+
 function BlockingOverlay() {
   const blockingType = useBlockingStore((state) => state.blockingType);
 
@@ -235,7 +272,7 @@ function App() {
       <BlockingOverlay />
       <Routes>
         {/* Public routes */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={USE_NEW_SHELL ? <CabinetLogin /> : <Login />} />
         <Route path="/auth/telegram/callback" element={<TelegramCallback />} />
         <Route path="/auth/telegram" element={<TelegramRedirect />} />
         <Route path="/tg" element={<TelegramRedirect />} />
@@ -283,24 +320,28 @@ function App() {
           }
         />
 
-        {/* Protected routes */}
+        {/* Root route: landing for guests, cabinet home for authenticated users.
+            Toggle via VITE_USE_NEW_SHELL — when disabled, falls back to legacy
+            protected-only behavior (redirects guests to /login). */}
         <Route
           path="/"
           element={
-            <ProtectedRoute>
-              <LazyPage>
-                <Dashboard />
-              </LazyPage>
-            </ProtectedRoute>
+            USE_NEW_SHELL ? (
+              <RootRoute />
+            ) : (
+              <ProtectedRoute>
+                <LazyPage>
+                  <HomePage />
+                </LazyPage>
+              </ProtectedRoute>
+            )
           }
         />
         <Route
           path="/subscriptions"
           element={
             <ProtectedRoute>
-              <LazyPage>
-                <Subscriptions />
-              </LazyPage>
+              <LazyPage>{USE_NEW_SHELL ? <CabinetSubscription /> : <Subscriptions />}</LazyPage>
             </ProtectedRoute>
           }
         />
@@ -310,6 +351,16 @@ function App() {
             <ProtectedRoute>
               <LazyPage>
                 <Subscription />
+              </LazyPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/subscriptions/renew"
+          element={
+            <ProtectedRoute>
+              <LazyPage>
+                <RenewSubscription />
               </LazyPage>
             </ProtectedRoute>
           }
@@ -348,9 +399,7 @@ function App() {
           path="/balance"
           element={
             <ProtectedRoute>
-              <LazyPage>
-                <Balance />
-              </LazyPage>
+              <LazyPage>{USE_NEW_SHELL ? <CabinetBalance /> : <Balance />}</LazyPage>
             </ProtectedRoute>
           }
         />
@@ -379,9 +428,7 @@ function App() {
           element={
             <ProtectedRoute withLayout={false}>
               <ErrorBoundary level="app">
-                <LazyPage>
-                  <TopUpResult />
-                </LazyPage>
+                <LazyPage>{USE_NEW_SHELL ? <CabinetTopUpResult /> : <TopUpResult />}</LazyPage>
               </ErrorBoundary>
             </ProtectedRoute>
           }
@@ -390,9 +437,7 @@ function App() {
           path="/balance/top-up/:methodId"
           element={
             <ProtectedRoute>
-              <LazyPage>
-                <TopUpAmount />
-              </LazyPage>
+              <LazyPage>{USE_NEW_SHELL ? <CabinetTopUp /> : <TopUpAmount />}</LazyPage>
             </ProtectedRoute>
           }
         />
@@ -400,9 +445,7 @@ function App() {
           path="/referral"
           element={
             <ProtectedRoute>
-              <LazyPage>
-                <Referral />
-              </LazyPage>
+              <LazyPage>{USE_NEW_SHELL ? <CabinetReferral /> : <Referral />}</LazyPage>
             </ProtectedRoute>
           }
         />
@@ -411,7 +454,7 @@ function App() {
           element={
             <ProtectedRoute>
               <LazyPage>
-                <ReferralPartnerApply />
+                {USE_NEW_SHELL ? <CabinetPartnerApply /> : <ReferralPartnerApply />}
               </LazyPage>
             </ProtectedRoute>
           }
@@ -430,9 +473,7 @@ function App() {
           path="/support"
           element={
             <ProtectedRoute>
-              <LazyPage>
-                <Support />
-              </LazyPage>
+              <LazyPage>{USE_NEW_SHELL ? <CabinetSupport /> : <Support />}</LazyPage>
             </ProtectedRoute>
           }
         />
@@ -440,9 +481,7 @@ function App() {
           path="/profile"
           element={
             <ProtectedRoute>
-              <LazyPage>
-                <Profile />
-              </LazyPage>
+              <LazyPage>{USE_NEW_SHELL ? <CabinetProfile /> : <Profile />}</LazyPage>
             </ProtectedRoute>
           }
         />
@@ -507,13 +546,21 @@ function App() {
           }
         />
         <Route
+          path="/gifts"
+          element={
+            <ErrorBoundary level="app">
+              <ProtectedRoute>
+                <LazyPage>{USE_NEW_SHELL ? <CabinetGifts /> : <GiftSubscription />}</LazyPage>
+              </ProtectedRoute>
+            </ErrorBoundary>
+          }
+        />
+        <Route
           path="/gift"
           element={
             <ErrorBoundary level="app">
               <ProtectedRoute>
-                <LazyPage>
-                  <GiftSubscription />
-                </LazyPage>
+                <LazyPage>{USE_NEW_SHELL ? <CabinetGifts /> : <GiftSubscription />}</LazyPage>
               </ProtectedRoute>
             </ErrorBoundary>
           }

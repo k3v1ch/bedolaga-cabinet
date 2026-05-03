@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Verno-styled translucent input: keep bg-white/[0.06] even when the browser
+   autofills values. The transition-delay trick defers the yellow autofill
+   background indefinitely, while text/caret colors are forced to the design. */
+.verno-input:-webkit-autofill,
+.verno-input:-webkit-autofill:hover,
+.verno-input:-webkit-autofill:focus,
+.verno-input:-webkit-autofill:active {
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.8);
+  caret-color: #ffffff;
+  transition:
+    background-color 600000s 0s,
+    color 600000s 0s;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
 /* Animated gradient border — @property enables CSS-only angle animation */
 @property --border-angle {
   syntax: '<angle>';
