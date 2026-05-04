@@ -46,7 +46,7 @@ export default function PurchaseCTAButton({
   const linkTo = isTrial
     ? '/subscription/purchase'
     : isMultiTariff && subscription?.id
-      ? `/subscriptions/${subscription.id}/renew`
+      ? '/subscriptions/renew'
       : '/subscription/purchase';
 
   return (

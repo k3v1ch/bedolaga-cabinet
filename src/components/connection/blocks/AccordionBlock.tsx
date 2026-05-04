@@ -7,10 +7,12 @@ export function AccordionBlock({
   blocks,
   isMobile,
   isLight,
+  variant,
   getLocalizedText,
   getSvgHtml,
   renderBlockButtons,
 }: BlockRendererProps) {
+  const isVerno = variant === 'verno';
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const visibleBlocks = blocks.filter(
@@ -29,13 +31,17 @@ export function AccordionBlock({
           <div
             key={index}
             className={`overflow-hidden rounded-2xl border transition-colors ${
-              isLight
+              isVerno
                 ? isOpen
-                  ? 'border-accent-500/30 bg-white/80 shadow-sm'
-                  : 'border-dark-700/60 bg-white/60'
-                : isOpen
-                  ? 'border-accent-500/30 bg-dark-800/50'
-                  : 'border-dark-700/50 bg-dark-800/50'
+                  ? 'border-white/[0.18] bg-white/[0.04]'
+                  : 'border-white/[0.06] bg-white/[0.02]'
+                : isLight
+                  ? isOpen
+                    ? 'border-accent-500/30 bg-white/80 shadow-sm'
+                    : 'border-dark-700/60 bg-white/60'
+                  : isOpen
+                    ? 'border-accent-500/30 bg-dark-800/50'
+                    : 'border-dark-700/50 bg-dark-800/50'
             }`}
           >
             {/* Control */}
@@ -48,12 +54,20 @@ export function AccordionBlock({
                 svgIconKey={block.svgIconKey}
                 gradientStyle={gradientStyle}
                 isMobile={isMobile}
+                variant={variant}
               />
-              <span className="min-w-0 flex-1 truncate font-semibold text-dark-100">
+              <span
+                className={`min-w-0 flex-1 truncate ${
+                  isVerno ? 'text-white' : 'font-semibold text-dark-100'
+                }`}
+                style={isVerno ? { fontWeight: 500 } : undefined}
+              >
                 {getLocalizedText(block.title)}
               </span>
               <svg
-                className={`h-[18px] w-[18px] shrink-0 text-dark-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                className={`h-[18px] w-[18px] shrink-0 transition-transform duration-200 ${
+                  isVerno ? 'text-white/35' : 'text-dark-400'
+                } ${isOpen ? 'rotate-180' : ''}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -69,7 +83,12 @@ export function AccordionBlock({
               }`}
             >
               <div className="px-4 pb-4">
-                <p className="whitespace-pre-line text-sm leading-relaxed text-dark-400">
+                <p
+                  className={`whitespace-pre-line text-sm ${
+                    isVerno ? 'text-white/35' : 'leading-relaxed text-dark-400'
+                  }`}
+                  style={isVerno ? { lineHeight: 1.65 } : undefined}
+                >
                   {getLocalizedText(block.description)}
                 </p>
                 {renderBlockButtons(block.buttons, 'light')}

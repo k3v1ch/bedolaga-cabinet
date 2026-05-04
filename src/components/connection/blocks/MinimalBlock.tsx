@@ -6,10 +6,12 @@ export function MinimalBlock({
   blocks,
   isMobile,
   isLight,
+  variant,
   getLocalizedText,
   getSvgHtml,
   renderBlockButtons,
 }: BlockRendererProps) {
+  const isVerno = variant === 'verno';
   const visibleBlocks = blocks.filter(
     (b) => getLocalizedText(b.title) || getLocalizedText(b.description) || b.buttons?.length,
   );
@@ -28,7 +30,13 @@ export function MinimalBlock({
             className={
               isLast
                 ? 'pb-4'
-                : `mb-4 border-b pb-4 ${isLight ? 'border-dark-700/40' : 'border-dark-700/50'}`
+                : `mb-4 border-b pb-4 ${
+                    isVerno
+                      ? 'border-white/[0.06]'
+                      : isLight
+                        ? 'border-dark-700/40'
+                        : 'border-dark-700/50'
+                  }`
             }
           >
             <div className="mb-2 flex items-center gap-3">
@@ -37,10 +45,21 @@ export function MinimalBlock({
                 svgIconKey={block.svgIconKey}
                 gradientStyle={gradientStyle}
                 isMobile={isMobile}
+                variant={variant}
               />
-              <span className="font-medium text-dark-100">{getLocalizedText(block.title)}</span>
+              <span
+                className={isVerno ? 'text-white' : 'font-medium text-dark-100'}
+                style={isVerno ? { fontWeight: 500 } : undefined}
+              >
+                {getLocalizedText(block.title)}
+              </span>
             </div>
-            <p className="whitespace-pre-line text-sm leading-relaxed text-dark-400">
+            <p
+              className={`whitespace-pre-line text-sm ${
+                isVerno ? 'text-white/35' : 'leading-relaxed text-dark-400'
+              }`}
+              style={isVerno ? { lineHeight: 1.65 } : undefined}
+            >
               {getLocalizedText(block.description)}
             </p>
             {renderBlockButtons(block.buttons, 'subtle')}

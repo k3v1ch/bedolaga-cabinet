@@ -4,6 +4,7 @@ export interface BlockRendererProps {
   blocks: RemnawaveBlockClient[];
   isMobile: boolean;
   isLight: boolean;
+  variant?: 'legacy' | 'verno';
   getLocalizedText: (text: LocalizedText | undefined) => string;
   getSvgHtml: (key: string | undefined) => string;
   renderBlockButtons: (

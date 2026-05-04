@@ -39,6 +39,7 @@ interface BlockButtonsProps {
   buttons: RemnawaveButtonClient[] | undefined;
   variant: 'light' | 'subtle';
   isLight?: boolean;
+  isVerno?: boolean;
   subscriptionUrl: string | null;
   hideLink?: boolean;
   deepLink?: string | null;
@@ -52,6 +53,7 @@ export function BlockButtons({
   buttons,
   variant,
   isLight,
+  isVerno,
   subscriptionUrl,
   hideLink,
   deepLink,
@@ -80,8 +82,11 @@ export function BlockButtons({
 
   if (!buttons || buttons.length === 0) return null;
 
-  const baseClass =
-    variant === 'light'
+  const baseClass = isVerno
+    ? variant === 'light'
+      ? 'rounded-full border border-white/[0.12] px-4 py-2 text-sm text-white/65 transition-all hover:bg-white/[0.06] hover:border-white/[0.22] hover:text-white/85'
+      : 'rounded-full px-3 py-1.5 text-sm text-white/55 transition-all hover:bg-white/[0.06] hover:text-white/80'
+    : variant === 'light'
       ? isLight
         ? 'rounded-xl border border-accent-500/50 px-4 py-2 text-sm font-medium text-accent-600 shadow-sm transition-all hover:bg-accent-500/10'
         : 'rounded-xl border border-accent-500/40 px-4 py-2 text-sm font-medium text-accent-400 transition-all hover:bg-accent-500/10'
@@ -126,7 +131,9 @@ export function BlockButtons({
               onClick={() => handleCopy(url)}
               className={`flex items-center gap-2 ${
                 copied
-                  ? `rounded-xl border border-success-500 bg-success-500/10 px-4 py-2 text-sm font-medium ${isLight ? 'text-success-600' : 'text-success-400'}`
+                  ? isVerno
+                    ? 'rounded-full border border-green-400/40 bg-green-500/10 px-4 py-2 text-sm text-green-300/90'
+                    : `rounded-xl border border-success-500 bg-success-500/10 px-4 py-2 text-sm font-medium ${isLight ? 'text-success-600' : 'text-success-400'}`
                   : baseClass
               }`}
             >

@@ -44,6 +44,7 @@ interface Props {
   isTelegramWebApp: boolean;
   onGoBack: () => void;
   onOpenQR?: () => void;
+  variant?: 'legacy' | 'verno';
 }
 
 export default function InstallationGuide({
@@ -52,7 +53,9 @@ export default function InstallationGuide({
   isTelegramWebApp,
   onGoBack,
   onOpenQR,
+  variant = 'legacy',
 }: Props) {
+  const isVerno = variant === 'verno';
   const { t, i18n } = useTranslation();
   const { isLight } = useTheme();
 
@@ -119,11 +122,12 @@ export default function InstallationGuide({
   }, [appConfig.platforms, availablePlatforms, selectedApp]);
 
   const renderBlockButtons = useCallback(
-    (buttons: RemnawaveButtonClient[] | undefined, variant: 'light' | 'subtle') => (
+    (buttons: RemnawaveButtonClient[] | undefined, btnVariant: 'light' | 'subtle') => (
       <BlockButtons
         buttons={buttons}
-        variant={variant}
+        variant={btnVariant}
         isLight={isLight}
+        isVerno={isVerno}
         subscriptionUrl={appConfig.subscriptionUrl}
         hideLink={appConfig.hideLink}
         deepLink={selectedApp?.deepLink}
@@ -138,6 +142,7 @@ export default function InstallationGuide({
       appConfig.hideLink,
       selectedApp?.deepLink,
       isLight,
+      isVerno,
       getLocalizedText,
       getBaseTranslation,
       getSvgHtml,
@@ -184,90 +189,202 @@ export default function InstallationGuide({
   const Renderer = RENDERERS[blockType] || CardsBlock;
 
   return (
-    <div className="space-y-6 pb-6">
+    <div
+      className="space-y-6 pb-6"
+      style={isVerno ? { fontFamily: 'Inter, sans-serif' } : undefined}
+    >
       {/* Header + platform dropdown */}
-      <div className="flex items-center gap-3">
-        {!isTelegramWebApp && (
-          <button
-            onClick={onGoBack}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-dark-700 bg-dark-800 transition-colors hover:border-dark-600"
-          >
-            <BackIcon />
-          </button>
-        )}
-        <h2 className="flex-1 text-lg font-bold text-dark-100">
-          {getBaseTranslation('installationGuideHeader', 'subscription.connection.title')}
-        </h2>
-        {appConfig.subscriptionUrl && onOpenQR && (
-          <button
-            onClick={() => onOpenQR()}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-dark-700 bg-dark-800 text-dark-200 transition-colors hover:border-dark-600"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
+      {isVerno ? (
+        <>
+          {!isTelegramWebApp && (
+            <button
+              onClick={onGoBack}
+              className="-mb-2 flex items-center gap-1.5 text-sm text-white/40 transition-colors hover:text-white/65"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75H16.5v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h3v3h-3v-3z"
-              />
-            </svg>
-          </button>
-        )}
-        {availablePlatforms.length > 1 && (
-          <div className="relative flex items-center">
-            {currentPlatformSvg && (
-              <div
-                className="pointer-events-none absolute left-3 z-10 h-5 w-5 text-dark-400 [&>svg]:h-full [&>svg]:w-full"
-                dangerouslySetInnerHTML={{ __html: currentPlatformSvg }}
-              />
-            )}
-            <select
-              value={currentPlatformKey || ''}
-              onChange={(e) => {
-                const newPlatform = e.target.value;
-                setActivePlatformKey(newPlatform);
-                const data = appConfig.platforms[newPlatform] as RemnawavePlatformData | undefined;
-                if (data?.apps?.length) {
-                  const app = data.apps.find((a) => a.featured) || data.apps[0];
-                  if (app) setSelectedApp(app);
-                }
-              }}
-              className={`appearance-none rounded-xl border py-2 pr-8 text-sm font-medium outline-none transition-colors ${
-                isLight
-                  ? 'border-dark-700/60 bg-white/80 text-dark-200 shadow-sm hover:border-dark-600'
-                  : 'border-dark-700 bg-dark-800 text-dark-200 hover:border-dark-600'
-              } ${currentPlatformSvg ? 'pl-10' : 'pl-4'}`}
-            >
-              {availablePlatforms.map((p) => (
-                <option key={p} value={p}>
-                  {getPlatformDisplayName(p)}
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute right-2.5 text-dark-400">
               <svg
-                className="h-4 w-4"
+                className="h-3.5 w-3.5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                strokeWidth={2}
+                strokeWidth={1.8}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 9l4-4 4 4M8 15l4 4 4-4" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
-            </div>
+              Назад
+            </button>
+          )}
+          <div className="flex items-center gap-3">
+            <h2
+              className="flex-1 text-white"
+              style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+            >
+              {getBaseTranslation('installationGuideHeader', 'subscription.connection.title')}
+            </h2>
+            {appConfig.subscriptionUrl && onOpenQR && (
+              <button
+                onClick={() => onOpenQR()}
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/55 transition-colors hover:border-white/[0.18] hover:text-white/80"
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75H16.5v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h3v3h-3v-3z"
+                  />
+                </svg>
+              </button>
+            )}
+            {availablePlatforms.length > 1 && (
+              <div className="relative flex items-center">
+                {currentPlatformSvg && (
+                  <div
+                    className="pointer-events-none absolute left-3 z-10 h-5 w-5 text-white/55 [&>svg]:h-full [&>svg]:w-full"
+                    dangerouslySetInnerHTML={{ __html: currentPlatformSvg }}
+                  />
+                )}
+                <select
+                  value={currentPlatformKey || ''}
+                  onChange={(e) => {
+                    const newPlatform = e.target.value;
+                    setActivePlatformKey(newPlatform);
+                    const data = appConfig.platforms[newPlatform] as
+                      | RemnawavePlatformData
+                      | undefined;
+                    if (data?.apps?.length) {
+                      const app = data.apps.find((a) => a.featured) || data.apps[0];
+                      if (app) setSelectedApp(app);
+                    }
+                  }}
+                  className={`appearance-none rounded-xl border border-white/[0.08] bg-white/[0.04] py-2 pr-8 text-sm font-medium text-white/65 outline-none transition-colors hover:border-white/[0.18] ${
+                    currentPlatformSvg ? 'pl-10' : 'pl-4'
+                  }`}
+                >
+                  {availablePlatforms.map((p) => (
+                    <option key={p} value={p} className="bg-black text-white">
+                      {getPlatformDisplayName(p)}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute right-2.5 text-white/45">
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M8 9l4-4 4 4M8 15l4 4 4-4"
+                    />
+                  </svg>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      ) : (
+        <div className="flex items-center gap-3">
+          {!isTelegramWebApp && (
+            <button
+              onClick={onGoBack}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-dark-700 bg-dark-800 transition-colors hover:border-dark-600"
+            >
+              <BackIcon />
+            </button>
+          )}
+          <h2 className="flex-1 text-lg font-bold text-dark-100">
+            {getBaseTranslation('installationGuideHeader', 'subscription.connection.title')}
+          </h2>
+          {appConfig.subscriptionUrl && onOpenQR && (
+            <button
+              onClick={() => onOpenQR()}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-dark-700 bg-dark-800 text-dark-200 transition-colors hover:border-dark-600"
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75H16.5v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h3v3h-3v-3z"
+                />
+              </svg>
+            </button>
+          )}
+          {availablePlatforms.length > 1 && (
+            <div className="relative flex items-center">
+              {currentPlatformSvg && (
+                <div
+                  className="pointer-events-none absolute left-3 z-10 h-5 w-5 text-dark-400 [&>svg]:h-full [&>svg]:w-full"
+                  dangerouslySetInnerHTML={{ __html: currentPlatformSvg }}
+                />
+              )}
+              <select
+                value={currentPlatformKey || ''}
+                onChange={(e) => {
+                  const newPlatform = e.target.value;
+                  setActivePlatformKey(newPlatform);
+                  const data = appConfig.platforms[newPlatform] as
+                    | RemnawavePlatformData
+                    | undefined;
+                  if (data?.apps?.length) {
+                    const app = data.apps.find((a) => a.featured) || data.apps[0];
+                    if (app) setSelectedApp(app);
+                  }
+                }}
+                className={`appearance-none rounded-xl border py-2 pr-8 text-sm font-medium outline-none transition-colors ${
+                  isLight
+                    ? 'border-dark-700/60 bg-white/80 text-dark-200 shadow-sm hover:border-dark-600'
+                    : 'border-dark-700 bg-dark-800 text-dark-200 hover:border-dark-600'
+                } ${currentPlatformSvg ? 'pl-10' : 'pl-4'}`}
+              >
+                {availablePlatforms.map((p) => (
+                  <option key={p} value={p}>
+                    {getPlatformDisplayName(p)}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute right-2.5 text-dark-400">
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M8 9l4-4 4 4M8 15l4 4 4-4"
+                  />
+                </svg>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* App chips */}
       {currentPlatformApps.length > 0 && (
@@ -279,21 +396,34 @@ export default function InstallationGuide({
               <button
                 key={app.name + idx}
                 onClick={() => setSelectedApp(app)}
-                className={`relative flex min-w-[calc(50%-0.25rem)] items-center gap-2 overflow-hidden rounded-xl px-4 py-2 text-sm font-medium transition-all active:scale-[0.97] ${
-                  isSelected
-                    ? isLight
-                      ? 'bg-accent-500/15 text-accent-600 ring-1 ring-accent-500/40'
-                      : 'bg-accent-500/15 text-accent-400 ring-1 ring-accent-500/40'
-                    : isLight
-                      ? 'border border-dark-700/60 bg-white/80 text-dark-200 shadow-sm hover:border-dark-600/50 hover:bg-white'
-                      : 'border border-dark-700/50 bg-dark-800/80 text-dark-200 hover:border-dark-600/50 hover:bg-dark-700/80'
+                className={`relative flex min-w-[calc(50%-0.25rem)] items-center gap-2 overflow-hidden rounded-xl px-4 py-2 text-sm transition-all active:scale-[0.97] ${
+                  isVerno
+                    ? isSelected
+                      ? 'border border-white/20 bg-white/[0.08] text-white/85'
+                      : 'border border-white/[0.06] bg-white/[0.03] text-white/55 hover:border-white/[0.12] hover:bg-white/[0.06]'
+                    : isSelected
+                      ? isLight
+                        ? 'bg-accent-500/15 font-medium text-accent-600 ring-1 ring-accent-500/40'
+                        : 'bg-accent-500/15 font-medium text-accent-400 ring-1 ring-accent-500/40'
+                      : isLight
+                        ? 'border border-dark-700/60 bg-white/80 font-medium text-dark-200 shadow-sm hover:border-dark-600/50 hover:bg-white'
+                        : 'border border-dark-700/50 bg-dark-800/80 font-medium text-dark-200 hover:border-dark-600/50 hover:bg-dark-700/80'
                 }`}
+                style={isVerno ? { fontWeight: 500 } : undefined}
               >
-                {app.featured && <span className="h-2 w-2 shrink-0 rounded-full bg-amber-400" />}
+                {app.featured && (
+                  <span
+                    className={`h-2 w-2 shrink-0 rounded-full ${
+                      isVerno ? 'bg-amber-300/80' : 'bg-amber-400'
+                    }`}
+                  />
+                )}
                 <span className="relative z-10 truncate">{app.name}</span>
                 {appIconSvg && (
                   <div
-                    className="ml-auto h-7 w-7 shrink-0 opacity-30 [&>svg]:h-full [&>svg]:w-full"
+                    className={`ml-auto h-7 w-7 shrink-0 [&>svg]:h-full [&>svg]:w-full ${
+                      isVerno ? 'opacity-25' : 'opacity-30'
+                    }`}
                     dangerouslySetInnerHTML={{ __html: appIconSvg }}
                   />
                 )}
@@ -309,7 +439,11 @@ export default function InstallationGuide({
           href={appConfig.baseSettings.tutorialUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn-secondary w-full justify-center"
+          className={
+            isVerno
+              ? 'flex w-full items-center justify-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.03] px-4 py-3 text-sm text-white/65 transition-colors hover:border-white/[0.22] hover:bg-white/[0.06] hover:text-white/85'
+              : 'btn-secondary w-full justify-center'
+          }
         >
           <svg
             className="h-5 w-5"
@@ -334,6 +468,7 @@ export default function InstallationGuide({
           blocks={selectedApp.blocks}
           isMobile={isMobile}
           isLight={isLight}
+          variant={variant}
           getLocalizedText={getLocalizedText}
           getSvgHtml={getSvgHtml}
           renderBlockButtons={renderBlockButtons}
