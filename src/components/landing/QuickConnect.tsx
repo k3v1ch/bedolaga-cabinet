@@ -1,29 +1,16 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { UserPlus, Download, Wifi } from 'lucide-react';
 import { GlassCard } from './GlassCard';
 
-const steps = [
-  {
-    icon: UserPlus,
-    num: '01',
-    title: 'Зарегистрируйтесь',
-    desc: 'Через Email, Telegram',
-  },
-  {
-    icon: Download,
-    num: '02',
-    title: 'Установите приложение',
-    desc: 'Для всех устройств',
-  },
-  {
-    icon: Wifi,
-    num: '03',
-    title: 'Подключайтесь',
-    desc: 'Вы — прекрасны, интернет — свободный',
-  },
+const STEPS = [
+  { key: 'register', icon: UserPlus, num: '01' },
+  { key: 'install', icon: Download, num: '02' },
+  { key: 'connect', icon: Wifi, num: '03' },
 ];
 
 export function QuickConnect() {
+  const { t } = useTranslation();
   return (
     <section className="relative bg-black py-24 md:py-32">
       <div className="mx-auto max-w-5xl px-6">
@@ -40,11 +27,11 @@ export function QuickConnect() {
             letterSpacing: '-0.02em',
           }}
         >
-          Быстрое подключение за пару минут
+          {t('landing.quickConnect.title')}
         </motion.h2>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {steps.map((step, i) => (
+          {STEPS.map((step, i) => (
             <motion.div
               key={step.num}
               initial={{ opacity: 0, y: 20 }}
@@ -73,13 +60,13 @@ export function QuickConnect() {
                   className="relative z-10 mb-2 text-white"
                   style={{ fontFamily: 'Inter, sans-serif', fontSize: '1.05rem', fontWeight: 500 }}
                 >
-                  {step.title}
+                  {t(`landing.quickConnect.steps.${step.key}.title`)}
                 </h3>
                 <p
                   className="relative z-10 text-white/35"
                   style={{ fontSize: '0.88rem', lineHeight: 1.6 }}
                 >
-                  {step.desc}
+                  {t(`landing.quickConnect.steps.${step.key}.desc`)}
                 </p>
               </GlassCard>
             </motion.div>

@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { Shield, Clock, Zap, Monitor } from 'lucide-react';
 
 export function Hero() {
+  const { t } = useTranslation();
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden pt-20">
       <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-950 to-black" />
@@ -17,7 +19,7 @@ export function Hero() {
           className="mb-6 flex justify-center"
         >
           <span className="inline-block rounded-full border border-white/10 bg-white/[0.04] px-5 py-2 text-sm text-white/45 backdrop-blur-xl">
-            3 дня бесплатно&nbsp;&bull;&nbsp;без карты&nbsp;&bull;&nbsp;без автопродления
+            {t('landing.hero.badge')}
           </span>
         </motion.div>
 
@@ -34,7 +36,7 @@ export function Hero() {
             letterSpacing: '-0.025em',
           }}
         >
-          Быстрый VPN для Telegram, YouTube, TikTok и повседневного интернета
+          {t('landing.hero.title')}
         </motion.h1>
 
         <motion.p
@@ -44,8 +46,7 @@ export function Hero() {
           className="mx-auto mt-6 max-w-2xl text-white/40"
           style={{ fontSize: 'clamp(0.95rem, 1.8vw, 1.1rem)', lineHeight: 1.65 }}
         >
-          Подходит для всех устройств — подключение за минуту, скорость до 10 Гбит/с, безлимитный
-          трафик и 3 дня бесплатного доступа.
+          {t('landing.hero.subtitle')}
         </motion.p>
 
         <motion.div
@@ -59,14 +60,14 @@ export function Hero() {
             className="rounded-full bg-white px-8 py-4 text-black transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl hover:shadow-white/15 active:scale-95"
             style={{ fontSize: '0.95rem', fontWeight: 500 }}
           >
-            Попробовать бесплатно
+            {t('landing.hero.tryFree')}
           </Link>
           <Link
             to="/login"
             className="rounded-full border border-white/10 bg-white/[0.04] px-8 py-4 text-white/60 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:bg-white/[0.08] hover:text-white/80 active:scale-95"
             style={{ fontSize: '0.95rem', fontWeight: 500 }}
           >
-            Войти в личный кабинет
+            {t('landing.hero.loginCta')}
           </Link>
         </motion.div>
 
@@ -77,10 +78,10 @@ export function Hero() {
           className="mt-16 flex flex-wrap justify-center gap-3"
         >
           {[
-            { icon: Shield, label: 'Приватность' },
-            { icon: Clock, label: 'Время работы 24/7' },
-            { icon: Zap, label: 'Каналы серверов до 10 Гбит/с' },
-            { icon: Monitor, label: 'До 30 устройств' },
+            { icon: Shield, label: t('landing.hero.tag.privacy') },
+            { icon: Clock, label: t('landing.hero.tag.uptime') },
+            { icon: Zap, label: t('landing.hero.tag.speed') },
+            { icon: Monitor, label: t('landing.hero.tag.devices') },
           ].map((item) => (
             <div
               key={item.label}

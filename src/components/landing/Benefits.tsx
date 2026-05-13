@@ -1,41 +1,19 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Globe, Gauge, Lock, ShieldCheck, Smartphone, RefreshCcw } from 'lucide-react';
 import { GlassCard } from './GlassCard';
 
-const benefits = [
-  {
-    icon: Globe,
-    title: 'Доступ там, где он нужен',
-    desc: 'Подключайтесь и пользуйтесь нужными сервисами из любой точки мира.',
-  },
-  {
-    icon: Gauge,
-    title: 'Скорость до 10 Гбит/с',
-    desc: 'Быстрое и стабильное соединение для видео, мессенджеров и обычного интернета.',
-  },
-  {
-    icon: Lock,
-    title: 'Надёжное шифрование трафика',
-    desc: 'Ваши данные защищены современным шифрованием на каждом этапе соединения.',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Без логов и скрытого сбора данных',
-    desc: 'Мы не храним логи и не собираем данные за вашей спиной.',
-  },
-  {
-    icon: Smartphone,
-    title: 'До 30 устройств в одной подписке',
-    desc: 'Один тариф для телефона, ноутбука, компьютера и других совместимых устройств.',
-  },
-  {
-    icon: RefreshCcw,
-    title: 'Не работает — вернём деньги',
-    desc: 'Если VPN не работает в вашем регионе, вы можете получить полный возврат.',
-  },
+const ICONS = [
+  { key: 'access', icon: Globe },
+  { key: 'speed', icon: Gauge },
+  { key: 'encryption', icon: Lock },
+  { key: 'noLogs', icon: ShieldCheck },
+  { key: 'devices', icon: Smartphone },
+  { key: 'refund', icon: RefreshCcw },
 ];
 
 export function Benefits() {
+  const { t } = useTranslation();
   return (
     <section id="benefits" className="relative bg-black py-24 md:py-32">
       <div className="mx-auto max-w-6xl px-6">
@@ -52,13 +30,13 @@ export function Benefits() {
             letterSpacing: '-0.02em',
           }}
         >
-          Почему ВЕРНО VPN
+          {t('landing.benefits.title')}
         </motion.h2>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {benefits.map((b, i) => (
+          {ICONS.map((b, i) => (
             <motion.div
-              key={b.title}
+              key={b.key}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -70,10 +48,10 @@ export function Benefits() {
                   className="mb-2 text-white"
                   style={{ fontFamily: 'Inter, sans-serif', fontSize: '1.05rem', fontWeight: 500 }}
                 >
-                  {b.title}
+                  {t(`landing.benefits.items.${b.key}.title`)}
                 </h3>
                 <p className="text-white/35" style={{ fontSize: '0.88rem', lineHeight: 1.65 }}>
-                  {b.desc}
+                  {t(`landing.benefits.items.${b.key}.desc`)}
                 </p>
               </GlassCard>
             </motion.div>

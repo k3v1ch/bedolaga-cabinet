@@ -14,7 +14,7 @@ const FALLBACK_LNG = 'ru';
 
 const loadedLanguages = new Set<string>();
 
-async function loadLanguage(lng: string): Promise<void> {
+export async function loadLanguage(lng: string): Promise<void> {
   if (loadedLanguages.has(lng)) return;
 
   const loader = localeLoaders[lng];

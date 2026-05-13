@@ -26,7 +26,7 @@ function AmountDisplay({ amountKopeks, label }: { amountKopeks: number; label: s
 
   return (
     <div className="mt-4 rounded-xl bg-dark-800/50 px-6 py-4">
-      <p className="text-xs text-dark-400">{label}</p>
+      <p className="text-[13px] text-dark-400">{label}</p>
       <p className="mt-1 text-2xl font-bold text-dark-50">
         {formatAmount(amountRubles)} <span className="text-lg text-dark-400">{currencySymbol}</span>
       </p>
@@ -48,7 +48,9 @@ function PendingState({ amountKopeks }: { amountKopeks: number | null }) {
         <h1 className="text-xl font-bold text-dark-50">
           {t('balance.topUpResult.awaitingPayment')}
         </h1>
-        <p className="mt-2 text-sm text-dark-400">{t('balance.topUpResult.awaitingPaymentDesc')}</p>
+        <p className="mt-2 text-[15px] text-dark-400">
+          {t('balance.topUpResult.awaitingPaymentDesc')}
+        </p>
       </div>
       {amountKopeks != null && amountKopeks > 0 && (
         <AmountDisplay amountKopeks={amountKopeks} label={t('balance.topUpResult.topUpAmount')} />
@@ -75,7 +77,7 @@ function SuccessState({ amountKopeks }: { amountKopeks: number | null }) {
 
       <div>
         <h1 className="text-xl font-bold text-dark-50">{t('balance.topUpResult.success')}</h1>
-        <p className="mt-2 text-sm text-dark-400">{t('balance.topUpResult.successDesc')}</p>
+        <p className="mt-2 text-[15px] text-dark-400">{t('balance.topUpResult.successDesc')}</p>
       </div>
 
       {amountKopeks != null && amountKopeks > 0 && (
@@ -85,7 +87,7 @@ function SuccessState({ amountKopeks }: { amountKopeks: number | null }) {
       <button
         type="button"
         onClick={handleGoToBalance}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-400"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-6 py-3 text-[15px] font-medium text-white transition-colors hover:bg-accent-400"
       >
         {t('balance.topUpResult.goToBalance')}
       </button>
@@ -111,7 +113,7 @@ function FailedState({ amountKopeks }: { amountKopeks: number | null }) {
 
       <div>
         <h1 className="text-xl font-bold text-dark-50">{t('balance.topUpResult.failed')}</h1>
-        <p className="mt-2 text-sm text-dark-400">{t('balance.topUpResult.failedDesc')}</p>
+        <p className="mt-2 text-[15px] text-dark-400">{t('balance.topUpResult.failedDesc')}</p>
       </div>
 
       {amountKopeks != null && amountKopeks > 0 && (
@@ -121,7 +123,7 @@ function FailedState({ amountKopeks }: { amountKopeks: number | null }) {
       <button
         type="button"
         onClick={handleTryAgain}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-dark-800/50 px-6 py-3 text-sm font-medium text-dark-200 transition-colors hover:bg-dark-700/50"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-dark-800/50 px-6 py-3 text-[15px] font-medium text-dark-200 transition-colors hover:bg-dark-700/50"
       >
         {t('balance.topUpResult.tryAgain')}
       </button>
@@ -156,20 +158,20 @@ function TimeoutState({ onRetry, onGoBack }: { onRetry: () => void; onGoBack: ()
       </div>
       <div>
         <h1 className="text-xl font-bold text-dark-50">{t('balance.topUpResult.timeout')}</h1>
-        <p className="mt-2 text-sm text-dark-400">{t('balance.topUpResult.timeoutDesc')}</p>
+        <p className="mt-2 text-[15px] text-dark-400">{t('balance.topUpResult.timeoutDesc')}</p>
       </div>
       <div className="flex w-full flex-col gap-3">
         <button
           type="button"
           onClick={onRetry}
-          className="w-full rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-400"
+          className="w-full rounded-xl bg-accent-500 px-6 py-3 text-[15px] font-medium text-white transition-colors hover:bg-accent-400"
         >
           {t('common.retry')}
         </button>
         <button
           type="button"
           onClick={onGoBack}
-          className="w-full rounded-xl bg-dark-800/50 px-6 py-3 text-sm font-medium text-dark-200 transition-colors hover:bg-dark-700/50"
+          className="w-full rounded-xl bg-dark-800/50 px-6 py-3 text-[15px] font-medium text-dark-200 transition-colors hover:bg-dark-700/50"
         >
           {t('balance.topUpResult.goToBalance')}
         </button>

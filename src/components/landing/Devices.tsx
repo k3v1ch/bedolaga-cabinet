@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Monitor, Apple, Smartphone, Terminal, Tv } from 'lucide-react';
 import { GlassCard } from './GlassCard';
 
@@ -12,6 +13,7 @@ const platforms = [
 ];
 
 export function Devices() {
+  const { t } = useTranslation();
   return (
     <section className="relative bg-black py-24 md:py-32">
       <div className="mx-auto max-w-5xl px-6 text-center">
@@ -28,7 +30,7 @@ export function Devices() {
             letterSpacing: '-0.02em',
           }}
         >
-          Одна подписка — все ваши устройства
+          {t('landing.platforms.title')}
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
@@ -38,8 +40,7 @@ export function Devices() {
           className="mx-auto mb-4 max-w-xl text-white/35"
           style={{ fontSize: '0.95rem', lineHeight: 1.6 }}
         >
-          Подключайте смартфон, ноутбук, компьютер и другие совместимые устройства в одном тарифе.
-          Быстро, безопасно и без лишней сложности.
+          {t('landing.platforms.subtitle')}
         </motion.p>
         <motion.p
           initial={{ opacity: 0 }}
@@ -48,7 +49,7 @@ export function Devices() {
           transition={{ duration: 0.6, delay: 0.15 }}
           className="mb-14 text-sm text-white/20"
         >
-          ВЕРНО VPN поддерживает все платформы, на которые можно установить Happ или V2RayTun.
+          {t('landing.platforms.note')}
         </motion.p>
 
         <div className="mx-auto grid max-w-2xl grid-cols-3 gap-4 sm:grid-cols-3 md:grid-cols-6">

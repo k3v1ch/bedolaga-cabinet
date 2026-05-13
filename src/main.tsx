@@ -121,3 +121,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </ErrorBoundary>
   </React.StrictMode>,
 );
+
+// The HTML preloader is hidden by `hidePreloader()` from inside the first
+// real route content (see App.tsx's LazyPage). Keeping it visible until
+// then prevents a second loading state from appearing between mount and
+// the actual page.

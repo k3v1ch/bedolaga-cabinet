@@ -55,7 +55,7 @@ function CloseIcon({ className = 'h-3 w-3' }: { className?: string }) {
 function Spinner({ size = 'h-5 w-5' }: { size?: string }) {
   return (
     <div
-      className={`${size} animate-spin rounded-full border-2 border-dark-600 border-t-accent-400`}
+      className={`${size} animate-spin rounded-full border-2 border-white/10 border-t-white/55`}
     />
   );
 }

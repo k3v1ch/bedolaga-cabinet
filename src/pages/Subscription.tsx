@@ -550,7 +550,7 @@ export default function Subscription() {
   if (isLoading) {
     return (
       <div className="flex min-h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
       </div>
     );
   }
@@ -562,12 +562,12 @@ export default function Subscription() {
         <h2 className="mb-2 text-xl font-bold text-dark-50">
           {t('subscription.notFound', 'Подписка не найдена')}
         </h2>
-        <p className="mb-4 text-sm text-dark-50/60">
+        <p className="mb-4 text-[15px] text-dark-50/60">
           {t('subscription.notFoundDesc', 'Возможно, подписка была удалена или не существует')}
         </p>
         <button
           onClick={() => navigate('/subscriptions')}
-          className="rounded-xl bg-accent-500 px-6 py-2.5 text-sm font-medium text-white"
+          className="rounded-xl bg-accent-500 px-6 py-2.5 text-[15px] font-medium text-white"
         >
           {t('subscription.backToList', 'Мои подписки')}
         </button>
@@ -729,10 +729,10 @@ export default function Subscription() {
                       </svg>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold" style={{ color: '#FFB800' }}>
+                      <p className="text-[15px] font-semibold" style={{ color: '#FFB800' }}>
                         {t('subscription.trafficLimitedTitle')}
                       </p>
-                      <p className="mt-1 text-xs text-dark-400">
+                      <p className="mt-1 text-[13px] text-dark-400">
                         {t('subscription.trafficLimitedDescription')}
                       </p>
                     </div>
@@ -771,7 +771,7 @@ export default function Subscription() {
                     </div>
                     <div className="flex-1">
                       <div
-                        className="text-sm font-semibold"
+                        className="text-[15px] font-semibold"
                         style={{ color: 'rgb(var(--color-accent-400))' }}
                       >
                         {t('subscription.trialInfo.title')}
@@ -910,7 +910,7 @@ export default function Subscription() {
                     </svg>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm font-semibold tracking-tight text-dark-50">
+                    <div className="text-[15px] font-semibold tracking-tight text-dark-50">
                       {t('dashboard.connectDevice')}
                     </div>
                     <div className="mt-0.5 text-[11px] text-dark-50/30">
@@ -1027,7 +1027,7 @@ export default function Subscription() {
                         }}
                       >
                         {server.country_code && (
-                          <span className="text-xs">{getFlagEmoji(server.country_code)}</span>
+                          <span className="text-[13px]">{getFlagEmoji(server.country_code)}</span>
                         )}
                         <Twemoji options={{ className: 'twemoji', folder: 'svg', ext: '.svg' }}>
                           {server.name}
@@ -1074,7 +1074,7 @@ export default function Subscription() {
                                 <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                               </svg>
                             </div>
-                            <span className="text-sm font-semibold text-dark-50">
+                            <span className="text-[15px] font-semibold text-dark-50">
                               {purchase.traffic_gb} {t('common.units.gb')}
                             </span>
                           </div>
@@ -1131,7 +1131,7 @@ export default function Subscription() {
                   }}
                 >
                   <div>
-                    <div className="text-sm font-semibold text-dark-50">
+                    <div className="text-[15px] font-semibold text-dark-50">
                       {t('subscription.autoRenewal')}
                     </div>
                     <div className="mt-0.5 text-[11px] text-dark-50/30">
@@ -1190,7 +1190,7 @@ export default function Subscription() {
               />
             </svg>
           </div>
-          <div className="text-sm text-dark-50/30">{t('subscription.noSubscription')}</div>
+          <div className="text-[15px] text-dark-50/30">{t('subscription.noSubscription')}</div>
         </div>
       )}
 
@@ -1223,7 +1223,7 @@ export default function Subscription() {
             <button
               onClick={() => pauseMutation.mutate()}
               disabled={pauseMutation.isPending}
-              className="rounded-[10px] px-4 py-2 text-sm font-semibold transition-colors duration-300"
+              className="rounded-[10px] px-4 py-2 text-[15px] font-semibold transition-colors duration-300"
               style={{
                 background:
                   subscription.is_daily_paused || subscription.status === 'disabled'
@@ -1269,7 +1269,7 @@ export default function Subscription() {
               }
               return (
                 <div
-                  className="mt-4 rounded-[10px] p-3 text-center text-sm"
+                  className="mt-4 rounded-[10px] p-3 text-center text-[15px]"
                   style={{
                     background: 'rgba(255,59,92,0.08)',
                     border: '1px solid rgba(255,59,92,0.15)',
@@ -1295,7 +1295,7 @@ export default function Subscription() {
                   ⏸️
                 </div>
                 <div>
-                  <div className="text-sm font-semibold" style={{ color: '#FFB800' }}>
+                  <div className="text-[15px] font-semibold" style={{ color: '#FFB800' }}>
                     {t('subscription.pause.pausedInfo')}
                   </div>
                   <div className="mt-1 text-[12px] text-dark-50/35">
@@ -1396,7 +1396,7 @@ export default function Subscription() {
                   }
                 }}
                 disabled={deleteLoading}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-red-400/20 bg-red-400/5 p-3.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-400/10 disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-red-400/20 bg-red-400/5 p-3.5 text-[15px] font-medium text-red-400 transition-colors hover:bg-red-400/10 disabled:opacity-50"
               >
                 <svg
                   className="h-4 w-4"
@@ -1418,10 +1418,10 @@ export default function Subscription() {
                 className="rounded-2xl border border-red-400/20 p-4"
                 style={{ background: 'rgba(255,59,92,0.04)' }}
               >
-                <div className="mb-3 text-sm font-semibold text-red-400">
+                <div className="mb-3 text-[15px] font-semibold text-red-400">
                   {t('subscription.deleteTitle', 'Удалить подписку?')}
                 </div>
-                <div className="mb-4 text-xs" style={{ color: g.textSecondary }}>
+                <div className="mb-4 text-[13px]" style={{ color: g.textSecondary }}>
                   {t(
                     'subscription.deleteWarning',
                     'Подписка будет удалена безвозвратно. Все данные, устройства и настройки будут потеряны. Это действие нельзя отменить.',
@@ -1441,7 +1441,7 @@ export default function Subscription() {
                       }
                     }}
                     disabled={deleteLoading}
-                    className="flex-1 rounded-xl bg-red-500 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-600 disabled:opacity-50"
+                    className="flex-1 rounded-xl bg-red-500 py-2.5 text-[15px] font-semibold text-white transition-colors hover:bg-red-600 disabled:opacity-50"
                   >
                     {deleteLoading
                       ? t('common.processing', 'Удаление...')
@@ -1449,7 +1449,7 @@ export default function Subscription() {
                   </button>
                   <button
                     onClick={() => setShowDeleteSheet(false)}
-                    className="flex-1 rounded-xl border border-dark-700 py-2.5 text-sm font-medium transition-colors hover:bg-dark-700"
+                    className="flex-1 rounded-xl border border-dark-700 py-2.5 text-[15px] font-medium transition-colors hover:bg-dark-700"
                     style={{ color: g.textSecondary }}
                   >
                     {t('common.cancel', 'Отмена')}
@@ -1489,7 +1489,7 @@ export default function Subscription() {
                     <div className="font-medium text-dark-100">
                       {t('subscription.additionalOptions.buyDevices')}
                     </div>
-                    <div className="mt-1 text-sm text-dark-400">
+                    <div className="mt-1 text-[15px] text-dark-400">
                       {t('subscription.additionalOptions.currentDeviceLimit', {
                         count: subscription.device_limit,
                       })}
@@ -1514,7 +1514,7 @@ export default function Subscription() {
                   <h3 className="font-medium text-dark-100">{t('subscription.buyDevices')}</h3>
                   <button
                     onClick={() => setShowDeviceTopup(false)}
-                    className="text-sm text-dark-400 hover:text-dark-200"
+                    className="text-[15px] text-dark-400 hover:text-dark-200"
                   >
                     ✕
                   </button>
@@ -1522,7 +1522,7 @@ export default function Subscription() {
 
                 {/* Check if completely unavailable (no subscription, price not set, etc.) */}
                 {devicePriceData?.available === false ? (
-                  <div className="py-4 text-center text-sm text-dark-400">
+                  <div className="py-4 text-center text-[15px] text-dark-400">
                     {devicePriceData.reason ||
                       t('subscription.additionalOptions.devicesUnavailable')}
                   </div>
@@ -1539,7 +1539,7 @@ export default function Subscription() {
                       </button>
                       <div className="text-center">
                         <div className="text-4xl font-bold text-dark-100">{devicesToAdd}</div>
-                        <div className="text-sm text-dark-500">
+                        <div className="text-[15px] text-dark-500">
                           {t('subscription.additionalOptions.devicesUnit')}
                         </div>
                       </div>
@@ -1559,7 +1559,7 @@ export default function Subscription() {
 
                     {/* Show limit info when at or near max */}
                     {devicePriceData?.max_device_limit && (
-                      <div className="text-center text-sm text-dark-400">
+                      <div className="text-center text-[15px] text-dark-400">
                         {t('subscription.additionalOptions.currentDeviceLimit', {
                           count: devicePriceData.current_device_limit || subscription.device_limit,
                         })}{' '}
@@ -1573,7 +1573,7 @@ export default function Subscription() {
                     {/* Price info - only when available */}
                     {devicePriceData?.available && devicePriceData.price_per_device_label && (
                       <div className="text-center">
-                        <div className="mb-2 text-sm text-dark-400">
+                        <div className="mb-2 text-[15px] text-dark-400">
                           {/* Show original price with strikethrough if discount */}
                           {devicePriceData.discount_percent &&
                           devicePriceData.discount_percent > 0 &&
@@ -1594,7 +1594,7 @@ export default function Subscription() {
                         {devicePriceData.discount_percent &&
                           devicePriceData.discount_percent > 0 && (
                             <div className="mb-2">
-                              <span className="inline-block rounded-full bg-success-500/20 px-2.5 py-0.5 text-sm font-medium text-success-400">
+                              <span className="inline-block rounded-full bg-success-500/20 px-2.5 py-0.5 text-[15px] font-medium text-success-400">
                                 -{devicePriceData.discount_percent}%
                               </span>
                             </div>
@@ -1658,7 +1658,7 @@ export default function Subscription() {
                     </button>
 
                     {devicePurchaseMutation.isError && (
-                      <div className="text-center text-sm text-error-400">
+                      <div className="text-center text-[15px] text-error-400">
                         {getErrorMessage(devicePurchaseMutation.error)}
                       </div>
                     )}
@@ -1679,7 +1679,7 @@ export default function Subscription() {
                       <div className="font-medium text-dark-100">
                         {t('subscription.additionalOptions.reduceDevices')}
                       </div>
-                      <div className="mt-1 text-sm text-dark-400">
+                      <div className="mt-1 text-[15px] text-dark-400">
                         {t('subscription.additionalOptions.reduceDevicesDescription')}
                       </div>
                     </div>
@@ -1704,14 +1704,14 @@ export default function Subscription() {
                     </h3>
                     <button
                       onClick={() => setShowDeviceReduction(false)}
-                      className="text-sm text-dark-400 hover:text-dark-200"
+                      className="text-[15px] text-dark-400 hover:text-dark-200"
                     >
                       ✕
                     </button>
                   </div>
 
                   {deviceReductionInfo?.available === false ? (
-                    <div className="py-4 text-center text-sm text-dark-400">
+                    <div className="py-4 text-center text-[15px] text-dark-400">
                       {deviceReductionInfo.reason ||
                         t('subscription.additionalOptions.reduceUnavailable')}
                     </div>
@@ -1746,7 +1746,7 @@ export default function Subscription() {
                           <div className="text-4xl font-bold text-dark-100">
                             {targetDeviceLimit}
                           </div>
-                          <div className="text-sm text-dark-500">
+                          <div className="text-[15px] text-dark-500">
                             {t('subscription.additionalOptions.devicesUnit')}
                           </div>
                         </div>
@@ -1769,7 +1769,7 @@ export default function Subscription() {
                       </div>
 
                       {/* Info */}
-                      <div className="space-y-1 text-center text-sm text-dark-400">
+                      <div className="space-y-1 text-center text-[15px] text-dark-400">
                         <div>
                           {t('subscription.additionalOptions.currentDeviceLimit', {
                             count: deviceReductionInfo.current_device_limit,
@@ -1790,7 +1790,7 @@ export default function Subscription() {
                       {/* Warning if connected devices block reduction */}
                       {deviceReductionInfo.connected_devices_count >
                         deviceReductionInfo.min_device_limit && (
-                        <div className="rounded-lg bg-warning-500/10 p-3 text-center text-sm text-warning-400">
+                        <div className="rounded-lg bg-warning-500/10 p-3 text-center text-[15px] text-warning-400">
                           {t('subscription.additionalOptions.disconnectDevicesFirst', {
                             count: deviceReductionInfo.connected_devices_count,
                           })}
@@ -1799,7 +1799,7 @@ export default function Subscription() {
 
                       {/* New limit preview */}
                       <div className="text-center">
-                        <div className="text-sm text-dark-400">
+                        <div className="text-[15px] text-dark-400">
                           {t('subscription.additionalOptions.newDeviceLimit', {
                             count: targetDeviceLimit,
                           })}
@@ -1827,14 +1827,14 @@ export default function Subscription() {
                       </button>
 
                       {deviceReductionMutation.isError && (
-                        <div className="text-center text-sm text-error-400">
+                        <div className="text-center text-[15px] text-error-400">
                           {getErrorMessage(deviceReductionMutation.error)}
                         </div>
                       )}
                     </div>
                   ) : (
                     <div className="flex items-center justify-center py-4">
-                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-accent-400/30 border-t-accent-400" />
+                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/10 border-t-white/55" />
                     </div>
                   )}
                 </div>
@@ -1854,7 +1854,7 @@ export default function Subscription() {
                         <div className="font-medium text-dark-100">
                           {t('subscription.additionalOptions.buyTraffic')}
                         </div>
-                        <div className="mt-1 text-sm text-dark-400">
+                        <div className="mt-1 text-[15px] text-dark-400">
                           {t('subscription.additionalOptions.currentTrafficLimit', {
                             limit: subscription.traffic_limit_gb,
                             used: subscription.traffic_used_gb.toFixed(1),
@@ -1885,20 +1885,20 @@ export default function Subscription() {
                           setShowTrafficTopup(false);
                           setSelectedTrafficPackage(null);
                         }}
-                        className="text-sm text-dark-400 hover:text-dark-200"
+                        className="text-[15px] text-dark-400 hover:text-dark-200"
                       >
                         ✕
                       </button>
                     </div>
 
                     <div
-                      className={`mb-4 rounded-lg p-2 text-xs ${isDark ? 'bg-dark-700/30 text-dark-500' : 'bg-champagne-300/40 text-champagne-600'}`}
+                      className={`mb-4 rounded-lg p-2 text-[13px] ${isDark ? 'bg-dark-700/30 text-dark-500' : 'bg-champagne-300/40 text-champagne-600'}`}
                     >
                       ⚠️ {t('subscription.additionalOptions.trafficWarning')}
                     </div>
 
                     {!trafficPackages || trafficPackages.length === 0 ? (
-                      <div className="py-4 text-center text-sm text-dark-400">
+                      <div className="py-4 text-center text-[15px] text-dark-400">
                         {t('subscription.additionalOptions.trafficUnavailable')}
                       </div>
                     ) : (
@@ -1924,7 +1924,7 @@ export default function Subscription() {
                               {/* Discount badge */}
                               {pkg.discount_percent && pkg.discount_percent > 0 && (
                                 <div className="mb-1">
-                                  <span className="inline-block rounded-full bg-success-500/20 px-2 py-0.5 text-xs font-medium text-success-400">
+                                  <span className="inline-block rounded-full bg-success-500/20 px-2 py-0.5 text-[13px] font-medium text-success-400">
                                     -{pkg.discount_percent}%
                                   </span>
                                 </div>
@@ -1935,7 +1935,7 @@ export default function Subscription() {
                                 pkg.discount_percent > 0 &&
                                 pkg.base_price_kopeks ? (
                                   <>
-                                    <span className="mr-1 text-sm text-dark-500 line-through">
+                                    <span className="mr-1 text-[15px] text-dark-500 line-through">
                                       {formatPrice(pkg.base_price_kopeks)}
                                     </span>
                                     {formatPrice(pkg.price_kopeks)}
@@ -2001,7 +2001,7 @@ export default function Subscription() {
                           })()}
 
                         {trafficPurchaseMutation.isError && (
-                          <div className="text-center text-sm text-error-400">
+                          <div className="text-center text-[15px] text-error-400">
                             {getErrorMessage(trafficPurchaseMutation.error)}
                           </div>
                         )}
@@ -2025,7 +2025,7 @@ export default function Subscription() {
                         <div className="font-medium text-dark-100">
                           {t('subscription.additionalOptions.manageServers')}
                         </div>
-                        <div className="mt-1 text-sm text-dark-400">
+                        <div className="mt-1 text-[15px] text-dark-400">
                           {t('subscription.servers', { count: subscription.servers?.length || 0 })}
                         </div>
                       </div>
@@ -2053,7 +2053,7 @@ export default function Subscription() {
                           setShowServerManagement(false);
                           setSelectedServersToUpdate([]);
                         }}
-                        className="text-sm text-dark-400 hover:text-dark-200"
+                        className="text-[15px] text-dark-400 hover:text-dark-200"
                       >
                         ✕
                       </button>
@@ -2061,18 +2061,18 @@ export default function Subscription() {
 
                     {countriesLoading ? (
                       <div className="flex items-center justify-center py-8">
-                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
                       </div>
                     ) : countriesData && countriesData.countries.length > 0 ? (
                       <div className="space-y-4">
                         <div
-                          className={`rounded-lg p-2 text-xs ${isDark ? 'bg-dark-700/30 text-dark-500' : 'bg-champagne-300/40 text-champagne-600'}`}
+                          className={`rounded-lg p-2 text-[13px] ${isDark ? 'bg-dark-700/30 text-dark-500' : 'bg-champagne-300/40 text-champagne-600'}`}
                         >
                           {t('subscription.serverManagement.statusLegend')}
                         </div>
 
                         {countriesData.discount_percent > 0 && (
-                          <div className="rounded-lg border border-success-500/30 bg-success-500/10 p-2 text-xs text-success-400">
+                          <div className="rounded-lg border border-success-500/30 bg-success-500/10 p-2 text-[13px] text-success-400">
                             🎁{' '}
                             {t('subscription.serverManagement.discountBanner', {
                               percent: countriesData.discount_percent,
@@ -2128,13 +2128,13 @@ export default function Subscription() {
                                       <div className="flex items-center gap-2 font-medium text-dark-100">
                                         {country.name}
                                         {country.has_discount && !isCurrentlyConnected && (
-                                          <span className="rounded bg-success-500/20 px-1.5 py-0.5 text-xs text-success-400">
+                                          <span className="rounded bg-success-500/20 px-1.5 py-0.5 text-[13px] text-success-400">
                                             -{country.discount_percent}%
                                           </span>
                                         )}
                                       </div>
                                       {willBeAdded && (
-                                        <div className="text-xs text-success-400">
+                                        <div className="text-[13px] text-success-400">
                                           +{formatPrice(country.price_kopeks)}{' '}
                                           {t('subscription.serverManagement.forDays', {
                                             days: countriesData.days_left,
@@ -2153,7 +2153,7 @@ export default function Subscription() {
                                         </div>
                                       )}
                                       {!willBeAdded && !isCurrentlyConnected && (
-                                        <div className="text-xs text-dark-500">
+                                        <div className="text-[13px] text-dark-500">
                                           {formatPrice(country.price_per_month_kopeks)}
                                           {t('subscription.serverManagement.perMonth')}
                                           {country.has_discount && (
@@ -2164,7 +2164,7 @@ export default function Subscription() {
                                         </div>
                                       )}
                                       {!country.is_available && !isCurrentlyConnected && (
-                                        <div className="text-xs text-dark-500">
+                                        <div className="text-[13px] text-dark-500">
                                           {t('subscription.serverManagement.unavailable')}
                                         </div>
                                       )}
@@ -2211,7 +2211,7 @@ export default function Subscription() {
                               className={`space-y-3 border-t pt-3 ${isDark ? 'border-dark-700/50' : 'border-champagne-300/60'}`}
                             >
                               {added.length > 0 && (
-                                <div className="text-sm">
+                                <div className="text-[15px]">
                                   <span className="text-success-400">
                                     {t('subscription.serverManagement.toAdd')}
                                   </span>{' '}
@@ -2221,7 +2221,7 @@ export default function Subscription() {
                                 </div>
                               )}
                               {removed.length > 0 && (
-                                <div className="text-sm">
+                                <div className="text-[15px]">
                                   <span className="text-error-400">
                                     {t('subscription.serverManagement.toDisconnect')}
                                   </span>{' '}
@@ -2235,7 +2235,7 @@ export default function Subscription() {
                               )}
                               {totalCost > 0 && (
                                 <div className="text-center">
-                                  <div className="text-sm text-dark-400">
+                                  <div className="text-[15px] text-dark-400">
                                     {t('subscription.serverManagement.paymentProrated')}
                                   </div>
                                   <div className="text-xl font-bold text-accent-400">
@@ -2272,20 +2272,20 @@ export default function Subscription() {
                               </button>
                             </div>
                           ) : (
-                            <div className="py-2 text-center text-sm text-dark-500">
+                            <div className="py-2 text-center text-[15px] text-dark-500">
                               {t('subscription.serverManagement.selectServersHint')}
                             </div>
                           );
                         })()}
 
                         {updateCountriesMutation.isError && (
-                          <div className="text-center text-sm text-error-400">
+                          <div className="text-center text-[15px] text-error-400">
                             {getErrorMessage(updateCountriesMutation.error)}
                           </div>
                         )}
                       </div>
                     ) : (
-                      <div className="py-4 text-center text-sm text-dark-400">
+                      <div className="py-4 text-center text-[15px] text-dark-400">
                         {t('subscription.serverManagement.noServersAvailable')}
                       </div>
                     )}
@@ -2432,7 +2432,7 @@ export default function Subscription() {
                       </svg>
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-dark-50">
+                      <div className="text-[15px] font-semibold text-dark-50">
                         {device.device_model || device.platform}
                       </div>
                       <div className="flex items-center gap-1.5 text-[11px] text-dark-50/30">

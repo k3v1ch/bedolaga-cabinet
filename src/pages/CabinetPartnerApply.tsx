@@ -50,7 +50,7 @@ function FormInput({
       placeholder={placeholder}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white/70 outline-none transition-all placeholder:text-white/20 focus:border-white/20"
+      className="w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-[15px] text-white/70 outline-none transition-all placeholder:text-white/20 focus:border-white/20"
     />
   );
 }
@@ -184,7 +184,7 @@ export default function CabinetPartnerApply() {
     >
       <button
         onClick={() => navigate('/referral')}
-        className="mb-6 flex items-center gap-1.5 text-sm text-white/30 transition-colors hover:text-white/50"
+        className="mb-6 flex items-center gap-1.5 text-[15px] text-white/30 transition-colors hover:text-white/50"
       >
         <ArrowLeft size={14} />{' '}
         {t('referral.partner.back', { defaultValue: 'Назад к реферальной программе' })}
@@ -192,11 +192,11 @@ export default function CabinetPartnerApply() {
 
       <h1
         className="mb-3 text-white"
-        style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+        style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
       >
         {t('referral.partner.title', { defaultValue: 'Партнёрская программа' })}
       </h1>
-      <p className="mb-8 text-sm text-white/35" style={{ lineHeight: 1.65 }}>
+      <p className="mb-8 text-[15px] text-white/35" style={{ lineHeight: 1.65 }}>
         {t('referral.partner.intro', {
           defaultValue:
             'Следующий уровень участия — для тех, кто готов продвигать продукт активнее и зарабатывать больше.',
@@ -208,10 +208,10 @@ export default function CabinetPartnerApply() {
         {benefits.map((b) => (
           <GlassCard key={b.title} className="p-5">
             <b.icon size={18} strokeWidth={1.5} className="mb-3 text-white/25" />
-            <h3 className="mb-1 text-sm text-white/70" style={{ fontWeight: 500 }}>
+            <h3 className="mb-1 text-[15px] text-white/70" style={{ fontWeight: 500 }}>
               {b.title}
             </h3>
-            <p className="text-xs text-white/25" style={{ lineHeight: 1.55 }}>
+            <p className="text-[13px] text-white/25" style={{ lineHeight: 1.55 }}>
               {b.desc}
             </p>
           </GlassCard>
@@ -219,16 +219,19 @@ export default function CabinetPartnerApply() {
       </div>
 
       {/* Requirements */}
-      <GlassCard className="mb-6 p-6">
+      <GlassCard className="mb-6 p-7">
         <div className="mb-3 flex items-center gap-2">
           <FileText size={15} className="text-white/25" />
-          <p className="text-xs text-white/40" style={{ fontWeight: 500, letterSpacing: '0.05em' }}>
+          <p
+            className="text-[13px] text-white/40"
+            style={{ fontWeight: 500, letterSpacing: '0.05em' }}
+          >
             {t('referral.partner.requirementsTitle', {
               defaultValue: 'ТРЕБОВАНИЯ К КОНТЕНТУ',
             }).toUpperCase()}
           </p>
         </div>
-        <div className="space-y-2 text-sm text-white/35" style={{ lineHeight: 1.65 }}>
+        <div className="space-y-2 text-[15px] text-white/35" style={{ lineHeight: 1.65 }}>
           <p>
             •{' '}
             {t('referral.partner.req.honest', {
@@ -257,20 +260,23 @@ export default function CabinetPartnerApply() {
       </GlassCard>
 
       {/* Revenue */}
-      <GlassCard className="mb-6 p-6">
+      <GlassCard className="mb-6 p-7">
         <div className="mb-3 flex items-center gap-2">
           <Shield size={15} className="text-white/25" />
-          <p className="text-xs text-white/40" style={{ fontWeight: 500, letterSpacing: '0.05em' }}>
+          <p
+            className="text-[13px] text-white/40"
+            style={{ fontWeight: 500, letterSpacing: '0.05em' }}
+          >
             {t('referral.partner.payoutsTitle', { defaultValue: 'СТРУКТУРА ВЫПЛАТ' }).toUpperCase()}
           </p>
         </div>
-        <p className="mb-3 text-sm text-white/30" style={{ lineHeight: 1.65 }}>
+        <p className="mb-3 text-[15px] text-white/30" style={{ lineHeight: 1.65 }}>
           {t('referral.partner.payoutsDesc', {
             defaultValue:
               'Конкретные условия обсуждаются индивидуально после одобрения заявки. Базовая комиссия выше стандартной реферальной программы.',
           })}
         </p>
-        <p className="text-xs text-white/20">
+        <p className="text-[13px] text-white/20">
           {t('referral.partner.payoutsNote', {
             defaultValue: 'Выплаты: ежемесячно, минимальный порог вывода обсуждается',
           })}
@@ -292,7 +298,7 @@ export default function CabinetPartnerApply() {
             defaultValue: 'Подать заявку на партнёрство',
           })}
         </button>
-        <p className="mt-3 text-xs text-white/20">
+        <p className="mt-3 text-[13px] text-white/20">
           {t('referral.partner.ctaNote', {
             defaultValue: 'После подачи заявки мы свяжемся с вами для обсуждения условий',
           })}
@@ -310,13 +316,13 @@ export default function CabinetPartnerApply() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-2xl border border-white/[0.08] bg-[#0A0A0A]/95 p-6 shadow-2xl shadow-black/50 backdrop-blur-2xl"
+              className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-2xl border border-white/[0.08] bg-[#0A0A0A]/95 p-7 shadow-2xl shadow-black/50 backdrop-blur-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               {formState === 'idle' ? (
                 <>
                   <div className="mb-5 flex items-center justify-between">
-                    <h3 className="text-sm text-white" style={{ fontWeight: 600 }}>
+                    <h3 className="text-[15px] text-white" style={{ fontWeight: 600 }}>
                       {t('referral.partner.applyTitle', {
                         defaultValue: 'Заявка на партнёрство',
                       })}
@@ -365,7 +371,7 @@ export default function CabinetPartnerApply() {
                       value={form.desc}
                       onChange={(e) => updateField('desc', e.target.value)}
                       rows={3}
-                      className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white/70 outline-none transition-all placeholder:text-white/20 focus:border-white/20"
+                      className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-[15px] text-white/70 outline-none transition-all placeholder:text-white/20 focus:border-white/20"
                     />
                     <FormInput
                       placeholder={t('referral.partner.fields.expectedReferrals', {
@@ -383,7 +389,7 @@ export default function CabinetPartnerApply() {
                   </p>
 
                   {submitError && (
-                    <div className="mb-3 rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-400">
+                    <div className="mb-3 rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-[13px] text-red-400">
                       {submitError}
                     </div>
                   )}
@@ -391,7 +397,7 @@ export default function CabinetPartnerApply() {
                   <button
                     onClick={handleSubmit}
                     disabled={applyMutation.isPending}
-                    className="w-full rounded-full bg-white py-3.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-60"
+                    className="w-full rounded-full bg-white py-3.5 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-60"
                     style={{ fontWeight: 500 }}
                   >
                     {applyMutation.isPending
@@ -402,10 +408,10 @@ export default function CabinetPartnerApply() {
               ) : (
                 <div className="py-6 text-center">
                   <CheckCircle size={32} className="mx-auto mb-3 text-green-400/60" />
-                  <h3 className="mb-2 text-sm text-white" style={{ fontWeight: 600 }}>
+                  <h3 className="mb-2 text-[15px] text-white" style={{ fontWeight: 600 }}>
                     {t('referral.partner.successTitle', { defaultValue: 'Заявка отправлена' })}
                   </h3>
-                  <p className="mb-5 text-xs text-white/30" style={{ lineHeight: 1.6 }}>
+                  <p className="mb-5 text-[13px] text-white/30" style={{ lineHeight: 1.6 }}>
                     {t('referral.partner.successDesc', {
                       defaultValue:
                         'Спасибо за интерес к партнёрской программе. Мы рассмотрим вашу заявку и свяжемся с вами в ближайшее время.',
@@ -413,7 +419,7 @@ export default function CabinetPartnerApply() {
                   </p>
                   <button
                     onClick={closeForm}
-                    className="rounded-full bg-white px-6 py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+                    className="rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
                     style={{ fontWeight: 500 }}
                   >
                     {t('common.close', { defaultValue: 'Закрыть' })}

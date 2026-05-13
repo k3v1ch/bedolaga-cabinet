@@ -29,8 +29,13 @@
     "collapse": "收起",
     "units": {
       "gb": "GB",
-      "perGb": "/GB"
-    }
+      "perGb": "/GB",
+      "mo": "月"
+    },
+    "processing": "处理中…",
+    "balance": "余额",
+    "topUpBalance": "充值",
+    "ok": "好的"
   },
   "nav": {
     "dashboard": "首页",
@@ -202,7 +207,19 @@
     "continueWithDiscord": "通过 Discord 继续",
     "continueWithVk": "通过 VK 继续",
     "oauthError": "授权被拒绝或失败",
-    "oauthExpired": "OAuth 会话已过期。请重试。"
+    "oauthExpired": "OAuth 会话已过期。请重试。",
+    "toHome": "返回首页",
+    "telegram": {
+      "loginError": "Telegram 登录错误",
+      "genericError": "登录错误",
+      "linkExpired": "链接已过期,请重试。",
+      "tryAgain": "无法登录,请重试。",
+      "linkFailed": "无法获取链接,请稍后再试。",
+      "unavailable": "Telegram 登录不可用,请尝试刷新页面。",
+      "waiting": "等待 Telegram 中确认…",
+      "signIn": "使用 Telegram 登录",
+      "openBotApp": "或在应用中打开机器人"
+    }
   },
   "emailVerification": {
     "title": "邮箱验证",
@@ -249,6 +266,43 @@
     "suspended": {
       "title": "订阅已暂停",
       "resume": "恢复"
+    },
+    "home": {
+      "title": "首页",
+      "multiTariffMessage": "您有多个订阅 — 管理功能已移至「订阅」页面。",
+      "gotoSubscriptions": "前往订阅",
+      "pendingGifts_other": "您有 {{count}} 份未领取的礼物",
+      "viewGift": "查看",
+      "welcomeBrand": "欢迎使用 {{brand}}",
+      "trialOffer": "从免费试用开始:{{days}} 天,{{traffic}},最多 {{devices}} 台设备。",
+      "trialOfferShort": "从免费试用开始。",
+      "trialUnlimited": "无限流量",
+      "trialTraffic": "{{amount}} GB",
+      "activating": "激活中…",
+      "activateTrial": "激活试用",
+      "noSubscription": "订阅未激活",
+      "trialUsed": "试用期已使用。请选择套餐继续。",
+      "selectPlan": "选择套餐",
+      "giftSubscription": "赠送订阅",
+      "subscriptionActive": "订阅有效",
+      "planLabel": "套餐",
+      "activeUntil": "有效期至",
+      "devicesLabel": "设备",
+      "devicesOf": "{{used}} / {{total}}",
+      "renew": "续订",
+      "trafficHeader": "流量",
+      "trafficUsage": "{{used}} GB / {{total}} GB",
+      "trafficRefreshing": "刷新中…",
+      "trafficRefreshIn": "{{seconds}} 秒后刷新",
+      "trafficRefresh": "刷新流量",
+      "connectionHeader": "连接",
+      "copyLink": "复制",
+      "connect": "连接",
+      "referralTitle": "推荐计划",
+      "referralHint": "邀请朋友 — 最多 30% 回报",
+      "details": "详情",
+      "planTrial": "试用",
+      "planActive": "有效"
     }
   },
   "subscription": {
@@ -387,7 +441,12 @@
       "buyTrafficGb": "购买 {{gb}} GB",
       "buyUnlimited": "购买无限流量",
       "manageServers": "小队管理",
-      "manageServersTitle": "小队管理"
+      "manageServersTitle": "小队管理",
+      "currentDeviceLimit": "当前限额:{{count}}",
+      "minDeviceLimit": "最低:{{count}}",
+      "newDeviceLimit": "新限额:{{count}}",
+      "connectedDevices_other": "已连接设备:{{count}}",
+      "disconnectDevicesFirst": "请先断开 {{count}} 台设备以降低限额"
     },
     "serverManagement": {
       "statusLegend": "✅ — 已连接 • ➕ — 将添加（付费）• ➖ — 将断开",
@@ -424,7 +483,8 @@
       "remainingDays": "剩余天数",
       "switch": "切换",
       "title": "切换套餐",
-      "upgradeCost": "升级费用"
+      "upgradeCost": "升级费用",
+      "submit": "切换套餐"
     },
     "promoGroup": {
       "yourGroup": "您的组：{{name}}",
@@ -494,7 +554,22 @@
       "stopScan": "关闭摄像头",
       "noCamera": "无法访问摄像头",
       "codeFound": "找到代码"
-    }
+    },
+    "noRenewalOptions": "暂无可用续订方案",
+    "insufficientBalanceAmount": "余额不足。还差 {{missing}}",
+    "tariff_label": "套餐",
+    "notFound": "未找到订阅",
+    "notFoundDesc": "可能已被删除或不存在",
+    "backToList": "我的订阅",
+    "deleteWarning": "订阅将被永久删除。所有数据、设备和设置将丢失。",
+    "confirmDelete": "确认删除",
+    "deleteTitle": "删除订阅?",
+    "delete": "删除订阅",
+    "loadError": "无法加载订阅选项",
+    "newTariff": "新套餐",
+    "allTariffsPurchased": "所有套餐已购买",
+    "allTariffsPurchasedDesc": "您已购买所有可用套餐。续订请在套餐页操作。",
+    "noOptionsAvailable": "暂无可用订阅"
   },
   "balance": {
     "title": "余额",
@@ -570,7 +645,12 @@
         "already_used_by_user": "您已使用过此优惠码",
         "user_not_found": "用户不存在",
         "server_error": "服务器错误"
-      }
+      },
+      "placeholderCombined": "输入优惠码或礼品码",
+      "apply": "应用",
+      "activatedTitle": "优惠码已激活",
+      "discountActivatedTitle": "折扣已激活",
+      "unrecognized": "无法识别代码。请确认输入了有效的优惠码或礼品码。"
     },
     "minAmountError": "最小金额：{{amount}}",
     "maxAmountError": "最大金额：{{amount}}",
@@ -628,7 +708,16 @@
       "timeoutDesc": "付款处理时间比平时长。您可以再次检查状态。",
       "goToBalance": "查看余额",
       "tryAgain": "重试"
-    }
+    },
+    "amountPlaceholderMethod": "充值金额(最低 {{min}} {{currency}})",
+    "amountPlaceholderDefault": "充值金额(最低 10 {{currency}})",
+    "amountRangeHint": "金额范围:{{min}} – {{max}} {{currency}}。",
+    "amountTooSmall": "金额过小。请至少输入 10 {{currency}}。",
+    "topUpMethod": "充值方式",
+    "promoOrGiftHeader": "优惠码或礼品码",
+    "historyHeader": "交易记录",
+    "topUpTitle": "充值余额",
+    "topUpAmount": "充值金额"
   },
   "referral": {
     "title": "推荐计划",
@@ -739,7 +828,39 @@
         "expectedReferrals": "预计每月推荐数",
         "expectedReferralsPlaceholder": "每月预估数量",
         "desiredCommission": "期望佣金比例 (%)",
-        "desiredCommissionPlaceholder": "1 到 100%"
+        "desiredCommissionPlaceholder": "1 到 100%",
+        "contact": "用于联系的 Telegram 用户名"
+      },
+      "deepLink": "深链接",
+      "webLink": "网页链接",
+      "back": "返回推荐计划",
+      "title": "合作伙伴计划",
+      "intro": "下一级参与方式——为那些准备积极推广并赚取更多的人设计。",
+      "contactLabel": "联系方式",
+      "requirementsTitle": "内容要求",
+      "payoutsTitle": "结算结构",
+      "payoutsDesc": "具体条款在申请获批后单独商定。基础佣金高于标准推荐计划。",
+      "payoutsNote": "结算:每月一次,最低提现额可协商",
+      "ctaNote": "提交后,我们会联系您讨论条款",
+      "send": "提交申请",
+      "fieldsHint": "如果某项不适用,请留空",
+      "successTitle": "申请已提交",
+      "successDesc": "感谢您对合作伙伴计划的关注。我们将审核您的申请并尽快与您联系。",
+      "benefit": {
+        "commissionTitle": "更高佣金",
+        "commissionDesc": "每位获取客户更高的百分比",
+        "withdrawTitle": "收益提现",
+        "withdrawDesc": "真实提现到银行卡或加密货币",
+        "recurringTitle": "客户续费收益",
+        "recurringDesc": "您推荐的每次续费均可获得提成",
+        "botTitle": "Telegram 中的自有 VPN 机器人",
+        "botDesc": "基于我们基础设施的自定义机器人"
+      },
+      "req": {
+        "honest": "诚实推广,杜绝垃圾信息和欺骗",
+        "info": "产品信息保持最新",
+        "rules": "遵守发布平台的规则",
+        "methods": "不使用违禁推广方式"
       }
     },
     "withdrawal": {
@@ -773,6 +894,14 @@
         "rejected": "已拒绝",
         "cancelled": "已取消"
       }
+    },
+    "condition": {
+      "invite": "您通过链接邀请朋友",
+      "minTopup": "朋友注册并充值余额(自 {{amount}})",
+      "commission": "您可获得每笔充值的 {{percent}}%",
+      "newUserBonus": "朋友首次充值获得 {{amount}} 奖励",
+      "inviterBonus": "您获得一次性奖励 {{amount}}",
+      "maxPayments": "佣金按前 {{count}} 笔充值计算"
     }
   },
   "support": {
@@ -3871,7 +4000,18 @@
         "discord": "Discord",
         "vk": "VK"
       }
-    }
+    },
+    "link": "绑定",
+    "password": "密码",
+    "changePassword": "修改密码",
+    "referralProgram": "推荐计划",
+    "more": "详情",
+    "botLink": "机器人链接",
+    "cabinetLink": "账户链接",
+    "sendResetLink": "发送链接",
+    "passwordResetSent": "邮件已发送",
+    "passwordResetSentDesc": "请打开邮件中的链接以设置新密码。",
+    "passwordResetDescription": "重置密码链接将发送至 {{email}}。"
   },
   "theme": {
     "colors": "主题颜色",
@@ -4302,6 +4442,172 @@
       "d456": "1年3个月",
       "nDays": "{{count}}天",
       "nMonths": "{{count}}个月"
+    },
+    "nav": {
+      "benefits": "优势",
+      "pricing": "价格",
+      "faq": "FAQ",
+      "login": "登录"
+    },
+    "hero": {
+      "badge": "免费 3 天 · 无需绑卡 · 无自动续费",
+      "title": "适用于 Telegram、YouTube、TikTok 和日常上网的快速 VPN",
+      "subtitle": "兼容所有设备 — 一分钟连接,速度高达 10 Gbps,无限流量,3 天免费体验。",
+      "tryFree": "免费试用",
+      "loginCta": "登录账户",
+      "tag": {
+        "privacy": "隐私保护",
+        "uptime": "全天候运行",
+        "speed": "服务器最高 10 Gbps",
+        "devices": "最多 30 台设备"
+      }
+    },
+    "benefits": {
+      "title": "为什么选择 VERNO VPN",
+      "items": {
+        "access": {
+          "title": "随时随地访问所需",
+          "desc": "在世界任何地方连接并使用您需要的服务。"
+        },
+        "speed": {
+          "title": "速度最高 10 Gbps",
+          "desc": "用于视频、即时通讯和日常上网的快速稳定连接。"
+        },
+        "encryption": {
+          "title": "可靠的流量加密",
+          "desc": "您的数据在连接的每一步都受到现代加密保护。"
+        },
+        "noLogs": {
+          "title": "无日志,无隐藏数据收集",
+          "desc": "我们不保存日志,也不在背后收集数据。"
+        },
+        "devices": {
+          "title": "一份订阅最多 30 台设备",
+          "desc": "一个套餐覆盖手机、笔记本、台式机和其他兼容设备。"
+        },
+        "refund": {
+          "title": "不可用即退款",
+          "desc": "若 VPN 在您所在地区不可用,可获得全额退款。"
+        }
+      }
+    },
+    "pricing": {
+      "title": "简单套餐",
+      "subtitle": "先免费体验 3 天,再选择套餐",
+      "term": {
+        "1m": "1 个月",
+        "3m": "3 个月",
+        "6m": "6 个月"
+      },
+      "suffix": {
+        "1m": "/ 月",
+        "3m": "/ 3 个月",
+        "6m": "/ 6 个月"
+      },
+      "plans": {
+        "regular": "标准",
+        "family": "家庭",
+        "business": "商务"
+      },
+      "devices": {
+        "regular": "最多 5 台设备",
+        "family": "最多 15 台设备",
+        "business": "最多 30 台设备"
+      },
+      "extra": {
+        "regular": "60 ₽ / 额外设备",
+        "family": "45 ₽ / 额外设备",
+        "business": "30 ₽ / 额外设备"
+      },
+      "badges": {
+        "family": "最优选择",
+        "business": "最大优惠"
+      },
+      "cta": "免费试用",
+      "foot": "3 天免费 • 无限流量 • 最多 5 台设备"
+    },
+    "quickConnect": {
+      "title": "几分钟即可快速连接",
+      "steps": {
+        "register": {
+          "title": "注册账户",
+          "desc": "通过邮箱或 Telegram"
+        },
+        "install": {
+          "title": "安装应用",
+          "desc": "适用于所有设备"
+        },
+        "connect": {
+          "title": "连接使用",
+          "desc": "您很出色,网络很自由"
+        }
+      }
+    },
+    "faq": {
+      "title": "常见问题",
+      "items": {
+        "devices": {
+          "q": "一份订阅可用多少台设备?",
+          "a": "VERNO VPN 一份订阅在最高套餐下最多支持 30 台设备,基础套餐最多 5 台。手机、笔记本、台式机、平板、电视——在同一套餐内连接您实际使用的设备。"
+        },
+        "youtube": {
+          "q": "是否支持 YouTube 和 Telegram?",
+          "a": "支持。VERNO VPN 适用于 YouTube、Telegram、TikTok 以及日常上网。"
+        },
+        "data": {
+          "q": "你们如何处理我的数据?",
+          "a": "无任何多余处理。我们不保存日志,也不进行隐藏的数据收集。您的流量被加密,网络活动保持私密。"
+        },
+        "trial": {
+          "q": "3 天后会怎样?",
+          "a": "免费期结束后,访问会自动停止。无需绑卡、无自动续费、无扣款。如需继续——选择套餐并续费即可。"
+        },
+        "protocol": {
+          "q": "VERNO VPN 使用什么技术?",
+          "a": "VERNO VPN 使用 VLESS,这是一种快速稳定的日常协议。"
+        },
+        "what": {
+          "q": "VPN 究竟做什么?",
+          "a": "VPN 通过安全服务器转发您的流量。它隐藏真实 IP,使连接对外人更加私密。"
+        },
+        "russia": {
+          "q": "在俄罗斯使用 VPN 安全吗?",
+          "a": "安全。VERNO VPN 在俄罗斯使用是安全的。我们不保留日志,不存储您的数据,流量经过加密和伪装。"
+        },
+        "where": {
+          "q": "在哪里订阅?",
+          "a": "您可以直接在网站或通过 Telegram 机器人订阅 VERNO VPN。选择对您更方便的方式。"
+        },
+        "speed": {
+          "q": "如何获得更高速度和更低延迟?",
+          "a": "最简单的方式是选择离您较近的服务器。网络越好、服务器越合适,速度越高、延迟越低。"
+        },
+        "noWork": {
+          "q": "如果 VPN 不可用怎么办?",
+          "a": "如果 VERNO VPN 在您所在地区不可用,可申请退款。我们会在申请后 7 天内全额退款。"
+        }
+      }
+    },
+    "footer": {
+      "tagline": "适用于日常上网的快速清晰 VPN。无日志,无隐藏条款。",
+      "navigation": "导航",
+      "info": "信息",
+      "policy": "隐私政策",
+      "terms": "用户协议",
+      "refund": "退款条款",
+      "bot": "Telegram 机器人",
+      "support": "支持",
+      "copyright": "© 2026 VERNO VPN. 保留所有权利。"
+    },
+    "cta": {
+      "title": "免费试用 VERNO VPN",
+      "subtitle": "3 天无需绑卡,无任何承诺",
+      "button": "免费试用"
+    },
+    "platforms": {
+      "title": "一份订阅 — 覆盖所有设备",
+      "subtitle": "在同一个套餐内连接您的手机、笔记本、台式机和其他兼容设备。快速、安全、无烦扰。",
+      "note": "VERNO VPN 支持所有可以安装 Happ 或 V2RayTun 的平台。"
     }
   },
   "gift": {
@@ -4360,6 +4666,16 @@
     },
     "warning": {
       "telegram_unresolvable": "无法验证此 Telegram 用户名。收件人可能不会收到礼物通知。"
+    },
+    "activatedTitle": "礼物已激活",
+    "activatedWithTariff": "礼物已激活:{{tariff}}",
+    "activatedWithTariffDays": "礼物已激活:{{tariff}} 共 {{days}} 天",
+    "activatedGeneric": "礼物激活成功",
+    "errors": {
+      "ownGift": "不能激活自己的礼物",
+      "expired": "礼物已过期",
+      "alreadyActivated": "此礼物已被激活",
+      "generic": "激活礼物失败"
     }
   },
   "news": {
@@ -4421,5 +4737,147 @@
         "linkUrlPrompt": "URL："
       }
     }
+  },
+  "subscriptionPage": {
+    "title": "订阅",
+    "newPlan": "新套餐",
+    "noActiveSubs": "暂无生效订阅",
+    "selectPlan": "选择套餐",
+    "subscriptionFallback": "订阅",
+    "planTrial": "试用",
+    "planActive": "有效",
+    "subscriptionActive": "订阅有效",
+    "activeUntil": "有效期至",
+    "planLabel": "套餐",
+    "devicesLabel": "设备",
+    "devicesOf": "{{used}} / {{total}}",
+    "renew": "续订",
+    "giftSubscription": "赠送订阅",
+    "expired": "订阅已过期",
+    "limited": "订阅受限",
+    "noActive": "暂无生效订阅",
+    "trafficHeader": "流量",
+    "trafficUsage": "{{used}} GB / {{total}} GB",
+    "trafficRefreshing": "刷新中…",
+    "trafficRefreshIn": "{{seconds}} 秒后刷新",
+    "trafficRefresh": "刷新流量",
+    "connectionHeader": "连接",
+    "copyLink": "复制",
+    "connect": "连接",
+    "devicesHeader": "我的设备",
+    "deleteDevicePrompt": "删除设备?",
+    "deleteDeviceLabel": "删除设备",
+    "noDevicesYet": "暂无已连接的设备。",
+    "buyDevicesShort": "添加",
+    "reduceDevicesShort": "减少",
+    "giftsHeader": "我的礼物",
+    "giftsEmptyTitle": "您还没有礼物",
+    "giftsEmptyHint": "为朋友购买礼物 — 代码将在此显示。",
+    "giftAvailable": "可用",
+    "giftActivated": "已激活",
+    "giftPlan": "套餐",
+    "giftDuration": "有效期",
+    "giftDurationDays": "{{days}} 天",
+    "giftDevices": "设备",
+    "giftDevicesUpTo": "最多 {{count}} 台",
+    "giftPurchaseDate": "购买日期",
+    "copied": "已复制",
+    "shareGift": "分享",
+    "giftShareTitle": "{{brand}} 礼物",
+    "giftShareText": "{{brand}} 礼物\n代码:{{token}}\n套餐:{{tariff}}\n时长:{{days}} 天。",
+    "buyDevicesTitle": "添加设备",
+    "willBeAdded": "将添加",
+    "devicesShort": "{{count}} 台",
+    "cost": "费用",
+    "devicesAfter": "添加后设备数",
+    "purchaseUnavailable": "暂时无法购买",
+    "processing": "处理中…",
+    "confirmPurchase": "确认购买",
+    "insufficientFunds": "余额不足",
+    "insufficientHint": "还差 {{amount}} {{currency}}。请充值以继续。",
+    "topUpBalance": "充值",
+    "devicesAdded": "设备已添加",
+    "done": "完成",
+    "reduceDevicesTitle": "减少设备",
+    "reduceUnavailable": "当前无法减少。",
+    "willBeRemoved": "将移除",
+    "applying": "应用中…",
+    "devicesReduced": "设备已减少"
+  },
+  "renewPage": {
+    "back": "← 返回",
+    "month_other": "{{count}} 个月",
+    "days": "{{count}} 天",
+    "currentTariff": "当前",
+    "trafficGb": "{{amount}} GB",
+    "devicesUpTo": "最多 {{count}} 台",
+    "perMonth": "{{amount}} {{currency}}/月",
+    "unavailable": "不可用"
+  },
+  "giftsPage": {
+    "title": "礼物",
+    "back": "← 返回",
+    "unavailableTitle": "礼物功能暂时不可用",
+    "unavailableDesc": "礼物功能已被管理员关闭。",
+    "selectTitle": "选择礼物",
+    "confirmTitle": "确认",
+    "next": "下一步",
+    "trafficGb": "{{amount}} GB",
+    "unlimited": "无限",
+    "devicesUpTo": "最多 {{count}} 台",
+    "perMonthShort": "{{price}}/月",
+    "unavailable": "不可用",
+    "confirmDescription": "您正在购买礼物订阅。付款后我们将生成优惠码 — 发送给您的朋友,让他们在自己的账户中激活订阅。优惠码也会保存在「我的礼物」中,可以稍后复制或发送。",
+    "tariffLabel": "套餐",
+    "periodLabel": "时长",
+    "devicesLabel": "设备",
+    "trafficLabel": "流量",
+    "totalLabel": "总计",
+    "deviceUpTo": "最多 {{count}}",
+    "balanceMode": "余额支付 ({{amount}})",
+    "gatewayMode": "通过网关",
+    "insufficientPart1": "余额不足。",
+    "insufficientTopUp": "充值",
+    "insufficientPart2": "或选择网关支付。",
+    "processing": "处理中…",
+    "payFromBalance": "余额支付 · {{price}}",
+    "payViaGateway": "前往支付 · {{price}}",
+    "payViaGatewayWithMethod": "前往支付 · {{price}}(通过 {{method}})",
+    "giftSubscription": "赠送订阅",
+    "giftSubscriptionDesc": "购买订阅,获取优惠码并发送给朋友 — 他们将在自己的账户中激活。",
+    "myGiftsHeader": "我的礼物",
+    "noGiftsTitle": "您还没有礼物",
+    "noGiftsDesc": "为朋友购买礼物 — 优惠码将在此处显示。",
+    "status": {
+      "activated": "已激活",
+      "available": "可用",
+      "pending": "等待中",
+      "failed": "错误",
+      "expired": "已过期",
+      "delivered": "已收到",
+      "pendingActivation": "等待激活"
+    },
+    "row": {
+      "tariff": "套餐",
+      "period": "有效期",
+      "devices": "设备",
+      "devicesUpTo": "最多 {{count}}",
+      "purchaseDate": "购买日期",
+      "date": "日期",
+      "activatedBy": "激活者",
+      "copied": "已复制",
+      "copy": "复制",
+      "share": "分享"
+    },
+    "received": {
+      "from": "来自 {{sender}} 的礼物"
+    },
+    "share": {
+      "intro": "送你订阅!优惠码:{{code}}",
+      "viaBot": "通过机器人激活:{{link}}",
+      "viaCabinet": "在账户中激活:{{link}}"
+    },
+    "loadFailed": "加载礼物失败。",
+    "purchaseFailed": "礼物处理失败。"
   }
 }

@@ -206,7 +206,7 @@ export default function InstallationGuide({
           {!isTelegramWebApp && (
             <button
               onClick={onGoBack}
-              className="-mb-2 flex items-center gap-1.5 text-sm text-white/40 transition-colors hover:text-white/65"
+              className="-mb-2 flex items-center gap-1.5 text-[15px] text-white/40 transition-colors hover:text-white/65"
             >
               <svg
                 className="h-3.5 w-3.5"
@@ -223,7 +223,7 @@ export default function InstallationGuide({
           <div className="flex items-center gap-3">
             <h2
               className="flex-1 text-white"
-              style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+              style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
             >
               {getBaseTranslation('installationGuideHeader', 'subscription.connection.title')}
             </h2>
@@ -273,7 +273,7 @@ export default function InstallationGuide({
                       if (app) setSelectedApp(app);
                     }
                   }}
-                  className={`appearance-none rounded-xl border border-white/[0.08] bg-white/[0.04] py-2 pr-8 text-sm font-medium text-white/65 outline-none transition-colors hover:border-white/[0.18] ${
+                  className={`appearance-none rounded-xl border border-white/[0.08] bg-white/[0.04] py-2 pr-8 text-[15px] font-medium text-white/65 outline-none transition-colors hover:border-white/[0.18] ${
                     currentPlatformSvg ? 'pl-10' : 'pl-4'
                   }`}
                 >
@@ -361,7 +361,7 @@ export default function InstallationGuide({
                     if (app) setSelectedApp(app);
                   }
                 }}
-                className={`appearance-none rounded-xl border py-2 pr-8 text-sm font-medium outline-none transition-colors ${
+                className={`appearance-none rounded-xl border py-2 pr-8 text-[15px] font-medium outline-none transition-colors ${
                   isLight
                     ? 'border-dark-700/60 bg-white/80 text-dark-200 shadow-sm hover:border-dark-600'
                     : 'border-dark-700 bg-dark-800 text-dark-200 hover:border-dark-600'
@@ -403,7 +403,7 @@ export default function InstallationGuide({
               <button
                 key={app.name + idx}
                 onClick={() => setSelectedApp(app)}
-                className={`relative flex min-w-[calc(50%-0.25rem)] items-center gap-2 overflow-hidden rounded-xl px-4 py-2 text-sm transition-all active:scale-[0.97] ${
+                className={`relative flex min-w-[calc(50%-0.25rem)] items-center gap-2 overflow-hidden rounded-xl px-4 py-2 text-[15px] transition-all active:scale-[0.97] ${
                   isVerno
                     ? isSelected
                       ? 'border border-white/20 bg-white/[0.08] text-white/85'
@@ -448,7 +448,7 @@ export default function InstallationGuide({
           rel="noopener noreferrer"
           className={
             isVerno
-              ? 'flex w-full items-center justify-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.03] px-4 py-3 text-sm text-white/65 transition-colors hover:border-white/[0.22] hover:bg-white/[0.06] hover:text-white/85'
+              ? 'flex w-full items-center justify-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.03] px-4 py-3 text-[15px] text-white/65 transition-colors hover:border-white/[0.22] hover:bg-white/[0.06] hover:text-white/85'
               : 'btn-secondary w-full justify-center'
           }
         >

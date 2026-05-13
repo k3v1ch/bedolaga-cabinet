@@ -1,6 +1,7 @@
-import { lazy, Suspense, type ComponentType } from 'react';
+import { lazy, Suspense, useEffect, type ComponentType, type ReactNode } from 'react';
 import { Routes, Route, Navigate, useLocation, useParams } from 'react-router';
 import { useAuthStore } from './store/auth';
+import { hidePreloader } from './utils/preloader';
 
 /**
  * Wrapper around React.lazy that auto-reloads the page when a chunk fails to load
@@ -22,7 +23,18 @@ function lazyWithRetry<T extends ComponentType<unknown>>(factory: () => Promise<
 }
 import { useBlockingStore } from './store/blocking';
 import Layout from './components/layout/Layout';
-import PageLoader from './components/common/PageLoader';
+
+/**
+ * Hides the pre-React HTML preloader once real route content has mounted.
+ * Wrapping the children of <Suspense> ensures the effect runs only when the
+ * actual chunk has resolved, not while the fallback is shown.
+ */
+function PreloaderGate({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    hidePreloader();
+  }, []);
+  return <>{children}</>;
+}
 import {
   MaintenanceScreen,
   ChannelSubscriptionScreen,
@@ -180,7 +192,8 @@ function ProtectedRoute({
   const location = useLocation();
 
   if (isLoading) {
-    return <PageLoader variant="dark" />;
+    // Render nothing while auth resolves — the HTML preloader stays visible.
+    return null;
   }
 
   if (!isAuthenticated) {
@@ -198,7 +211,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   const location = useLocation();
 
   if (isLoading) {
-    return <PageLoader variant="light" />;
+    return null;
   }
 
   if (!isAuthenticated) {
@@ -213,9 +226,15 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   return <Layout>{children}</Layout>;
 }
 
-// Suspense wrapper for lazy components
+// Suspense wrapper for lazy components.
+// Fallback is `null` so the HTML preloader (#verno-preloader) shows through
+// while the route chunk loads. Once the children mount, PreloaderGate hides it.
 function LazyPage({ children }: { children: React.ReactNode }) {
-  return <Suspense fallback={<PageLoader variant="dark" />}>{children}</Suspense>;
+  return (
+    <Suspense fallback={null}>
+      <PreloaderGate>{children}</PreloaderGate>
+    </Suspense>
+  );
 }
 
 /** Root route: shows the public landing for guests, or the cabinet home for authenticated users. */
@@ -224,11 +243,15 @@ function RootRoute() {
   const isLoading = useAuthStore((state) => state.isLoading);
 
   if (isLoading) {
-    return <PageLoader variant="dark" />;
+    return null;
   }
 
   if (!isAuthenticated) {
-    return <CabinetLanding />;
+    return (
+      <PreloaderGate>
+        <CabinetLanding />
+      </PreloaderGate>
+    );
   }
 
   return (
@@ -268,7 +291,7 @@ function App() {
   useAnalyticsCounters();
 
   return (
-    <>
+    <PreloaderGate>
       <BlockingOverlay />
       <Routes>
         {/* Public routes */}
@@ -1389,7 +1412,7 @@ function App() {
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </>
+    </PreloaderGate>
   );
 }
 

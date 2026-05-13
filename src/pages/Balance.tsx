@@ -381,7 +381,7 @@ export default function Balance() {
                 <div className="mt-4">
                   {isLoading ? (
                     <div className="flex items-center justify-center py-12">
-                      <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+                      <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
                     </div>
                   ) : transactions?.items && transactions.items.length > 0 ? (
                     <motion.div

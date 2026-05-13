@@ -53,7 +53,7 @@ export function CampaignDetailPanel({ campaignId, className }: CampaignDetailPan
       <div className="overflow-y-auto p-4 pb-[calc(1rem+var(--safe-bottom,0px))]">
         {isLoading && (
           <div className="flex items-center justify-center py-8">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-dark-600 border-t-accent-400" />
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/10 border-t-white/55" />
           </div>
         )}
 

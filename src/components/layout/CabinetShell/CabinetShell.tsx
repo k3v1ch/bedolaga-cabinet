@@ -1,8 +1,8 @@
-import { type ReactNode } from 'react';
+import { type ReactNode, useEffect } from 'react';
 import { Link, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { Home, CreditCard, Wallet, Headphones, User, Gift, Users } from 'lucide-react';
+import { Home, CreditCard, Wallet, Headphones, User, Users, Shield } from 'lucide-react';
 
 import { useAuthStore } from '@/store/auth';
 import { balanceApi } from '@/api/balance';
@@ -10,6 +10,8 @@ import { ticketNotificationsApi } from '@/api/ticketNotifications';
 import { useBranding } from '@/hooks/useBranding';
 import { useCurrency } from '@/hooks/useCurrency';
 import { cn } from '@/lib/utils';
+
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 import { useDevState } from './DevStateContext';
 
@@ -34,7 +36,6 @@ const TABS: TabDef[] = [
   },
   { path: '/profile', labelKey: 'nav.profile', fallback: 'Профиль', icon: User },
   { path: '/referral', labelKey: 'nav.referral', fallback: 'Реферальная', icon: Users },
-  { path: '/gifts', labelKey: 'nav.gifts', fallback: 'Подарки', icon: Gift },
 ];
 
 interface CabinetShellProps {
@@ -45,7 +46,18 @@ export function CabinetShell({ children }: CabinetShellProps) {
   const { t } = useTranslation();
   const location = useLocation();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isAdmin = useAuthStore((s) => s.isAdmin);
+  const userId = useAuthStore((s) => s.user?.id);
+  const checkAdminStatus = useAuthStore((s) => s.checkAdminStatus);
   const logout = useAuthStore((s) => s.logout);
+
+  // Re-verify admin status whenever the authenticated user changes.
+  // Prevents stale `isAdmin` after switching accounts in another tab.
+  useEffect(() => {
+    if (isAuthenticated) {
+      void checkAdminStatus();
+    }
+  }, [isAuthenticated, userId, checkAdminStatus]);
   const { appName } = useBranding();
   const { formatAmount, currencySymbol } = useCurrency();
   const { devState } = useDevState();
@@ -95,13 +107,31 @@ export function CabinetShell({ children }: CabinetShellProps) {
           </Link>
 
           <div className="flex items-center gap-3">
-            <span className="hidden rounded-full border border-white/[0.08] bg-white/[0.05] px-3 py-1.5 text-xs text-white/50 sm:inline-block">
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] transition-colors',
+                  location.pathname.startsWith('/admin')
+                    ? 'border-amber-400/40 bg-amber-400/10 text-amber-300'
+                    : 'border-amber-400/20 bg-amber-400/[0.06] text-amber-300/80 hover:bg-amber-400/10 hover:text-amber-300',
+                )}
+                title={t('admin.nav.title', { defaultValue: 'Админ-панель' })}
+              >
+                <Shield size={12} strokeWidth={2} />
+                <span className="hidden sm:inline">
+                  {t('admin.nav.title', { defaultValue: 'Админ' })}
+                </span>
+              </Link>
+            )}
+            <span className="hidden rounded-full border border-white/[0.08] bg-white/[0.05] px-3 py-1.5 text-[13px] text-white/50 sm:inline-block">
               <Wallet size={12} className="-mt-0.5 mr-1.5 inline" />
               {formatAmount(balanceRub)} {currencySymbol}
             </span>
+            <LanguageSwitcher />
             <button
               onClick={() => logout()}
-              className="text-sm text-white/40 transition-colors hover:text-white/60"
+              className="text-[15px] text-white/40 transition-colors hover:text-white/60"
             >
               {t('nav.logout', { defaultValue: 'Выход' })}
             </button>
@@ -120,7 +150,7 @@ export function CabinetShell({ children }: CabinetShellProps) {
                 key={tab.path}
                 to={tab.path}
                 className={cn(
-                  'flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm transition-all',
+                  'flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-[15px] transition-all',
                   active
                     ? 'bg-white/[0.08] text-white'
                     : 'text-white/35 hover:bg-white/[0.03] hover:text-white/60',

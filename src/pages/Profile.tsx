@@ -646,7 +646,7 @@ export default function Profile() {
 
           {notificationsLoading ? (
             <div className="flex justify-center py-4">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
             </div>
           ) : notificationSettings ? (
             <div className="space-y-6">

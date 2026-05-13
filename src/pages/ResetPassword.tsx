@@ -104,7 +104,7 @@ export default function ResetPassword() {
               <p className="mb-4 text-dark-400">
                 {t('resetPassword.redirectingToLogin', 'Redirecting to login...')}
               </p>
-              <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+              <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
             </div>
           ) : (
             <>

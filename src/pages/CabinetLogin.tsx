@@ -21,6 +21,7 @@ import {
 import { getAndClearReturnUrl, tokenStorage } from '@/utils/token';
 import { isInTelegramWebApp, getTelegramInitData, useTelegramSDK } from '@/hooks/useTelegramSDK';
 import CabinetTelegramLogin from '@/components/auth/CabinetTelegramLogin';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import OAuthProviderIcon from '@/components/OAuthProviderIcon';
 import { saveOAuthState } from '@/utils/oauth';
 import { getPendingReferralCode } from '@/utils/referral';
@@ -62,7 +63,7 @@ function GlassInput({
         autoComplete={autoComplete}
         required={required}
         autoFocus={autoFocus}
-        className="verno-input w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white/80 outline-none transition-colors placeholder:text-white/25 focus:border-white/25 focus:bg-white/[0.08]"
+        className="verno-input w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-[15px] text-white/80 outline-none transition-colors placeholder:text-white/25 focus:border-white/25 focus:bg-white/[0.08]"
       />
       {isPassword && (
         <button
@@ -350,6 +351,14 @@ export default function CabinetLogin() {
           safeBottom > 0 ? `${safeBottom + 16}px` : 'calc(1rem + env(safe-area-inset-bottom, 0px))',
       }}
     >
+      <div
+        className="absolute right-4 z-20"
+        style={{
+          top: safeTop > 0 ? `${safeTop + 12}px` : 'calc(0.75rem + env(safe-area-inset-top, 0px))',
+        }}
+      >
+        <LanguageSwitcher />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -370,7 +379,7 @@ export default function CabinetLogin() {
           {referralCode && isEmailAuthEnabled && !registeredEmail && !showForgotPassword && (
             <div className="mb-5 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2.5">
               <Users size={14} className="shrink-0 text-white/50" />
-              <span className="text-xs text-white/55" style={{ fontWeight: 500 }}>
+              <span className="text-[13px] text-white/55" style={{ fontWeight: 500 }}>
                 {t('auth.referralInvite')}
               </span>
             </div>
@@ -387,13 +396,13 @@ export default function CabinetLogin() {
                 className="py-2 text-center"
               >
                 <Mail size={32} className="mx-auto mb-3 text-white/20" />
-                <p className="mb-2 text-sm text-white/65" style={{ fontWeight: 500 }}>
+                <p className="mb-2 text-[15px] text-white/65" style={{ fontWeight: 500 }}>
                   {t('auth.checkEmail', 'Подтвердите почту')}
                 </p>
-                <p className="mb-2 text-xs text-white/35" style={{ lineHeight: 1.6 }}>
+                <p className="mb-2 text-[13px] text-white/35" style={{ lineHeight: 1.6 }}>
                   {t('auth.verificationSent', 'Мы отправили ссылку для подтверждения на:')}
                 </p>
-                <p className="mb-4 text-sm text-white/65" style={{ fontWeight: 500 }}>
+                <p className="mb-4 text-[15px] text-white/65" style={{ fontWeight: 500 }}>
                   {registeredEmail}
                 </p>
                 <button
@@ -401,7 +410,7 @@ export default function CabinetLogin() {
                     setRegisteredEmail(null);
                     setAuthMode('login');
                   }}
-                  className="text-xs text-white/35 transition-colors hover:text-white/60"
+                  className="text-[13px] text-white/35 transition-colors hover:text-white/60"
                 >
                   {t('auth.backToLogin', 'Вернуться ко входу')}
                 </button>
@@ -416,10 +425,10 @@ export default function CabinetLogin() {
                   className="py-2 text-center"
                 >
                   <Mail size={32} className="mx-auto mb-3 text-white/20" />
-                  <p className="mb-2 text-sm text-white/65" style={{ fontWeight: 500 }}>
+                  <p className="mb-2 text-[15px] text-white/65" style={{ fontWeight: 500 }}>
                     {t('auth.checkEmail', 'Ссылка отправлена')}
                   </p>
-                  <p className="mb-4 text-xs text-white/35" style={{ lineHeight: 1.6 }}>
+                  <p className="mb-4 text-[13px] text-white/35" style={{ lineHeight: 1.6 }}>
                     {t(
                       'auth.passwordResetSent',
                       'Если аккаунт с такой почтой существует, мы отправили инструкции для сброса пароля.',
@@ -427,7 +436,7 @@ export default function CabinetLogin() {
                   </p>
                   <button
                     onClick={closeForgotPasswordModal}
-                    className="mx-auto flex items-center justify-center gap-1 text-xs text-white/35 transition-colors hover:text-white/60"
+                    className="mx-auto flex items-center justify-center gap-1 text-[13px] text-white/35 transition-colors hover:text-white/60"
                   >
                     <ArrowLeft size={12} /> {t('common.back', 'Назад')}
                   </button>
@@ -440,7 +449,7 @@ export default function CabinetLogin() {
                   exit={{ opacity: 0 }}
                   className="flex flex-col gap-3"
                 >
-                  <p className="text-sm text-white/40" style={{ lineHeight: 1.6 }}>
+                  <p className="text-[15px] text-white/40" style={{ lineHeight: 1.6 }}>
                     {t(
                       'auth.forgotPasswordHint',
                       'Введите email и мы отправим инструкции для сброса пароля.',
@@ -457,12 +466,12 @@ export default function CabinetLogin() {
                       autoFocus
                     />
                     {forgotPasswordError && (
-                      <p className="text-xs text-red-400/80">{forgotPasswordError}</p>
+                      <p className="text-[13px] text-red-400/80">{forgotPasswordError}</p>
                     )}
                     <button
                       type="submit"
                       disabled={forgotPasswordLoading}
-                      className="mt-1 w-full rounded-full bg-white py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
+                      className="mt-1 w-full rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
                       style={{ fontWeight: 500 }}
                     >
                       {forgotPasswordLoading
@@ -473,7 +482,7 @@ export default function CabinetLogin() {
                   <button
                     type="button"
                     onClick={closeForgotPasswordModal}
-                    className="mx-auto mt-1 flex items-center justify-center gap-1 text-xs text-white/35 transition-colors hover:text-white/60"
+                    className="mx-auto mt-1 flex items-center justify-center gap-1 text-[13px] text-white/35 transition-colors hover:text-white/60"
                   >
                     <ArrowLeft size={12} /> {t('common.back', 'Назад')}
                   </button>
@@ -488,7 +497,7 @@ export default function CabinetLogin() {
               >
                 {/* Top error (general) */}
                 {error && !isTelegramWebApp && (
-                  <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/[0.06] px-4 py-2.5 text-xs text-red-400/80">
+                  <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/[0.06] px-4 py-2.5 text-[13px] text-red-400/80">
                     {error}
                   </div>
                 )}
@@ -497,22 +506,22 @@ export default function CabinetLogin() {
                 {isLoading && isTelegramWebApp ? (
                   <div className="py-6 text-center">
                     <div className="mx-auto mb-3 h-7 w-7 animate-spin rounded-full border-2 border-white/30 border-t-transparent" />
-                    <p className="text-sm text-white/45">{t('auth.authenticating')}</p>
+                    <p className="text-[15px] text-white/45">{t('auth.authenticating')}</p>
                   </div>
                 ) : isTelegramWebApp && error ? (
                   <div className="space-y-3 text-center">
-                    <p className="rounded-xl border border-red-500/20 bg-red-500/[0.06] px-4 py-2.5 text-xs text-red-400/80">
+                    <p className="rounded-xl border border-red-500/20 bg-red-500/[0.06] px-4 py-2.5 text-[13px] text-red-400/80">
                       {error}
                     </p>
                     <button
                       onClick={handleRetryTelegramAuth}
-                      className="mx-auto flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+                      className="mx-auto flex items-center gap-2 rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
                       style={{ fontWeight: 500 }}
                     >
                       <RefreshCw size={14} />
                       {t('auth.tryAgain', 'Повторить')}
                     </button>
-                    <p className="text-xs text-white/30">
+                    <p className="text-[13px] text-white/30">
                       {t(
                         'auth.telegramReopenHint',
                         'Если проблема не уйдёт — закройте и снова откройте приложение',
@@ -529,7 +538,7 @@ export default function CabinetLogin() {
                       <>
                         <div className="my-6 flex items-center gap-3">
                           <div className="h-px flex-1 bg-white/[0.08]" />
-                          <span className="text-xs text-white/20">{t('auth.or', 'или')}</span>
+                          <span className="text-[13px] text-white/20">{t('auth.or', 'или')}</span>
                           <div className="h-px flex-1 bg-white/[0.08]" />
                         </div>
                         <div className="flex items-stretch gap-2">
@@ -561,7 +570,7 @@ export default function CabinetLogin() {
                       <>
                         <div className="my-6 flex items-center gap-3">
                           <div className="h-px flex-1 bg-white/[0.08]" />
-                          <span className="text-xs text-white/20">{t('auth.or', 'или')}</span>
+                          <span className="text-[13px] text-white/20">{t('auth.or', 'или')}</span>
                           <div className="h-px flex-1 bg-white/[0.08]" />
                         </div>
 
@@ -570,7 +579,7 @@ export default function CabinetLogin() {
                           <button
                             type="button"
                             onClick={() => setAuthMode('login')}
-                            className={`flex-1 rounded-full py-2 text-sm transition-all ${
+                            className={`flex-1 rounded-full py-2 text-[15px] transition-all ${
                               authMode === 'login'
                                 ? 'bg-white/10 text-white'
                                 : 'text-white/35 hover:text-white/55'
@@ -581,7 +590,7 @@ export default function CabinetLogin() {
                           <button
                             type="button"
                             onClick={() => setAuthMode('register')}
-                            className={`flex-1 rounded-full py-2 text-sm transition-all ${
+                            className={`flex-1 rounded-full py-2 text-[15px] transition-all ${
                               authMode === 'register'
                                 ? 'bg-white/10 text-white'
                                 : 'text-white/35 hover:text-white/55'
@@ -630,7 +639,7 @@ export default function CabinetLogin() {
                           {authMode === 'register' &&
                             password.length > 0 &&
                             password.length < 8 && (
-                              <p className="text-xs text-red-400/80">
+                              <p className="text-[13px] text-red-400/80">
                                 {t(
                                   'auth.passwordTooShort',
                                   'Пароль должен быть не меньше 8 символов',
@@ -654,7 +663,7 @@ export default function CabinetLogin() {
                           <button
                             type="submit"
                             disabled={isLoading}
-                            className="mt-1 w-full rounded-full bg-white py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
+                            className="mt-1 w-full rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
                             style={{ fontWeight: 500 }}
                           >
                             {isLoading
@@ -667,7 +676,7 @@ export default function CabinetLogin() {
 
                         {authMode === 'register' && (
                           <p
-                            className="mt-1 text-center text-xs text-white/25"
+                            className="mt-1 text-center text-[13px] text-white/25"
                             style={{ lineHeight: 1.5 }}
                           >
                             {t(
@@ -681,7 +690,7 @@ export default function CabinetLogin() {
                           <button
                             type="button"
                             onClick={() => setShowForgotPassword(true)}
-                            className="mt-4 block w-full text-center text-xs text-white/30 transition-colors hover:text-white/55"
+                            className="mt-4 block w-full text-center text-[13px] text-white/30 transition-colors hover:text-white/55"
                           >
                             {t('auth.forgotPassword', 'Забыли пароль?')}
                           </button>
@@ -697,7 +706,7 @@ export default function CabinetLogin() {
 
         <Link
           to="/"
-          className="mt-6 inline-block text-sm text-white/20 transition-colors hover:text-white/40"
+          className="mt-6 inline-block text-[15px] text-white/20 transition-colors hover:text-white/40"
         >
           ← {t('auth.toHome', 'На главную')}
         </Link>

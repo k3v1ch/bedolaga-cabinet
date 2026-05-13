@@ -220,7 +220,7 @@ export default function Support() {
   if (configLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
       </div>
     );
   }
@@ -437,7 +437,7 @@ export default function Support() {
 
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
             </div>
           ) : tickets?.items && tickets.items.length > 0 ? (
             <div className="space-y-2">
@@ -624,7 +624,7 @@ export default function Support() {
               {/* Messages */}
               {detailLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
                 </div>
               ) : ticketDetail?.messages ? (
                 <div className="scrollbar-hide mb-6 max-h-96 flex-1 space-y-4 overflow-y-auto">

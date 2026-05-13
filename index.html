@@ -7,7 +7,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#0a0f1a" />
+    <meta name="theme-color" content="#000000" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="format-detection" content="telephone=no" />
@@ -42,12 +42,49 @@
       })();
     </script>
     <style>
+      html.dark,
+      html.dark body,
+      body:not(.light) {
+        background-color: #000 !important;
+      }
       body {
-        background-color: #0a0f1a;
+        margin: 0;
+        font-family:
+          'Inter',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        color: #fff;
+      }
+      #verno-preloader {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #000;
+        z-index: 9999;
+      }
+      #verno-preloader.is-hidden {
+        display: none;
+      }
+      #verno-preloader .brand {
+        letter-spacing: 0.16em;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #ffffff;
+      }
+      #verno-preloader .brand .accent {
+        color: rgba(255, 255, 255, 0.45);
+        font-weight: 500;
       }
     </style>
   </head>
   <body>
+    <div id="verno-preloader" aria-hidden="true">
+      <div class="brand">ВЕРНО <span class="accent">VPN</span></div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

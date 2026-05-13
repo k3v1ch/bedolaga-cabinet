@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router';
 import { Menu, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export function Header() {
+  const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
@@ -26,9 +29,7 @@ export function Header() {
   return (
     <header
       className={`fixed left-0 right-0 top-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? 'border-b border-white/[0.06] bg-black/70 py-3 backdrop-blur-2xl'
-          : 'bg-transparent py-5'
+        scrolled ? 'bg-black/70 py-3 backdrop-blur-2xl' : 'bg-transparent py-5'
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6">
@@ -47,13 +48,13 @@ export function Header() {
                 onClick={() => scrollTo('benefits')}
                 className="text-sm text-white/50 transition-colors hover:text-white"
               >
-                Преимущества
+                {t('landing.nav.benefits')}
               </button>
               <button
                 onClick={() => scrollTo('pricing')}
                 className="text-sm text-white/50 transition-colors hover:text-white"
               >
-                Цены
+                {t('landing.nav.pricing')}
               </button>
               <button
                 onClick={() => scrollTo('faq')}
@@ -63,17 +64,21 @@ export function Header() {
               </button>
             </>
           )}
+          <LanguageSwitcher />
           <Link
             to="/login"
             className="rounded-full border border-white/15 px-5 py-2.5 text-sm text-white/70 transition-all duration-300 hover:border-white/25 hover:bg-white/[0.06] hover:text-white"
           >
-            Вход
+            {t('landing.nav.login')}
           </Link>
         </nav>
 
-        <button className="text-white/70 md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <LanguageSwitcher />
+          <button className="text-white/70" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
       </div>
 
       {menuOpen && (
@@ -85,13 +90,13 @@ export function Header() {
                   onClick={() => scrollTo('benefits')}
                   className="py-2 text-left text-white/60"
                 >
-                  Преимущества
+                  {t('landing.nav.benefits')}
                 </button>
                 <button
                   onClick={() => scrollTo('pricing')}
                   className="py-2 text-left text-white/60"
                 >
-                  Цены
+                  {t('landing.nav.pricing')}
                 </button>
                 <button onClick={() => scrollTo('faq')} className="py-2 text-left text-white/60">
                   FAQ
@@ -103,7 +108,7 @@ export function Header() {
               onClick={() => setMenuOpen(false)}
               className="mt-2 rounded-full border border-white/15 px-5 py-3 text-center text-sm text-white/70"
             >
-              Вход
+              {t('landing.nav.login')}
             </Link>
           </div>
         </div>

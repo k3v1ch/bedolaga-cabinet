@@ -278,7 +278,7 @@ export default function TicketNotificationBell({ isAdmin = false }: TicketNotifi
           <div className="max-h-80 overflow-y-auto">
             {isLoading ? (
               <div className="p-8 text-center text-dark-500">
-                <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-accent-500 border-t-transparent"></div>
+                <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-white/15 border-t-transparent"></div>
               </div>
             ) : notificationsData?.items && notificationsData.items.length > 0 ? (
               notificationsData.items.map((notification: TicketNotification) => (

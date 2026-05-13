@@ -1,27 +1,55 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useRef, useEffect } from 'react';
 import { infoApi, type LanguageInfo } from '@/api/info';
+import { useAuthStore } from '@/store/auth';
+import { loadLanguage } from '@/i18n';
+
+const DEFAULT_LANGUAGES: LanguageInfo[] = [
+  { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+  { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'zh', name: '中文', flag: '🇨🇳' },
+  { code: 'fa', name: 'فارسی', flag: '🇮🇷' },
+];
+
+// Only these UI languages are supported in the cabinet. Backend may report extras
+// (e.g. uk) which we filter out so the switcher stays in sync with i18n bundles.
+const SUPPORTED_CODES = new Set(DEFAULT_LANGUAGES.map((l) => l.code));
 
 export default function LanguageSwitcher() {
   const { i18n } = useTranslation();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const [isOpen, setIsOpen] = useState(false);
-  const [availableLanguages, setAvailableLanguages] = useState<LanguageInfo[]>([]);
+  const [availableLanguages, setAvailableLanguages] = useState<LanguageInfo[]>(DEFAULT_LANGUAGES);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Skip backend fetch on public pages — it requires auth and a 401 here
+    // would trigger a global redirect to /login.
+    if (!isAuthenticated) return;
     const fetchLanguages = async () => {
       try {
         const data = await infoApi.getLanguages();
-        setAvailableLanguages(data.languages);
+        const merged: LanguageInfo[] = [...DEFAULT_LANGUAGES];
+        if (data?.languages?.length) {
+          for (const lang of data.languages) {
+            if (!SUPPORTED_CODES.has(lang.code)) continue;
+            const idx = merged.findIndex((l) => l.code === lang.code);
+            if (idx >= 0) merged[idx] = lang;
+          }
+        }
+        setAvailableLanguages(merged);
       } catch {
-        // Silently fall back to empty list — component handles it gracefully
+        // Keep default list if backend endpoint is unavailable
       }
     };
     fetchLanguages();
-  }, []);
+  }, [isAuthenticated]);
 
-  const currentLang = availableLanguages.find((l) => l.code === i18n.language) ||
-    availableLanguages[0] || { code: 'ru', name: 'RU', flag: '🇷🇺' };
+  const activeCode = i18n.language?.split('-')[0] || 'ru';
+  const currentLang =
+    availableLanguages.find((l) => l.code === activeCode) ||
+    availableLanguages[0] ||
+    DEFAULT_LANGUAGES[0];
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -33,10 +61,19 @@ export default function LanguageSwitcher() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const changeLanguage = (code: string) => {
-    i18n.changeLanguage(code);
-    document.documentElement.dir = code === 'fa' ? 'rtl' : 'ltr';
+  const changeLanguage = async (code: string) => {
     setIsOpen(false);
+    // Preload the bundle BEFORE switching so the first render after the change
+    // already has translations — otherwise users see raw keys/fallback until
+    // the dynamic import resolves and forces a manual reload.
+    await loadLanguage(code);
+    await i18n.changeLanguage(code);
+    document.documentElement.dir = code === 'fa' ? 'rtl' : 'ltr';
+    // Persist preference only when authenticated. On public pages (landing/login)
+    // a 401 from this endpoint would bounce the user to /login.
+    if (isAuthenticated) {
+      infoApi.updateUserLanguage(code).catch(() => undefined);
+    }
   };
 
   useEffect(() => {
@@ -48,20 +85,21 @@ export default function LanguageSwitcher() {
   }
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative" ref={dropdownRef} style={{ fontFamily: 'Inter, sans-serif' }}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-2 text-sm transition-all ${
+        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-colors ${
           isOpen
-            ? 'border-dark-600 bg-dark-700'
-            : 'border-dark-700/50 bg-dark-800/50 hover:border-dark-600 hover:bg-dark-700'
+            ? 'border-white/20 bg-white/[0.08] text-white/80'
+            : 'border-white/[0.08] bg-white/[0.05] text-white/60 hover:border-white/15 hover:bg-white/[0.08] hover:text-white/80'
         }`}
         aria-label="Change language"
+        aria-expanded={isOpen}
       >
-        <span>{currentLang.flag}</span>
-        <span className="font-medium text-dark-200">{currentLang.code.toUpperCase()}</span>
+        <span className="leading-none">{currentLang.flag}</span>
+        <span className="font-medium tracking-wide">{currentLang.code.toUpperCase()}</span>
         <svg
-          className={`h-3.5 w-3.5 text-dark-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`h-3 w-3 text-white/40 transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -71,21 +109,30 @@ export default function LanguageSwitcher() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 z-50 mt-2 w-40 animate-fade-in rounded-xl border border-dark-700/50 bg-dark-800 py-1 shadow-lg">
-          {availableLanguages.map((lang) => (
-            <button
-              key={lang.code}
-              onClick={() => changeLanguage(lang.code)}
-              className={`flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-                lang.code === i18n.language
-                  ? 'bg-accent-500/10 text-accent-400'
-                  : 'text-dark-300 hover:bg-dark-700/50'
-              }`}
-            >
-              <span>{lang.flag}</span>
-              <span>{lang.name}</span>
-            </button>
-          ))}
+        <div className="absolute right-0 z-50 mt-2 w-44 animate-fade-in overflow-hidden rounded-2xl border border-white/[0.08] bg-black/90 p-1 shadow-xl shadow-black/40 backdrop-blur-2xl">
+          {availableLanguages.map((lang) => {
+            const active = lang.code === activeCode;
+            return (
+              <button
+                key={lang.code}
+                onClick={() => changeLanguage(lang.code)}
+                className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs transition-colors ${
+                  active
+                    ? 'bg-white/[0.08] text-white'
+                    : 'text-white/55 hover:bg-white/[0.04] hover:text-white/80'
+                }`}
+              >
+                <span className="text-sm leading-none">{lang.flag}</span>
+                <span className="flex-1 text-left">{lang.name}</span>
+                {active && (
+                  <span
+                    className="h-1.5 w-1.5 rounded-full"
+                    style={{ backgroundColor: '#059E52' }}
+                  />
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

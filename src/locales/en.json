@@ -26,11 +26,16 @@
     "all": "All",
     "units": {
       "gb": "GB",
-      "perGb": "/GB"
+      "perGb": "/GB",
+      "mo": "mo"
     },
     "retry": "Retry",
     "saving": "Saving...",
-    "understand": "Got it"
+    "understand": "Got it",
+    "processing": "Processing…",
+    "balance": "Balance",
+    "topUpBalance": "Top up balance",
+    "ok": "OK"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -208,7 +213,19 @@
     "continueWithDiscord": "Continue with Discord",
     "continueWithVk": "Continue with VK",
     "oauthError": "Authorization was denied or failed",
-    "oauthExpired": "OAuth session expired. Please try again."
+    "oauthExpired": "OAuth session expired. Please try again.",
+    "toHome": "To home",
+    "telegram": {
+      "loginError": "Telegram login error",
+      "genericError": "Login error",
+      "linkExpired": "The link has expired. Please try again.",
+      "tryAgain": "Could not sign in. Please try again.",
+      "linkFailed": "Could not get the link. Please try later.",
+      "unavailable": "Telegram Login is unavailable, try refreshing the page.",
+      "waiting": "Waiting for confirmation in Telegram…",
+      "signIn": "Sign in with Telegram",
+      "openBotApp": "Or open the bot in the app"
+    }
   },
   "emailVerification": {
     "title": "Email Verification",
@@ -290,6 +307,44 @@
       "subscription": "Subscription",
       "referrals": "Referrals",
       "earnings": "Earnings"
+    },
+    "home": {
+      "title": "Home",
+      "multiTariffMessage": "You have multiple subscriptions — management has moved to the \"Subscription\" page.",
+      "gotoSubscriptions": "Go to subscriptions",
+      "pendingGifts_one": "You have {{count}} pending gift",
+      "pendingGifts_other": "You have {{count}} pending gifts",
+      "viewGift": "View",
+      "welcomeBrand": "Welcome to {{brand}}",
+      "trialOffer": "Start with a free trial: {{days}} days, {{traffic}}, up to {{devices}} devices.",
+      "trialOfferShort": "Start with a free trial period.",
+      "trialUnlimited": "unlimited traffic",
+      "trialTraffic": "{{amount}} GB",
+      "activating": "Activating…",
+      "activateTrial": "Activate trial",
+      "noSubscription": "Subscription inactive",
+      "trialUsed": "Trial period used. Choose a plan to continue.",
+      "selectPlan": "Choose a plan",
+      "giftSubscription": "Gift a subscription",
+      "subscriptionActive": "Subscription active",
+      "planLabel": "Plan",
+      "activeUntil": "Active until",
+      "devicesLabel": "Devices",
+      "devicesOf": "{{used}} of {{total}}",
+      "renew": "Renew subscription",
+      "trafficHeader": "TRAFFIC",
+      "trafficUsage": "{{used}} GB of {{total}} GB",
+      "trafficRefreshing": "Refreshing…",
+      "trafficRefreshIn": "Refresh in {{seconds}}s",
+      "trafficRefresh": "Refresh traffic",
+      "connectionHeader": "CONNECTION",
+      "copyLink": "Copy",
+      "connect": "Connect",
+      "referralTitle": "Referral program",
+      "referralHint": "Invite friends — up to 30% total reward",
+      "details": "Details",
+      "planTrial": "Trial",
+      "planActive": "Active"
     }
   },
   "subscription": {
@@ -512,7 +567,8 @@
       "switched": "Tariff switched",
       "notEnoughBalance": "Insufficient balance",
       "dailyPayment": "Daily payment",
-      "dailyChargeDescription": "Charged daily from your balance"
+      "dailyChargeDescription": "Charged daily from your balance",
+      "submit": "Switch plan"
     },
     "switchTraffic": {
       "title": "Change Traffic",
@@ -556,7 +612,11 @@
       "buyTrafficGb": "Buy {{gb}} GB",
       "buyUnlimited": "Buy Unlimited",
       "manageServers": "Squad management",
-      "manageServersTitle": "Squad management"
+      "manageServersTitle": "Squad management",
+      "currentDeviceLimit": "Current limit: {{count}}",
+      "minDeviceLimit": "Minimum: {{count}}",
+      "newDeviceLimit": "New limit: {{count}}",
+      "disconnectDevicesFirst": "Disconnect {{count}} device(s) first to reduce the limit"
     },
     "serverManagement": {
       "statusLegend": "✅ — connected • ➕ — will be added (paid) • ➖ — will be disconnected",
@@ -615,7 +675,22 @@
       "stopScan": "Close camera",
       "noCamera": "Camera access denied",
       "codeFound": "Code found"
-    }
+    },
+    "noRenewalOptions": "No renewal options available",
+    "insufficientBalanceAmount": "Insufficient funds. Missing {{missing}}",
+    "tariff_label": "Plan",
+    "notFound": "Subscription not found",
+    "notFoundDesc": "It may have been deleted or never existed",
+    "backToList": "My subscriptions",
+    "deleteWarning": "The subscription will be deleted permanently. All data, devices and settings will be lost.",
+    "confirmDelete": "Yes, delete",
+    "deleteTitle": "Delete subscription?",
+    "delete": "Delete subscription",
+    "loadError": "Failed to load subscription options",
+    "newTariff": "New plan",
+    "allTariffsPurchased": "All plans purchased",
+    "allTariffsPurchasedDesc": "You have already purchased all available plans. Renewals are managed on each plan page.",
+    "noOptionsAvailable": "No subscription options available"
   },
   "balance": {
     "title": "Balance",
@@ -733,7 +808,12 @@
         "already_used_by_user": "You have already used this promo code",
         "user_not_found": "User not found",
         "server_error": "Server error"
-      }
+      },
+      "placeholderCombined": "Enter promo or gift code",
+      "apply": "Apply",
+      "activatedTitle": "Promo code activated",
+      "discountActivatedTitle": "Discount activated",
+      "unrecognized": "Code not recognized. Make sure you entered a valid promo or gift code."
     },
     "minAmountError": "Minimum amount: {{amount}} ₽",
     "maxAmountError": "Maximum amount: {{amount}} ₽",
@@ -793,7 +873,16 @@
       "timeoutDesc": "Payment processing is taking longer than usual. You can try checking the status again.",
       "goToBalance": "Go to Balance",
       "tryAgain": "Try Again"
-    }
+    },
+    "amountPlaceholderMethod": "Top-up amount (from {{min}} {{currency}})",
+    "amountPlaceholderDefault": "Top-up amount (from 10 {{currency}})",
+    "amountRangeHint": "Amount from {{min}} to {{max}} {{currency}}.",
+    "amountTooSmall": "Amount too small. Enter at least 10 {{currency}}.",
+    "topUpMethod": "Top-up method",
+    "promoOrGiftHeader": "PROMO OR GIFT CODE",
+    "historyHeader": "TRANSACTION HISTORY",
+    "topUpTitle": "Top up balance",
+    "topUpAmount": "TOP UP AMOUNT"
   },
   "referral": {
     "title": "Referral Program",
@@ -904,7 +993,39 @@
         "expectedReferrals": "Expected Monthly Referrals",
         "expectedReferralsPlaceholder": "Estimated number per month",
         "desiredCommission": "Desired Commission (%)",
-        "desiredCommissionPlaceholder": "From 1 to 100%"
+        "desiredCommissionPlaceholder": "From 1 to 100%",
+        "contact": "Telegram username for contact"
+      },
+      "deepLink": "Deep-link",
+      "webLink": "Web-link",
+      "back": "Back to referral program",
+      "title": "Partner program",
+      "intro": "The next level of participation — for those ready to promote actively and earn more.",
+      "contactLabel": "Contact",
+      "requirementsTitle": "CONTENT REQUIREMENTS",
+      "payoutsTitle": "PAYOUT STRUCTURE",
+      "payoutsDesc": "Specific terms are discussed individually after the application is approved. Base commission is higher than the standard referral program.",
+      "payoutsNote": "Payouts: monthly, minimum withdrawal threshold is negotiable",
+      "ctaNote": "After you submit, we will contact you to discuss the terms",
+      "send": "Send application",
+      "fieldsHint": "If any field is not relevant — leave it empty",
+      "successTitle": "Application sent",
+      "successDesc": "Thank you for your interest in the partner program. We will review your application and contact you shortly.",
+      "benefit": {
+        "commissionTitle": "Higher commission",
+        "commissionDesc": "Greater percentage from each acquired customer",
+        "withdrawTitle": "Earnings withdrawal",
+        "withdrawDesc": "Real payouts to card or crypto",
+        "recurringTitle": "Recurring referral income",
+        "recurringDesc": "Percentage from every renewal of your referrals",
+        "botTitle": "Your own VPN bot in Telegram",
+        "botDesc": "Custom bot on our infrastructure"
+      },
+      "req": {
+        "honest": "Honest promotion without spam or deceit",
+        "info": "Up-to-date product information",
+        "rules": "Follow placement platforms rules",
+        "methods": "Do not use prohibited promotion methods"
       }
     },
     "withdrawal": {
@@ -938,6 +1059,14 @@
         "rejected": "Rejected",
         "cancelled": "Cancelled"
       }
+    },
+    "condition": {
+      "invite": "You invite a friend with your link",
+      "minTopup": "Friend signs up and tops up the balance (from {{amount}})",
+      "commission": "You earn {{percent}}% from each of their top-ups",
+      "newUserBonus": "Friend gets a {{amount}} bonus on first top-up",
+      "inviterBonus": "You get a one-time {{amount}} bonus for an invitee",
+      "maxPayments": "Commission is paid for the first {{count}} top-ups"
     }
   },
   "support": {
@@ -4450,7 +4579,18 @@
         "discord": "Discord",
         "vk": "VK"
       }
-    }
+    },
+    "link": "Link",
+    "password": "Password",
+    "changePassword": "Change password",
+    "referralProgram": "REFERRAL PROGRAM",
+    "more": "Details",
+    "botLink": "Bot link",
+    "cabinetLink": "Cabinet link",
+    "sendResetLink": "Send link",
+    "passwordResetSent": "Email sent",
+    "passwordResetSentDesc": "Open the link from the email to set a new password.",
+    "passwordResetDescription": "A password reset link will be sent to {{email}}."
   },
   "theme": {
     "colors": "Theme Colors",
@@ -4774,6 +4914,172 @@
       "nDays_other": "{{count}} days",
       "nMonths_one": "{{count}} month",
       "nMonths_other": "{{count}} months"
+    },
+    "nav": {
+      "benefits": "Benefits",
+      "pricing": "Pricing",
+      "faq": "FAQ",
+      "login": "Sign in"
+    },
+    "hero": {
+      "badge": "3 days free · no card · no auto-renewal",
+      "title": "Fast VPN for Telegram, YouTube, TikTok and everyday internet",
+      "subtitle": "Works on every device — connect in a minute, speeds up to 10 Gbps, unlimited traffic and 3 days of free access.",
+      "tryFree": "Try for free",
+      "loginCta": "Sign in to cabinet",
+      "tag": {
+        "privacy": "Privacy",
+        "uptime": "24/7 uptime",
+        "speed": "Server channels up to 10 Gbps",
+        "devices": "Up to 30 devices"
+      }
+    },
+    "benefits": {
+      "title": "Why VERNO VPN",
+      "items": {
+        "access": {
+          "title": "Access where you need it",
+          "desc": "Connect and use the services you need from anywhere in the world."
+        },
+        "speed": {
+          "title": "Speeds up to 10 Gbps",
+          "desc": "Fast and stable connection for video, messengers and regular internet."
+        },
+        "encryption": {
+          "title": "Reliable traffic encryption",
+          "desc": "Your data is protected by modern encryption at every step of the connection."
+        },
+        "noLogs": {
+          "title": "No logs, no hidden data collection",
+          "desc": "We don't keep logs and don't collect data behind your back."
+        },
+        "devices": {
+          "title": "Up to 30 devices on one subscription",
+          "desc": "One plan for phone, laptop, desktop and other compatible devices."
+        },
+        "refund": {
+          "title": "Doesn't work — money back",
+          "desc": "If the VPN doesn't work in your region, you can get a full refund."
+        }
+      }
+    },
+    "pricing": {
+      "title": "Simple plans",
+      "subtitle": "Start with 3 days free, then pick a plan",
+      "term": {
+        "1m": "1 month",
+        "3m": "3 months",
+        "6m": "6 months"
+      },
+      "suffix": {
+        "1m": "/ mo.",
+        "3m": "/ 3 mo.",
+        "6m": "/ 6 mo."
+      },
+      "plans": {
+        "regular": "Regular",
+        "family": "Family",
+        "business": "Business"
+      },
+      "devices": {
+        "regular": "Up to 5 devices",
+        "family": "Up to 15 devices",
+        "business": "Up to 30 devices"
+      },
+      "extra": {
+        "regular": "60 ₽ / extra device",
+        "family": "45 ₽ / extra device",
+        "business": "30 ₽ / extra device"
+      },
+      "badges": {
+        "family": "Best value",
+        "business": "Maximum savings"
+      },
+      "cta": "Try for free",
+      "foot": "3 days of free access • Unlimited • Up to 5 devices"
+    },
+    "quickConnect": {
+      "title": "Quick setup in just a couple of minutes",
+      "steps": {
+        "register": {
+          "title": "Sign up",
+          "desc": "Via Email or Telegram"
+        },
+        "install": {
+          "title": "Install the app",
+          "desc": "For every device"
+        },
+        "connect": {
+          "title": "Connect",
+          "desc": "You're amazing, the internet is free"
+        }
+      }
+    },
+    "faq": {
+      "title": "Common questions",
+      "items": {
+        "devices": {
+          "q": "How many devices per subscription?",
+          "a": "One VERNO VPN subscription works on up to 30 devices on the top plan and up to 5 on the base plan. Phone, laptop, desktop, tablet, TV — connect anything you actually use within one plan."
+        },
+        "youtube": {
+          "q": "Does it work with YouTube and Telegram?",
+          "a": "Yes, it does. VERNO VPN works for YouTube, Telegram, TikTok and regular everyday internet."
+        },
+        "data": {
+          "q": "What do you do with my data?",
+          "a": "Nothing extra. We don't keep logs and don't collect hidden data. Your traffic is encrypted and your online activity stays private."
+        },
+        "trial": {
+          "q": "What happens after 3 days?",
+          "a": "The free period ends and access stops automatically. No card, no auto-renewal, no charges. If you want to continue — pick a plan and extend access."
+        },
+        "protocol": {
+          "q": "What does VERNO VPN run on?",
+          "a": "VERNO VPN uses VLESS — a fast and stable protocol for everyday use."
+        },
+        "what": {
+          "q": "What does a VPN actually do?",
+          "a": "A VPN routes your traffic through a secure server. It hides your real IP and makes your connection more private."
+        },
+        "russia": {
+          "q": "Is it safe to use VPN in Russia?",
+          "a": "Yes. VERNO VPN is safe to use in Russia. We don't keep logs, don't store your data, and your traffic is encrypted and masked."
+        },
+        "where": {
+          "q": "Where can I subscribe?",
+          "a": "You can connect VERNO VPN right on the website or via the Telegram bot. Pick whichever is more convenient for you."
+        },
+        "speed": {
+          "q": "How do I get higher speed and lower ping?",
+          "a": "The simplest way is to pick a server closer to you. The better your internet and the closer the server, the higher the speed and lower the latency."
+        },
+        "noWork": {
+          "q": "What if the VPN doesn't work?",
+          "a": "If VERNO VPN doesn't work in your region, you can request a refund. We'll return the full amount within 7 days from your request."
+        }
+      }
+    },
+    "footer": {
+      "tagline": "A fast and clear VPN for everyday internet. No logs, no hidden terms.",
+      "navigation": "Navigation",
+      "info": "Information",
+      "policy": "Privacy policy",
+      "terms": "Terms of service",
+      "refund": "Refund terms",
+      "bot": "Telegram bot",
+      "support": "Support",
+      "copyright": "© 2026 VERNO VPN. All rights reserved."
+    },
+    "cta": {
+      "title": "Try VERNO VPN for free",
+      "subtitle": "3 days, no card and no commitments",
+      "button": "Try for free"
+    },
+    "platforms": {
+      "title": "One subscription — all your devices",
+      "subtitle": "Connect your phone, laptop, desktop and other compatible devices on a single plan. Fast, secure and hassle-free.",
+      "note": "VERNO VPN supports all platforms where Happ or V2RayTun can be installed."
     }
   },
   "gift": {
@@ -4879,7 +5185,17 @@
     "shareModalActivateVia": "Activate via bot:",
     "shareModalActivateViaCabinet": "Or via website:",
     "copyMessage": "Copy message",
-    "shareToastCopied": "Message copied"
+    "shareToastCopied": "Message copied",
+    "activatedTitle": "Gift activated",
+    "activatedWithTariff": "Gift activated: {{tariff}}",
+    "activatedWithTariffDays": "Gift activated: {{tariff}} for {{days}} days",
+    "activatedGeneric": "Gift activated successfully",
+    "errors": {
+      "ownGift": "You cannot activate your own gift",
+      "expired": "Gift has expired",
+      "alreadyActivated": "This gift has already been activated",
+      "generic": "Failed to activate gift"
+    }
   },
   "news": {
     "title": "News & Updates",
@@ -4951,5 +5267,148 @@
         "linkUrlPrompt": "URL:"
       }
     }
+  },
+  "subscriptionPage": {
+    "title": "Subscription",
+    "newPlan": "New plan",
+    "noActiveSubs": "No active subscriptions",
+    "selectPlan": "Choose a plan",
+    "subscriptionFallback": "Subscription",
+    "planTrial": "Trial",
+    "planActive": "Active",
+    "subscriptionActive": "Subscription active",
+    "activeUntil": "Active until",
+    "planLabel": "Plan",
+    "devicesLabel": "Devices",
+    "devicesOf": "{{used}} of {{total}}",
+    "renew": "Renew subscription",
+    "giftSubscription": "Gift a subscription",
+    "expired": "Subscription expired",
+    "limited": "Subscription limited",
+    "noActive": "No active subscription",
+    "trafficHeader": "TRAFFIC",
+    "trafficUsage": "{{used}} GB of {{total}} GB",
+    "trafficRefreshing": "Refreshing…",
+    "trafficRefreshIn": "Refresh in {{seconds}}s",
+    "trafficRefresh": "Refresh traffic",
+    "connectionHeader": "CONNECTION",
+    "copyLink": "Copy",
+    "connect": "Connect",
+    "devicesHeader": "MY DEVICES",
+    "deleteDevicePrompt": "Delete device?",
+    "deleteDeviceLabel": "Delete device",
+    "noDevicesYet": "No devices connected yet.",
+    "buyDevicesShort": "Add",
+    "reduceDevicesShort": "Reduce",
+    "giftsHeader": "MY GIFTS",
+    "giftsEmptyTitle": "You have no gifts yet",
+    "giftsEmptyHint": "Buy a gift for a friend — the code will appear here.",
+    "giftAvailable": "Available",
+    "giftActivated": "Activated",
+    "giftPlan": "Plan",
+    "giftDuration": "Duration",
+    "giftDurationDays": "{{days}} days",
+    "giftDevices": "Devices",
+    "giftDevicesUpTo": "up to {{count}}",
+    "giftPurchaseDate": "Purchase date",
+    "copied": "Copied",
+    "shareGift": "Share",
+    "giftShareTitle": "{{brand}} gift",
+    "giftShareText": "{{brand}} gift\nCode: {{token}}\nPlan: {{tariff}}\nFor {{days}} days.",
+    "buyDevicesTitle": "Add devices",
+    "willBeAdded": "Will be added",
+    "devicesShort": "{{count}} dev.",
+    "cost": "Cost",
+    "devicesAfter": "Devices after",
+    "purchaseUnavailable": "Purchase unavailable",
+    "processing": "Processing…",
+    "confirmPurchase": "Confirm purchase",
+    "insufficientFunds": "Insufficient funds",
+    "insufficientHint": "Missing {{amount}} {{currency}} for purchase. Top up your balance to continue.",
+    "topUpBalance": "Top up balance",
+    "devicesAdded": "Devices added",
+    "done": "Done",
+    "reduceDevicesTitle": "Reduce devices",
+    "reduceUnavailable": "Reduction is currently unavailable.",
+    "willBeRemoved": "Will be removed",
+    "applying": "Applying…",
+    "devicesReduced": "Devices reduced"
+  },
+  "renewPage": {
+    "back": "← Back",
+    "month_one": "{{count}} month",
+    "month_other": "{{count}} months",
+    "days": "{{count}} days",
+    "currentTariff": "Current",
+    "trafficGb": "{{amount}} GB",
+    "devicesUpTo": "up to {{count}} dev.",
+    "perMonth": "{{amount}} {{currency}}/mo",
+    "unavailable": "unavailable"
+  },
+  "giftsPage": {
+    "title": "Gifts",
+    "back": "← Back",
+    "unavailableTitle": "Gifts temporarily unavailable",
+    "unavailableDesc": "The gift feature has been disabled by the administrator.",
+    "selectTitle": "Choose a gift",
+    "confirmTitle": "Confirmation",
+    "next": "Next",
+    "trafficGb": "{{amount}} GB",
+    "unlimited": "Unlimited",
+    "devicesUpTo": "up to {{count}} dev.",
+    "perMonthShort": "{{price}}/mo",
+    "unavailable": "unavailable",
+    "confirmDescription": "You are buying a gift subscription. After payment we'll generate a promo code — send it to your friend so they can activate the subscription in their cabinet. The code is also saved under \"My gifts\" so you can copy or send it later.",
+    "tariffLabel": "Plan",
+    "periodLabel": "Period",
+    "devicesLabel": "Devices",
+    "trafficLabel": "Traffic",
+    "totalLabel": "Total",
+    "deviceUpTo": "Up to {{count}}",
+    "balanceMode": "From balance ({{amount}})",
+    "gatewayMode": "Via gateway",
+    "insufficientPart1": "Insufficient funds.",
+    "insufficientTopUp": "Top up balance",
+    "insufficientPart2": "or pay via gateway.",
+    "processing": "Processing…",
+    "payFromBalance": "Pay from balance · {{price}}",
+    "payViaGateway": "Proceed to payment · {{price}}",
+    "payViaGatewayWithMethod": "Proceed to payment · {{price}} via {{method}}",
+    "giftSubscription": "Gift a subscription",
+    "giftSubscriptionDesc": "Buy a subscription, get a promo code and send it to your friend — they'll activate it in their cabinet.",
+    "myGiftsHeader": "MY GIFTS",
+    "noGiftsTitle": "You have no gifts yet",
+    "noGiftsDesc": "Buy a gift for a friend — the code will appear here.",
+    "status": {
+      "activated": "Activated",
+      "available": "Available",
+      "pending": "Pending",
+      "failed": "Error",
+      "expired": "Expired",
+      "delivered": "Received",
+      "pendingActivation": "Pending activation"
+    },
+    "row": {
+      "tariff": "Plan",
+      "period": "Duration",
+      "devices": "Devices",
+      "devicesUpTo": "up to {{count}}",
+      "purchaseDate": "Purchase date",
+      "date": "Date",
+      "activatedBy": "Activated by",
+      "copied": "Copied",
+      "copy": "Copy",
+      "share": "Share"
+    },
+    "received": {
+      "from": "Gift from {{sender}}"
+    },
+    "share": {
+      "intro": "I'm gifting you a subscription! Code: {{code}}",
+      "viaBot": "Activate via bot: {{link}}",
+      "viaCabinet": "Activate in cabinet: {{link}}"
+    },
+    "loadFailed": "Failed to load gifts.",
+    "purchaseFailed": "Failed to process gift."
   }
 }

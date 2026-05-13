@@ -1,56 +1,29 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { ChevronDown } from 'lucide-react';
 
-const faqs = [
-  {
-    q: 'Одна подписка — сколько устройств?',
-    a: 'Одна подписка ВЕРНО VPN работает до 30 устройств в максимальном тарифе, и до 5 устройств в базовом. Телефон, ноутбук, компьютер, планшет, телевизор — подключайте всё, чем реально пользуетесь, в рамках одного тарифа.',
-  },
-  {
-    q: 'С YouTube и Telegram работает?',
-    a: 'Да, работает. ВЕРНО VPN подходит для YouTube, Telegram, TikTok и обычного повседневного интернета.',
-  },
-  {
-    q: 'Что вы делаете с моими данными?',
-    a: 'Ничего лишнего. Мы не храним логи и не ведём скрытый сбор данных. Ваш трафик шифруется, а активность в сети остаётся приватной.',
-  },
-  {
-    q: 'Что будет через 3 дня?',
-    a: 'Бесплатный период закончится, и доступ отключится автоматически. Без карты, без автопродления, без списаний. Захотите продолжить — просто выберете тариф и продлите доступ.',
-  },
-  {
-    q: 'На чём работает ВЕРНО VPN?',
-    a: 'ВЕРНО VPN использует VLESS. Это быстрый и стабильный протокол для повседневного использования.',
-  },
-  {
-    q: 'Что вообще делает VPN?',
-    a: 'VPN пропускает ваш интернет-трафик через защищённый сервер. Это скрывает ваш реальный IP и делает соединение более закрытым для посторонних.',
-  },
-  {
-    q: 'Можно ли спокойно пользоваться VPN в России?',
-    a: 'Да. ВЕРНО VPN безопасен в использовании в России. Мы не ведём логи, не сохраняем ваши данные, а трафик шифруется и маскируется.',
-  },
-  {
-    q: 'Где подключить подписку?',
-    a: 'Подключить ВЕРНО VPN можно прямо на сайте или через Telegram-бота. Выбирайте тот способ, который удобнее вам.',
-  },
-  {
-    q: 'Как получить выше скорость и ниже пинг?',
-    a: 'Самый простой способ — выбрать сервер, который находится ближе к вам. Чем лучше ваш интернет и чем удачнее выбран сервер, тем выше скорость и ниже задержка.',
-  },
-  {
-    q: 'Что, если VPN не заработает?',
-    a: 'Если ВЕРНО VPN не работает в вашем регионе, вы можете подать заявку на возврат. Мы вернём полную сумму в течение 7 дней с момента обращения.',
-  },
+const FAQ_KEYS = [
+  'devices',
+  'youtube',
+  'data',
+  'trial',
+  'protocol',
+  'what',
+  'russia',
+  'where',
+  'speed',
+  'noWork',
 ];
 
 function FAQItem({
-  item,
+  q,
+  a,
   isOpen,
   onToggle,
 }: {
-  item: (typeof faqs)[0];
+  q: string;
+  a: string;
   isOpen: boolean;
   onToggle: () => void;
 }) {
@@ -65,7 +38,7 @@ function FAQItem({
             isOpen ? 'text-white/80' : 'text-white/50 group-hover:text-white/70'
           }`}
         >
-          {item.q}
+          {q}
         </span>
         <ChevronDown
           size={16}
@@ -84,7 +57,7 @@ function FAQItem({
             className="overflow-hidden"
           >
             <p className="pb-5 pr-8 text-white/30" style={{ fontSize: '0.88rem', lineHeight: 1.7 }}>
-              {item.a}
+              {a}
             </p>
           </motion.div>
         )}
@@ -94,6 +67,7 @@ function FAQItem({
 }
 
 export function FAQ() {
+  const { t } = useTranslation();
   const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   return (
@@ -112,14 +86,15 @@ export function FAQ() {
             letterSpacing: '-0.02em',
           }}
         >
-          Частые вопросы
+          {t('landing.faq.title')}
         </motion.h2>
 
         <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-2 backdrop-blur-xl sm:p-4">
-          {faqs.map((item, i) => (
+          {FAQ_KEYS.map((k, i) => (
             <FAQItem
-              key={i}
-              item={item}
+              key={k}
+              q={t(`landing.faq.items.${k}.q`)}
+              a={t(`landing.faq.items.${k}.a`)}
               isOpen={openIdx === i}
               onToggle={() => setOpenIdx(openIdx === i ? null : i)}
             />

@@ -76,7 +76,7 @@ export default function Contests() {
   if (isLoading) {
     return (
       <div className="flex min-h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
       </div>
     );
   }
@@ -119,7 +119,7 @@ export default function Contests() {
 
             {getGameMutation.isPending && (
               <div className="flex justify-center py-8">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
               </div>
             )}
 

@@ -72,7 +72,7 @@ export default function AutoLogin() {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-dark-600 border-t-accent-500" />
+            <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-white/10 border-t-white/60" />
             <p className="text-sm text-dark-300">{t('landing.autoLoginProcessing')}</p>
           </div>
         )}

@@ -14,18 +14,29 @@ export function useHeaderHeight(): {
   bottomSafeArea: number;
   isMobileFullscreen: boolean;
 } {
-  const { isFullscreen, safeAreaInset, contentSafeAreaInset, platform, isMobile } =
-    useTelegramSDK();
+  const {
+    isTelegramWebApp,
+    isFullscreen,
+    safeAreaInset,
+    contentSafeAreaInset,
+    platform,
+    isMobile,
+  } = useTelegramSDK();
   const isMobileFullscreen = isFullscreen && isMobile;
+  const isMobileTelegram = isMobile && isTelegramWebApp;
 
   const telegramHeaderHeight =
     platform === 'android' ? UI.TELEGRAM_HEADER_ANDROID_PX : UI.TELEGRAM_HEADER_IOS_PX;
 
+  // Top inset reported by Telegram (status bar / floating controls overlay).
+  // Non-zero in fullscreen and in the swipe-to-expand mini-app mode where the
+  // webview extends under the device status bar and TG's floating close button.
+  // Always 0 outside Telegram, on desktop, or in the regular bot-menu mode.
+  const topInset = isMobileTelegram ? Math.max(safeAreaInset.top, contentSafeAreaInset.top) : 0;
+
   const mobile = isMobileFullscreen
-    ? UI.MOBILE_HEADER_HEIGHT_PX +
-      Math.max(safeAreaInset.top, contentSafeAreaInset.top) +
-      telegramHeaderHeight
-    : UI.MOBILE_HEADER_HEIGHT_PX;
+    ? UI.MOBILE_HEADER_HEIGHT_PX + topInset + telegramHeaderHeight
+    : UI.MOBILE_HEADER_HEIGHT_PX + topInset;
 
   const bottomSafeArea = isMobileFullscreen
     ? Math.max(safeAreaInset.bottom, contentSafeAreaInset.bottom)

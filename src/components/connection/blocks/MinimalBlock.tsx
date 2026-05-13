@@ -55,7 +55,7 @@ export function MinimalBlock({
               </span>
             </div>
             <p
-              className={`whitespace-pre-line text-sm ${
+              className={`whitespace-pre-line text-[15px] ${
                 isVerno ? 'text-white/35' : 'leading-relaxed text-dark-400'
               }`}
               style={isVerno ? { lineHeight: 1.65 } : undefined}

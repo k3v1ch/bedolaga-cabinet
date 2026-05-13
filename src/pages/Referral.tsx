@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { referralApi } from '../api/referral';
 import { copyToClipboard } from '../utils/clipboard';
-import { brandingApi } from '../api/branding';
 import { partnerApi } from '../api/partners';
 import { withdrawalApi } from '../api/withdrawals';
 import { CampaignCard } from '../components/partner/CampaignCard';
@@ -33,13 +32,6 @@ const CopyIcon = () => (
 const CheckIcon = () => (
   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-  </svg>
-);
-
-const ShareIcon = () => (
-  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M7 8l5-5m0 0l5 5m-5-5v12" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3" />
   </svg>
 );
 
@@ -127,12 +119,6 @@ export default function Referral() {
   const { data: earnings } = useQuery({
     queryKey: ['referral-earnings'],
     queryFn: () => referralApi.getReferralEarnings({ per_page: 10 }),
-  });
-
-  const { data: branding } = useQuery({
-    queryKey: ['branding'],
-    queryFn: brandingApi.getBranding,
-    staleTime: 60000,
   });
 
   // Partner status query
@@ -226,34 +212,10 @@ export default function Referral() {
     }
   };
 
-  const shareLink = () => {
-    if (!referralLink) return;
-    const shareText = t('referral.shareMessage', {
-      percent: info?.commission_percent || 0,
-      botName: branding?.name || import.meta.env.VITE_APP_NAME || 'Cabinet',
-    });
-
-    if (navigator.share) {
-      navigator
-        .share({
-          title: t('referral.title'),
-          text: shareText,
-          url: referralLink,
-        })
-        .catch(() => {});
-      return;
-    }
-
-    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(
-      referralLink,
-    )}&text=${encodeURIComponent(shareText)}`;
-    window.open(telegramUrl, '_blank', 'noopener,noreferrer');
-  };
-
   if (isLoading) {
     return (
       <div className="flex min-h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
       </div>
     );
   }
@@ -370,30 +332,18 @@ export default function Referral() {
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
               <input type="text" readOnly value={referralLink} className="input flex-1 text-sm" />
-              <div className="flex gap-2">
-                <button
-                  onClick={() => copyLink(referralLink, 'cabinet')}
-                  disabled={!referralLink}
-                  className={`btn-primary shrink-0 px-4 ${
-                    copiedLink === 'cabinet' ? 'bg-success-500 hover:bg-success-500' : ''
-                  } ${!referralLink ? 'cursor-not-allowed opacity-50' : ''}`}
-                >
-                  {copiedLink === 'cabinet' ? <CheckIcon /> : <CopyIcon />}
-                  <span className="ml-2">
-                    {copiedLink === 'cabinet' ? t('referral.copied') : t('referral.copyLink')}
-                  </span>
-                </button>
-                <button
-                  onClick={shareLink}
-                  disabled={!referralLink}
-                  className={`btn-secondary flex shrink-0 items-center px-4 ${
-                    !referralLink ? 'cursor-not-allowed opacity-50' : ''
-                  }`}
-                >
-                  <ShareIcon />
-                  <span className="ml-2">{t('referral.shareButton')}</span>
-                </button>
-              </div>
+              <button
+                onClick={() => copyLink(referralLink, 'cabinet')}
+                disabled={!referralLink}
+                className={`btn-primary shrink-0 px-4 ${
+                  copiedLink === 'cabinet' ? 'bg-success-500 hover:bg-success-500' : ''
+                } ${!referralLink ? 'cursor-not-allowed opacity-50' : ''}`}
+              >
+                {copiedLink === 'cabinet' ? <CheckIcon /> : <CopyIcon />}
+                <span className="ml-2">
+                  {copiedLink === 'cabinet' ? t('referral.copied') : t('referral.copyLink')}
+                </span>
+              </button>
             </div>
           </div>
         </div>
