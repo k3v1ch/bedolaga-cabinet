@@ -675,9 +675,11 @@ export default function CabinetSubscription() {
                     <div className="flex justify-between">
                       <span className="text-white/35">{t('subscriptionPage.giftDevices')}</span>
                       <span className="text-white/60">
-                        {t('subscriptionPage.giftDevicesUpTo', {
-                          count: gift.device_limit || '∞',
-                        })}
+                        {gift.device_limit
+                          ? t('subscriptionPage.giftDevicesUpTo', {
+                              count: gift.device_limit,
+                            })
+                          : '∞'}
                       </span>
                     </div>
                     <div className="flex justify-between">
