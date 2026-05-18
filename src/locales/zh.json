@@ -454,6 +454,11 @@
     "month": "月",
     "myDevices": "我的设备",
     "noDevices": "没有已连接的设备",
+    "renameDevice": "重命名",
+    "renameDeviceSave": "保存",
+    "renameDeviceCancel": "取消",
+    "renameDevicePlaceholder": "设备名称",
+    "deviceRenamed": "设备名称已更新",
     "perExtraDevice": "/ 额外设备",
     "perMonth": "/月",
     "purchasedTraffic": "已购流量",
@@ -1280,6 +1285,8 @@
       "noMethods": "没有配置的支付方法",
       "methodEnabled": "方法已启用",
       "providerNotConfigured": "提供商未在env中配置",
+      "openUrlDirect": "直接打开支付页面",
+      "openUrlDirectHint": "跳过链接面板 — 点击后提供商在 MiniApp/标签页内直接打开。支付完成后用户返回 /balance/top-up/result。Stars/CryptoBot 和其他 t.me/ 链接忽略此标志。",
       "displayName": "显示名称",
       "displayNameHint": "留空以使用默认名称",
       "subOptions": "支付选项",
@@ -2664,7 +2671,10 @@
           "none": "没有已连接的设备",
           "resetAll": "重置全部",
           "deleted": "设备已删除",
-          "allDeleted": "所有设备已重置"
+          "allDeleted": "所有设备已重置",
+          "rename": "重命名",
+          "renameSave": "保存",
+          "renamed": "设备名称已更新"
         },
         "referral": {
           "title": "推荐计划",
@@ -4074,6 +4084,13 @@
       "defaultMessage": "您的帐户已被封锁。",
       "reason": "原因",
       "contactSupport": "如果您认为这是错误，请联系客服。"
+    },
+    "accountDeleted": {
+      "title": "账户已停用",
+      "description": "由于长期未活动，您的账户已被停用。请在 Telegram 中打开机器人并发送 /start 以恢复访问。",
+      "openBot": "打开机器人",
+      "retry": "我已按 /start，重试",
+      "hint": "运行 /start 后，返回此处并点击「重试」。"
     }
   },
   "banSystem": {
