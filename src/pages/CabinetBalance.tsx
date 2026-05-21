@@ -123,8 +123,8 @@ export default function CabinetBalance() {
   }, [searchParams, navigate]);
 
   // ── Local state: top-up form ──────────────────────────────────────
-  const [amount, setAmount] = useState('');
-  const [amountError, setAmountError] = useState<string | null>(null);
+  // Amount input lives on /balance/top-up/{methodId} now — the page user lands
+  // on after clicking "Пополнить". Duplicating it here was confusing.
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
 
   const availableMethods = useMemo<PaymentMethod[]>(
@@ -144,34 +144,9 @@ export default function CabinetBalance() {
     [availableMethods, selectedMethod],
   );
 
-  const minRubles = selectedMethodObj ? selectedMethodObj.min_amount_kopeks / 100 : 10;
-  const maxRubles = selectedMethodObj ? selectedMethodObj.max_amount_kopeks / 100 : Infinity;
-
-  const numAmount = parseFloat(amount.replace(',', '.'));
-  const amountInvalid =
-    amount !== '' && (Number.isNaN(numAmount) || numAmount < minRubles || numAmount > maxRubles);
-
   const handleTopUp = () => {
-    if (!selectedMethodObj) {
-      setAmountError(t('balance.errors.selectMethod', { defaultValue: 'Выберите способ' }));
-      return;
-    }
-    if (Number.isNaN(numAmount) || numAmount <= 0) {
-      setAmountError(t('balance.errors.enterAmount', { defaultValue: 'Введите сумму' }));
-      return;
-    }
-    if (numAmount < minRubles || numAmount > maxRubles) {
-      setAmountError(
-        t('balance.errors.amountRange', {
-          min: minRubles,
-          max: Number.isFinite(maxRubles) ? maxRubles : '∞',
-          defaultValue: `Сумма: ${minRubles} – ${Number.isFinite(maxRubles) ? maxRubles : '∞'} ₽`,
-        }),
-      );
-      return;
-    }
-    setAmountError(null);
-    navigate(`/balance/top-up/${selectedMethodObj.id}?amount=${encodeURIComponent(amount)}`);
+    if (!selectedMethodObj) return;
+    navigate(`/balance/top-up/${selectedMethodObj.id}`);
   };
 
   // ── Promocode ──────────────────────────────────────────────────────
@@ -393,45 +368,6 @@ export default function CabinetBalance() {
         >
           {formatAmount(balanceRubles)} {currencySymbol}
         </p>
-
-        <input
-          type="text"
-          inputMode="decimal"
-          placeholder={
-            selectedMethodObj
-              ? t('balance.amountPlaceholderMethod', {
-                  min: minRubles,
-                  currency: currencySymbol,
-                })
-              : t('balance.amountPlaceholderDefault', { currency: currencySymbol })
-          }
-          value={amount}
-          onChange={(e) => {
-            setAmount(e.target.value);
-            setAmountError(null);
-          }}
-          className={`mb-2 w-full rounded-xl border bg-white/[0.06] px-4 py-3 text-[15px] text-white/70 placeholder-white/20 outline-none transition-all ${
-            amountError || amountInvalid
-              ? 'border-amber-500/40 focus:border-amber-500/60'
-              : 'border-white/10 focus:border-white/20'
-          }`}
-        />
-        {(amountError || amountInvalid) && (
-          <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2">
-            <AlertTriangle size={14} className="shrink-0 text-amber-400/70" />
-            <p className="text-[13px] text-amber-400/70">
-              {amountError ||
-                (selectedMethodObj
-                  ? t('balance.amountRangeHint', {
-                      min: minRubles,
-                      max: Number.isFinite(maxRubles) ? maxRubles : '∞',
-                      currency: currencySymbol,
-                    })
-                  : t('balance.amountTooSmall', { currency: currencySymbol }))}
-            </p>
-          </div>
-        )}
-        {!amountError && !amountInvalid && <div className="mb-2" />}
 
         {/* Payment methods */}
         <p className="mb-2 text-[13px] text-white/30">{t('balance.topUpMethod')}</p>

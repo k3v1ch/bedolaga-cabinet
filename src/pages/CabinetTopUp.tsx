@@ -3,17 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import {
-  AlertTriangle,
-  ArrowLeft,
-  Bitcoin,
-  Check,
-  Copy,
-  CreditCard,
-  ExternalLink,
-  QrCode,
-  Sparkles,
-} from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Bitcoin, CreditCard, QrCode, Sparkles } from 'lucide-react';
 
 import { balanceApi } from '@/api/balance';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -133,8 +123,26 @@ export default function CabinetTopUp() {
   const [selectedOption, setSelectedOption] = useState<string | null>(
     getPreferredOptionId(method?.options),
   );
-  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+
+  /**
+   * Open the freshly-created payment URL. In a real browser we use a same-tab
+   * redirect (`window.location.href`) instead of `window.open` because:
+   *  1) `window.open` triggered from an async mutation callback often hits the
+   *     popup-blocker (the user-gesture window has expired by then).
+   *  2) Payment-gateway pages are designed to be the next destination, so a
+   *     same-tab nav is the standard checkout pattern.
+   * In Telegram WebApp we keep the SDK-aware openers so TG handles the link
+   * properly (in-Telegram browser / native open).
+   */
+  const openPaymentUrl = (url: string) => {
+    if (url.includes('t.me/')) {
+      openTelegramLink(url);
+    } else if (platform === 'telegram') {
+      openLink(url);
+    } else {
+      window.location.href = url;
+    }
+  };
 
   // Method not in cache → bounce to method selection
   useEffect(() => {
@@ -205,21 +213,33 @@ export default function CabinetTopUp() {
     },
     onSuccess: (data) => {
       const redirectUrl = data.payment_url || data.invoice_url;
-      if (redirectUrl) {
-        setPaymentUrl(redirectUrl);
-        if (method && data.payment_id) {
-          const methodKey = method.id.toLowerCase().replace(/-/g, '_');
-          const displayName =
-            t(`balance.paymentMethods.${methodKey}.name`, { defaultValue: '' }) || method.name;
-          saveTopUpPendingInfo({
-            amount_kopeks: data.amount_kopeks,
-            method_id: method.id,
-            method_name: displayName,
-            payment_id: data.payment_id,
-            created_at: Date.now(),
-          });
-        }
+      if (!redirectUrl) {
+        setError(
+          t('balance.errors.noPaymentLink', {
+            defaultValue: 'Не удалось получить ссылку на оплату',
+          }),
+        );
+        return;
       }
+
+      // Persist pending top-up info so /balance/top-up/result and the
+      // notification flow can pick it up after the user returns from the
+      // payment gateway.
+      if (method && data.payment_id) {
+        const methodKey = method.id.toLowerCase().replace(/-/g, '_');
+        const displayName =
+          t(`balance.paymentMethods.${methodKey}.name`, { defaultValue: '' }) || method.name;
+        saveTopUpPendingInfo({
+          amount_kopeks: data.amount_kopeks,
+          method_id: method.id,
+          method_name: displayName,
+          payment_id: data.payment_id,
+          created_at: Date.now(),
+        });
+      }
+
+      // Open the gateway directly — no intermediate "link ready" UI.
+      openPaymentUrl(redirectUrl);
     },
     onError: (err: unknown) => {
       const detail =
@@ -261,7 +281,6 @@ export default function CabinetTopUp() {
 
   const handleSubmit = () => {
     setError(null);
-    setPaymentUrl(null);
     inputRef.current?.blur();
 
     if (!checkRateLimit(RATE_LIMIT_KEYS.PAYMENT, 3, 30000)) {
@@ -297,23 +316,6 @@ export default function CabinetTopUp() {
       ? Math.round(convertAmount(rub)).toString()
       : convertAmount(rub).toFixed(currencyDecimals);
   const isPending = topUpMutation.isPending || starsPaymentMutation.isPending;
-
-  const handleOpenPayment = () => {
-    if (!paymentUrl) return;
-    if (paymentUrl.includes('t.me/')) openTelegramLink(paymentUrl);
-    else openLink(paymentUrl);
-  };
-
-  const handleCopyUrl = async () => {
-    if (!paymentUrl) return;
-    try {
-      await navigator.clipboard.writeText(paymentUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* no-op */
-    }
-  };
 
   return (
     <motion.div
@@ -472,45 +474,6 @@ export default function CabinetTopUp() {
             <AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-400/70" />
             <p className="text-[15px] text-amber-400/80">{error}</p>
           </div>
-        </GlassCard>
-      )}
-
-      {/* Payment URL */}
-      {paymentUrl && (
-        <GlassCard className="mb-5 p-7">
-          <div className="mb-3 flex items-center gap-2">
-            <Check size={16} className="text-green-400/70" />
-            <p className="text-[15px] text-white" style={{ fontWeight: 500 }}>
-              {t('balance.paymentReady', { defaultValue: 'Ссылка на оплату готова' })}
-            </p>
-          </div>
-          <p className="mb-4 text-[15px] text-white/35" style={{ lineHeight: 1.6 }}>
-            {t('balance.clickToOpenPayment', {
-              defaultValue: 'Нажмите кнопку ниже, чтобы открыть страницу оплаты в новой вкладке',
-            })}
-          </p>
-          <button
-            type="button"
-            onClick={handleOpenPayment}
-            className="mb-3 flex w-full items-center justify-center gap-2 rounded-full bg-white py-3.5 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
-            style={{ fontWeight: 500 }}
-          >
-            <ExternalLink size={14} />
-            {t('balance.openPaymentPage', { defaultValue: 'Открыть страницу оплаты' })}
-          </button>
-          <button
-            type="button"
-            onClick={handleCopyUrl}
-            aria-label={t('common.copy', { defaultValue: 'Скопировать' })}
-            className="group flex w-full items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2.5 text-left transition-colors hover:bg-white/[0.06] active:bg-white/[0.08]"
-          >
-            <span className="flex-1 truncate font-mono text-[13px] text-white/40 group-hover:text-white/60">
-              {paymentUrl}
-            </span>
-            <span className="shrink-0 text-white/30 transition-colors group-hover:text-white/60">
-              {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
-            </span>
-          </button>
         </GlassCard>
       )}
     </motion.div>

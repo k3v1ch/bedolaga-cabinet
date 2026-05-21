@@ -2,7 +2,10 @@
 <html lang="ru" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="data:," />
+    <!-- Favicon. Static fallback (in /public) shown before branding loads
+         from the API. useBranding swaps to the custom brand logo when ready. -->
+    <link rel="icon" type="image/jpeg" href="/favicon.jpeg" />
+    <link rel="apple-touch-icon" href="/favicon.jpeg" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
@@ -12,7 +15,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <title>Loading...</title>
+    <!-- Initial title — replaced at runtime by useBranding once the API
+         returns the real app name. Using a sensible fallback instead of
+         "Loading..." so unauthenticated pages (landing/login) don't sit
+         on an in-progress label. -->
+    <title>ВЕРНО VPN</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
