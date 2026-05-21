@@ -64,15 +64,19 @@ function CopyField({ label, value }: { label: string; value: string; shareText?:
   return (
     <div>
       <p className="mb-1.5 text-[13px] text-white/30">{label}</p>
-      <div className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.04] px-4 py-2.5">
-        <span className="flex-1 truncate font-mono text-[15px] text-white/35">{value}</span>
-        <button
-          onClick={copy}
-          className="shrink-0 text-white/25 transition-colors hover:text-white/50"
-        >
+      <button
+        type="button"
+        onClick={copy}
+        aria-label={`Скопировать ${label}`}
+        className="group flex w-full items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.04] px-4 py-2.5 text-left transition-colors hover:bg-white/[0.06] active:bg-white/[0.08]"
+      >
+        <span className="flex-1 truncate font-mono text-[15px] text-white/35 group-hover:text-white/55">
+          {value}
+        </span>
+        <span className="shrink-0 text-white/25 transition-colors group-hover:text-white/50">
           {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
-        </button>
-      </div>
+        </span>
+      </button>
     </div>
   );
 }

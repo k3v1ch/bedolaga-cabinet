@@ -73,7 +73,6 @@ const HomePage = USE_NEW_SHELL ? CabinetHome : Dashboard;
 // User pages - lazy load
 const Subscriptions = lazyWithRetry(() => import('./pages/Subscriptions'));
 const Subscription = lazyWithRetry(() => import('./pages/Subscription'));
-const SubscriptionPurchase = lazyWithRetry(() => import('./pages/SubscriptionPurchase'));
 const Balance = lazyWithRetry(() => import('./pages/Balance'));
 const SavedCards = lazyWithRetry(() => import('./pages/SavedCards'));
 const Referral = lazyWithRetry(() => import('./pages/Referral'));
@@ -408,13 +407,13 @@ function App() {
             </ProtectedRoute>
           }
         />
+        {/* Legacy redirect: the standalone "purchase" flow is now folded into the
+            renewal page, which handles both expired-trial and expired-paid cases. */}
         <Route
           path="/subscription/purchase"
           element={
             <ProtectedRoute>
-              <LazyPage>
-                <SubscriptionPurchase />
-              </LazyPage>
+              <Navigate to="/subscriptions/renew" replace />
             </ProtectedRoute>
           }
         />

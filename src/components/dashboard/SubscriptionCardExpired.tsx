@@ -359,7 +359,7 @@ export default function SubscriptionCardExpired({
 
             {/* Tariffs (go to purchase page) — full-width for trials */}
             <Link
-              to="/subscription/purchase"
+              to="/subscriptions/renew"
               className={`flex items-center justify-center rounded-[14px] px-5 py-3.5 text-[15px] font-semibold tracking-tight transition-colors duration-200 ${
                 subscription.is_trial ? 'flex-1 text-white' : 'text-dark-50/50'
               }`}

@@ -321,7 +321,7 @@ export default function CabinetSubscription() {
             {t('subscriptionPage.title')}
           </h1>
           <button
-            onClick={() => navigate('/subscription/purchase')}
+            onClick={() => navigate('/subscriptions/renew')}
             className="rounded-full bg-white px-4 py-2 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
             style={{ fontWeight: 500 }}
           >
@@ -333,7 +333,7 @@ export default function CabinetSubscription() {
           <GlassCard className="p-7 text-center">
             <p className="mb-4 text-[15px] text-white/40">{t('subscriptionPage.noActiveSubs')}</p>
             <button
-              onClick={() => navigate('/subscription/purchase')}
+              onClick={() => navigate('/subscriptions/renew')}
               className="rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
               style={{ fontWeight: 500 }}
             >
@@ -447,7 +447,7 @@ export default function CabinetSubscription() {
             </p>
             <div className="flex flex-col items-center gap-2">
               <button
-                onClick={() => navigate('/subscription/purchase')}
+                onClick={() => navigate('/subscriptions/renew')}
                 className="w-full rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] sm:w-auto sm:min-w-[220px]"
                 style={{ fontWeight: 500 }}
               >
@@ -522,18 +522,19 @@ export default function CabinetSubscription() {
               >
                 {t('subscriptionPage.connectionHeader')}
               </p>
-              <div className="mb-3 flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3">
-                <span className="flex-1 truncate font-mono text-[15px] text-white/40">
+              <button
+                type="button"
+                onClick={copyKey}
+                aria-label={t('subscriptionPage.copyLink')}
+                className="group mb-3 flex w-full items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-left transition-colors hover:bg-white/[0.06] active:bg-white/[0.08]"
+              >
+                <span className="flex-1 truncate font-mono text-[15px] text-white/40 group-hover:text-white/60">
                   {connectionUrl}
                 </span>
-                <button
-                  onClick={copyKey}
-                  className="shrink-0 text-white/25 transition-colors hover:text-white/50"
-                  aria-label={t('subscriptionPage.copyLink')}
-                >
+                <span className="shrink-0 text-white/25 transition-colors group-hover:text-white/50">
                   {copied ? <Check size={15} className="text-green-400" /> : <Copy size={15} />}
-                </button>
-              </div>
+                </span>
+              </button>
               <button
                 onClick={() => navigate('/connection')}
                 className="w-full rounded-full border border-white/15 py-3 text-[15px] text-white/60 transition-colors hover:bg-white/[0.05]"

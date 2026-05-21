@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, Loader2 } from 'lucide-react';
 import { authApi } from '../api/auth';
 import { brandingApi, type TelegramWidgetConfig, type EmailAuthEnabled } from '../api/branding';
 import { useToast } from '../components/Toast';
-import { Card } from '@/components/data-display/Card';
 import { Button } from '@/components/primitives/Button';
 import { staggerContainer, staggerItem } from '@/components/motion/transitions';
 import ProviderIcon from '../components/ProviderIcon';
@@ -16,6 +16,82 @@ import { usePlatform, useIsTelegram } from '@/platform/hooks/usePlatform';
 import { useAuthStore } from '../store/auth';
 import { isValidEmail } from '../utils/validation';
 import type { LinkedProvider } from '../types';
+
+/** Cabinet-style translucent card. */
+function GlassCard({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return (
+    <div
+      className={`rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** Cabinet-style primary pill button (white pill, black text). */
+function PrimaryPillButton({
+  children,
+  onClick,
+  disabled,
+  loading,
+  type = 'button',
+}: {
+  children: ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  type?: 'button' | 'submit';
+}) {
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled || loading}
+      className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-white px-4 py-2 text-[13px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
+      style={{ fontWeight: 500 }}
+    >
+      {loading && <Loader2 size={12} className="animate-spin" />}
+      {children}
+    </button>
+  );
+}
+
+/** Cabinet-style outline pill button. */
+function OutlinePillButton({
+  children,
+  onClick,
+  disabled,
+  loading,
+  variant = 'neutral',
+  onBlur,
+}: {
+  children: ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  variant?: 'neutral' | 'destructive';
+  onBlur?: () => void;
+}) {
+  const base =
+    'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full border px-4 py-2 text-[13px] transition-colors active:scale-[0.97] disabled:opacity-50';
+  const palette =
+    variant === 'destructive'
+      ? 'border-red-400/30 bg-red-400/[0.04] text-red-400/85 hover:bg-red-400/10 hover:text-red-300'
+      : 'border-white/15 bg-transparent text-white/65 hover:bg-white/[0.05] hover:text-white/85';
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onBlur={onBlur}
+      disabled={disabled || loading}
+      className={`${base} ${palette}`}
+      style={{ fontWeight: 500 }}
+    >
+      {loading && <Loader2 size={12} className="animate-spin" />}
+      {children}
+    </button>
+  );
+}
 
 const OAUTH_PROVIDERS = ['google', 'yandex', 'discord', 'vk'];
 
@@ -280,20 +356,20 @@ function TelegramLinkWidget() {
 
 function LoadingSkeleton() {
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {Array.from({ length: 4 }).map((_, i) => (
-        <Card key={i}>
+        <GlassCard key={i} className="p-5">
           <div className="flex animate-pulse items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-6 w-6 rounded-full bg-dark-700" />
+              <div className="h-10 w-10 rounded-full bg-white/[0.06]" />
               <div className="space-y-2">
-                <div className="h-4 w-24 rounded bg-dark-700" />
-                <div className="h-3 w-32 rounded bg-dark-700" />
+                <div className="h-3.5 w-24 rounded bg-white/[0.06]" />
+                <div className="h-3 w-32 rounded bg-white/[0.04]" />
               </div>
             </div>
-            <div className="h-8 w-20 rounded bg-dark-700" />
+            <div className="h-8 w-24 rounded-full bg-white/[0.06]" />
           </div>
-        </Card>
+        </GlassCard>
       ))}
     </div>
   );
@@ -537,9 +613,7 @@ export default function ConnectedAccounts() {
     if (provider.provider === 'email') {
       if (!isEmailAuthEnabled) return null;
       return (
-        <Button
-          variant="primary"
-          size="sm"
+        <PrimaryPillButton
           onClick={() => {
             setEmailFormOpen((prev) => !prev);
             setEmailError(null);
@@ -547,7 +621,7 @@ export default function ConnectedAccounts() {
           }}
         >
           {emailFormOpen ? t('common.cancel') : t('profile.accounts.link')}
-        </Button>
+        </PrimaryPillButton>
       );
     }
 
@@ -555,32 +629,28 @@ export default function ConnectedAccounts() {
       if (inTelegram && getTelegramInitData()) {
         // Mini App: one-click button
         return (
-          <Button
-            variant="primary"
-            size="sm"
+          <PrimaryPillButton
             disabled={linkingProvider !== null || waitingExternalLink}
             loading={linkingProvider === 'telegram'}
             onClick={() => handleLink('telegram')}
           >
             {t('profile.accounts.link')}
-          </Button>
+          </PrimaryPillButton>
         );
       }
-      // Browser: Telegram Login Widget
+      // Browser: Telegram Login Widget — keep widget unchanged per request.
       return <TelegramLinkWidget />;
     }
 
     if (isOAuthProvider(provider.provider)) {
       return (
-        <Button
-          variant="primary"
-          size="sm"
+        <PrimaryPillButton
           disabled={linkingProvider !== null || waitingExternalLink}
           loading={linkingProvider === provider.provider}
           onClick={() => handleLink(provider.provider)}
         >
           {t('profile.accounts.link')}
-        </Button>
+        </PrimaryPillButton>
       );
     }
 
@@ -589,17 +659,31 @@ export default function ConnectedAccounts() {
 
   return (
     <motion.div
-      className="space-y-6"
+      className="space-y-4"
       variants={staggerContainer}
       initial="initial"
       animate="animate"
     >
+      {/* Back button — returns to the previous page (typically /profile) */}
+      <motion.button
+        variants={staggerItem}
+        type="button"
+        onClick={() => navigate(-1)}
+        className="-ml-1 mb-2 inline-flex items-center gap-1 rounded-full px-2 py-1.5 text-[15px] text-white/45 transition-colors hover:bg-white/[0.04] hover:text-white/80"
+      >
+        <ChevronLeft size={18} strokeWidth={1.75} />
+        {t('common.back', { defaultValue: 'Назад' })}
+      </motion.button>
+
       {/* Page title */}
-      <motion.div variants={staggerItem}>
-        <h1 className="text-2xl font-bold text-dark-50 sm:text-3xl">
+      <motion.div variants={staggerItem} className="mb-2">
+        <h1
+          className="text-white"
+          style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+        >
           {t('profile.accounts.title')}
         </h1>
-        <p className="mt-1 text-dark-400">{t('profile.accounts.subtitle')}</p>
+        <p className="mt-1.5 text-[15px] text-white/40">{t('profile.accounts.subtitle')}</p>
       </motion.div>
 
       {/* Loading state */}
@@ -612,36 +696,44 @@ export default function ConnectedAccounts() {
       {/* Error state */}
       {isError && (
         <motion.div variants={staggerItem}>
-          <Card>
-            <p className="text-center text-dark-400">{t('common.error')}</p>
-          </Card>
+          <GlassCard className="p-7">
+            <p className="text-center text-[15px] text-white/45">{t('common.error')}</p>
+          </GlassCard>
         </motion.div>
       )}
 
       {/* Provider cards */}
       {data?.providers.map((provider) => (
         <motion.div key={provider.provider} variants={staggerItem}>
-          <Card>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <ProviderIcon provider={provider.provider} />
-                <div>
-                  <p className="font-medium text-dark-100">
+          <GlassCard className="p-5 sm:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3.5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/[0.06] bg-white/[0.04]">
+                  <ProviderIcon provider={provider.provider} className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[15px] text-white/85" style={{ fontWeight: 500 }}>
                     {t(`profile.accounts.providers.${provider.provider}`)}
                   </p>
                   {provider.identifier && (
-                    <p className="text-sm text-dark-400">{provider.identifier}</p>
+                    <p className="mt-0.5 truncate text-[13px] text-white/35">
+                      {provider.identifier}
+                    </p>
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 {provider.linked ? (
                   <>
-                    <span className="text-sm text-success-500">{t('profile.accounts.linked')}</span>
+                    <span
+                      className="rounded-full border border-green-400/25 bg-green-400/[0.06] px-3 py-1 text-[13px] text-green-400/85"
+                      style={{ fontWeight: 500 }}
+                    >
+                      {t('profile.accounts.linked')}
+                    </span>
                     {canUnlink(provider) && (
-                      <Button
-                        variant={confirmingUnlink === provider.provider ? 'destructive' : 'outline'}
-                        size="sm"
+                      <OutlinePillButton
+                        variant={confirmingUnlink === provider.provider ? 'destructive' : 'neutral'}
                         disabled={unlinkMutation.isPending}
                         loading={
                           unlinkMutation.isPending && unlinkMutation.variables === provider.provider
@@ -656,7 +748,7 @@ export default function ConnectedAccounts() {
                         {confirmingUnlink === provider.provider
                           ? t('profile.accounts.unlinkConfirmBtn')
                           : t('profile.accounts.unlink')}
-                      </Button>
+                      </OutlinePillButton>
                     )}
                   </>
                 ) : (
@@ -677,13 +769,16 @@ export default function ConnectedAccounts() {
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden"
                   >
-                    <div className="mt-4 border-t border-dark-700/30 pt-4">
-                      <p className="mb-4 text-sm text-dark-400">
+                    <div className="mt-5 border-t border-white/[0.06] pt-5">
+                      <p className="mb-4 text-[13px] text-white/40">
                         {t('profile.linkEmailDescription')}
                       </p>
                       <form onSubmit={handleEmailSubmit} className="space-y-3">
                         <div>
-                          <label htmlFor="email-link-input" className="label">
+                          <label
+                            htmlFor="email-link-input"
+                            className="mb-1.5 block text-[13px] text-white/30"
+                          >
                             Email
                           </label>
                           <input
@@ -692,12 +787,15 @@ export default function ConnectedAccounts() {
                             value={emailValue}
                             onChange={(e) => setEmailValue(e.target.value)}
                             placeholder="email@example.com"
-                            className="input"
+                            className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 font-mono text-[15px] text-white/85 placeholder-white/25 outline-none transition-colors focus:border-white/20 focus:bg-white/[0.06]"
                             autoComplete="email"
                           />
                         </div>
                         <div>
-                          <label htmlFor="email-link-password" className="label">
+                          <label
+                            htmlFor="email-link-password"
+                            className="mb-1.5 block text-[13px] text-white/30"
+                          >
                             {t('auth.password')}
                           </label>
                           <input
@@ -706,13 +804,18 @@ export default function ConnectedAccounts() {
                             value={emailPassword}
                             onChange={(e) => setEmailPassword(e.target.value)}
                             placeholder={t('profile.passwordPlaceholder')}
-                            className="input"
+                            className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-[15px] text-white/85 placeholder-white/25 outline-none transition-colors focus:border-white/20 focus:bg-white/[0.06]"
                             autoComplete="new-password"
                           />
-                          <p className="mt-1 text-xs text-dark-500">{t('profile.passwordHint')}</p>
+                          <p className="mt-1.5 text-[12px] text-white/30">
+                            {t('profile.passwordHint')}
+                          </p>
                         </div>
                         <div>
-                          <label htmlFor="email-link-confirm" className="label">
+                          <label
+                            htmlFor="email-link-confirm"
+                            className="mb-1.5 block text-[13px] text-white/30"
+                          >
                             {t('auth.confirmPassword')}
                           </label>
                           <input
@@ -721,32 +824,40 @@ export default function ConnectedAccounts() {
                             value={emailConfirmPassword}
                             onChange={(e) => setEmailConfirmPassword(e.target.value)}
                             placeholder={t('profile.confirmPasswordPlaceholder')}
-                            className="input"
+                            className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-[15px] text-white/85 placeholder-white/25 outline-none transition-colors focus:border-white/20 focus:bg-white/[0.06]"
                             autoComplete="new-password"
                           />
                         </div>
 
                         {emailError && (
-                          <div className="rounded-xl border border-error-500/30 bg-error-500/10 p-3 text-sm text-error-400">
+                          <div className="rounded-xl border border-red-400/25 bg-red-400/[0.06] p-3 text-[13px] text-red-400/85">
                             {emailError}
                           </div>
                         )}
                         {emailSuccess && (
-                          <div className="rounded-xl border border-success-500/30 bg-success-500/10 p-3 text-sm text-success-400">
+                          <div className="rounded-xl border border-green-400/25 bg-green-400/[0.06] p-3 text-[13px] text-green-400/85">
                             {emailSuccess}
                           </div>
                         )}
 
-                        <Button type="submit" fullWidth loading={registerEmailMutation.isPending}>
+                        <button
+                          type="submit"
+                          disabled={registerEmailMutation.isPending}
+                          className="mt-1 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
+                          style={{ fontWeight: 500 }}
+                        >
+                          {registerEmailMutation.isPending && (
+                            <Loader2 size={14} className="animate-spin" />
+                          )}
                           {t('profile.linkEmail')}
-                        </Button>
+                        </button>
                       </form>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
             )}
-          </Card>
+          </GlassCard>
         </motion.div>
       ))}
     </motion.div>

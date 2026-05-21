@@ -330,7 +330,7 @@ export default function CabinetHome() {
           <p className="mb-4 text-[15px] text-white/35">{t('dashboard.home.trialUsed')}</p>
           <div className="flex flex-col gap-2 sm:flex-row">
             <button
-              onClick={() => navigate('/subscription/purchase')}
+              onClick={() => navigate('/subscriptions/renew')}
               className="rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
               style={{ fontWeight: 500 }}
             >
@@ -367,7 +367,7 @@ export default function CabinetHome() {
             <button
               onClick={() =>
                 subscription.is_trial
-                  ? navigate('/subscription/purchase')
+                  ? navigate('/subscriptions/renew')
                   : navigate(`/subscriptions/${subscription.id}/renew`)
               }
               className="rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
@@ -491,18 +491,19 @@ export default function CabinetHome() {
               >
                 {t('dashboard.home.connectionHeader')}
               </p>
-              <div className="mb-3 flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5">
-                <span className="flex-1 truncate font-mono text-[15px] text-white/45">
+              <button
+                type="button"
+                onClick={copyKey}
+                aria-label={t('dashboard.home.copyLink')}
+                className="group mb-3 flex w-full items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 text-left transition-colors hover:bg-white/[0.06] active:bg-white/[0.08]"
+              >
+                <span className="flex-1 truncate font-mono text-[15px] text-white/45 group-hover:text-white/65">
                   {subscription.subscription_url}
                 </span>
-                <button
-                  onClick={copyKey}
-                  className="shrink-0 text-white/30 transition-colors hover:text-white/55"
-                  aria-label={t('dashboard.home.copyLink')}
-                >
+                <span className="shrink-0 text-white/30 transition-colors group-hover:text-white/55">
                   {copied ? <Check size={17} className="text-green-400" /> : <Copy size={17} />}
-                </button>
-              </div>
+                </span>
+              </button>
               <button
                 onClick={() => navigate('/connection')}
                 className="w-full rounded-full border border-white/15 py-3.5 text-[15px] text-white/65 transition-colors hover:bg-white/[0.05]"

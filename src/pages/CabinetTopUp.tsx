@@ -498,19 +498,19 @@ export default function CabinetTopUp() {
             <ExternalLink size={14} />
             {t('balance.openPaymentPage', { defaultValue: 'Открыть страницу оплаты' })}
           </button>
-          <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2.5">
-            <span className="flex-1 truncate font-mono text-[13px] text-white/40">
+          <button
+            type="button"
+            onClick={handleCopyUrl}
+            aria-label={t('common.copy', { defaultValue: 'Скопировать' })}
+            className="group flex w-full items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2.5 text-left transition-colors hover:bg-white/[0.06] active:bg-white/[0.08]"
+          >
+            <span className="flex-1 truncate font-mono text-[13px] text-white/40 group-hover:text-white/60">
               {paymentUrl}
             </span>
-            <button
-              type="button"
-              onClick={handleCopyUrl}
-              className="shrink-0 text-white/30 transition-colors hover:text-white/60"
-              aria-label={t('common.copy', { defaultValue: 'Скопировать' })}
-            >
+            <span className="shrink-0 text-white/30 transition-colors group-hover:text-white/60">
               {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
-            </button>
-          </div>
+            </span>
+          </button>
         </GlassCard>
       )}
     </motion.div>

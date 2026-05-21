@@ -120,7 +120,7 @@ export default function Subscriptions() {
         </h1>
         {!isLoading && subscriptions.length > 0 && (
           <button
-            onClick={() => navigate('/subscription/purchase')}
+            onClick={() => navigate('/subscriptions/renew')}
             className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-[15px] font-medium transition-colors"
             style={{
               background: 'rgba(var(--color-accent-400), 0.1)',
@@ -166,7 +166,7 @@ export default function Subscriptions() {
         />
       )}
       {hasNoSubscriptions && !trialLoading && !trialInfo?.is_available && (
-        <EmptyState onBuy={() => navigate('/subscription/purchase')} />
+        <EmptyState onBuy={() => navigate('/subscriptions/renew')} />
       )}
 
       {/* Subscription grid */}
