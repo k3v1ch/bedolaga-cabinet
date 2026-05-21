@@ -4790,6 +4790,7 @@
     "devicesShort": "{{count}} 台",
     "cost": "费用",
     "devicesAfter": "添加后设备数",
+    "devicePriceFormula": "设备价格按订阅剩余天数折算：{{perMonth}} {{currency}}/月 ÷ 30 × {{days}} 天。",
     "purchaseUnavailable": "暂时无法购买",
     "processing": "处理中…",
     "confirmPurchase": "确认购买",

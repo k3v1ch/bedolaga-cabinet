@@ -4791,6 +4791,7 @@
     "devicesShort": "{{count}} دستگاه",
     "cost": "هزینه",
     "devicesAfter": "دستگاه پس از",
+    "devicePriceFormula": "قیمت دستگاه متناسب با مدت باقیمانده اشتراک محاسبه می‌شود: {{perMonth}} {{currency}}/ماه ÷ ۳۰ × {{days}} روز.",
     "purchaseUnavailable": "خرید در دسترس نیست",
     "processing": "در حال پردازش…",
     "confirmPurchase": "تأیید خرید",

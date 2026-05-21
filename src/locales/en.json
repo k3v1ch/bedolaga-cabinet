@@ -5320,6 +5320,7 @@
     "devicesShort": "{{count}} dev.",
     "cost": "Cost",
     "devicesAfter": "Devices after",
+    "devicePriceFormula": "Device price is prorated to the remaining subscription: {{perMonth}} {{currency}}/mo ÷ 30 × {{days}} days.",
     "purchaseUnavailable": "Purchase unavailable",
     "processing": "Processing…",
     "confirmPurchase": "Confirm purchase",

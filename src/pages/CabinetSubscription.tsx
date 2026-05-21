@@ -766,6 +766,18 @@ export default function CabinetSubscription() {
                     </div>
                   )}
                 </div>
+                {buyPriceData?.available !== false &&
+                  buyPriceData?.days_left !== undefined &&
+                  buyPriceData?.base_device_price_kopeks !== undefined &&
+                  buyPriceData.base_device_price_kopeks > 0 && (
+                    <p className="mb-4 text-[12px] leading-relaxed text-white/30">
+                      {t('subscriptionPage.devicePriceFormula', {
+                        perMonth: kopecksToRubles(buyPriceData.base_device_price_kopeks),
+                        days: buyPriceData.days_left,
+                        currency: '₽',
+                      })}
+                    </p>
+                  )}
                 {buyPriceData?.available === false && (
                   <p className="mb-3 text-[13px] text-amber-400/70">
                     {buyPriceData.reason || t('subscriptionPage.purchaseUnavailable')}

@@ -5881,6 +5881,7 @@
     "devicesShort": "{{count}} устр.",
     "cost": "Стоимость",
     "devicesAfter": "Устройств после",
+    "devicePriceFormula": "Цена за устройство — пропорционально остатку подписки: {{perMonth}} {{currency}}/мес ÷ 30 × {{days}} дн.",
     "purchaseUnavailable": "Покупка недоступна",
     "processing": "Оформление…",
     "confirmPurchase": "Подтвердить покупку",
