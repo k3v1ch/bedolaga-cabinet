@@ -13,6 +13,7 @@ services:
         VITE_TELEGRAM_BOT_USERNAME: ${VITE_TELEGRAM_BOT_USERNAME}
         VITE_APP_NAME: ${VITE_APP_NAME:-Cabinet}
         VITE_APP_LOGO: ${VITE_APP_LOGO:-V}
+        VITE_USE_NEW_SHELL: ${VITE_USE_NEW_SHELL:-true}
     container_name: cabinet_frontend
     restart: unless-stopped
     env_file:
@@ -32,5 +33,7 @@ services:
       start_period: 10s
 
 networks:
+  default:
+    name: bedolaga-cabinet_default
   remnawave-network:
     external: true
