@@ -52,8 +52,8 @@ export function CardsBlock({
                 <p
                   className={
                     isVerno
-                      ? 'mt-1 whitespace-pre-line text-sm text-white/35'
-                      : 'mt-1 whitespace-pre-line text-sm leading-relaxed text-dark-400'
+                      ? 'mt-1 whitespace-pre-line text-[15px] text-white/35'
+                      : 'mt-1 whitespace-pre-line text-[15px] leading-relaxed text-dark-400'
                   }
                   style={isVerno ? { lineHeight: 1.65 } : undefined}
                 >

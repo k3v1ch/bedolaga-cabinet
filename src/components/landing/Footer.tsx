@@ -1,6 +1,8 @@
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export function Footer() {
+  const { t } = useTranslation();
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -17,55 +19,62 @@ export function Footer() {
               ВЕРНО <span className="text-white/40">VPN</span>
             </p>
             <p className="text-sm text-white/25" style={{ lineHeight: 1.7 }}>
-              Быстрый и понятный VPN для повседневного интернета. Без логов, без скрытых условий.
+              {t('landing.footer.tagline')}
             </p>
           </div>
 
           <div>
             <p className="mb-4 text-sm text-white/40" style={{ fontWeight: 500 }}>
-              Навигация
+              {t('landing.footer.navigation')}
             </p>
             <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => scrollTo('benefits')}
                 className="text-left text-sm text-white/25 transition-colors hover:text-white/50"
               >
-                Преимущества
+                {t('landing.nav.benefits')}
               </button>
               <button
                 onClick={() => scrollTo('pricing')}
                 className="text-left text-sm text-white/25 transition-colors hover:text-white/50"
               >
-                Цены
+                {t('landing.nav.pricing')}
               </button>
               <button
                 onClick={() => scrollTo('faq')}
                 className="text-left text-sm text-white/25 transition-colors hover:text-white/50"
               >
-                FAQ
+                {t('landing.nav.faq')}
               </button>
               <Link
                 to="/login"
                 className="text-sm text-white/25 transition-colors hover:text-white/50"
               >
-                Вход
+                {t('landing.nav.login')}
               </Link>
             </div>
           </div>
 
           <div>
             <p className="mb-4 text-sm text-white/40" style={{ fontWeight: 500 }}>
-              Информация
+              {t('landing.footer.info')}
             </p>
             <div className="flex flex-col gap-2.5">
-              <a href="#" className="text-sm text-white/25 transition-colors hover:text-white/50">
-                Политика конфиденциальности
+              <a
+                href="https://telegra.ph/Politika-konfidencialnosti-05-15-38"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-white/25 transition-colors hover:text-white/50"
+              >
+                {t('landing.footer.policy')}
               </a>
-              <a href="#" className="text-sm text-white/25 transition-colors hover:text-white/50">
-                Пользовательское соглашение
-              </a>
-              <a href="#" className="text-sm text-white/25 transition-colors hover:text-white/50">
-                Условия возврата
+              <a
+                href="https://telegra.ph/Polzovatelskoe-soglashenie-05-15-23"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-white/25 transition-colors hover:text-white/50"
+              >
+                {t('landing.footer.terms')}
               </a>
               <a
                 href="https://t.me/VernoVPNbot"
@@ -73,7 +82,7 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="text-sm text-white/25 transition-colors hover:text-white/50"
               >
-                Telegram-бот
+                {t('landing.footer.bot')}
               </a>
               <a
                 href="https://t.me/VernoVPNsupport"
@@ -81,14 +90,14 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="text-sm text-white/25 transition-colors hover:text-white/50"
               >
-                Поддержка
+                {t('landing.footer.support')}
               </a>
             </div>
           </div>
         </div>
 
         <div className="mt-14 border-t border-white/[0.04] pt-6 text-center">
-          <p className="text-white/12 text-xs">© 2026 ВЕРНО VPN. Все права защищены.</p>
+          <p className="text-white/12 text-xs">{t('landing.footer.copyright')}</p>
         </div>
       </div>
     </footer>

@@ -10,6 +10,7 @@ import { subscriptionApi } from '@/api/subscription';
 import { balanceApi } from '@/api/balance';
 import { referralApi } from '@/api/referral';
 import { giftApi } from '@/api/gift';
+import { useBranding } from '@/hooks/useBranding';
 import { API } from '@/config/constants';
 
 interface GlassCardProps {
@@ -27,10 +28,13 @@ function GlassCard({ children, className = '' }: GlassCardProps) {
   );
 }
 
-const planLabelFor = (subscription: { is_trial?: boolean; tariff_name?: string | null } | null) => {
+const planLabelFor = (
+  subscription: { is_trial?: boolean; tariff_name?: string | null } | null,
+  t: (key: string, options?: Record<string, unknown>) => string,
+) => {
   if (!subscription) return '—';
-  if (subscription.is_trial) return 'Пробный';
-  return subscription.tariff_name || 'Активный';
+  if (subscription.is_trial) return t('dashboard.home.planTrial');
+  return subscription.tariff_name || t('dashboard.home.planActive');
 };
 
 const formatDate = (iso: string | null | undefined) => {
@@ -46,6 +50,7 @@ export default function CabinetHome() {
   const queryClient = useQueryClient();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const refreshUser = useAuthStore((s) => s.refreshUser);
+  const { appName } = useBranding();
 
   const [copied, setCopied] = useState(false);
   const [trialError, setTrialError] = useState<string | null>(null);
@@ -186,8 +191,12 @@ export default function CabinetHome() {
   });
 
   // === Layout decisions ===
-  const isActiveSub =
-    !!subscription && !subscription.is_expired && subscription.status !== 'disabled';
+  const isInactiveSub =
+    !!subscription &&
+    (subscription.is_expired ||
+      subscription.status === 'disabled' ||
+      subscription.is_limited === true);
+  const isActiveSub = !!subscription && !isInactiveSub;
   const noSubFresh = hasNoSubscription && (trialInfo?.is_available ?? true);
   const noSubTrialUsed = hasNoSubscription && trialInfo && !trialInfo.is_available;
 
@@ -201,20 +210,18 @@ export default function CabinetHome() {
       >
         <h1
           className="mb-8 text-white"
-          style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+          style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
         >
-          Главная
+          {t('dashboard.home.title')}
         </h1>
-        <GlassCard className="mb-4 p-6">
-          <p className="mb-4 text-sm text-white/40">
-            У вас несколько подписок — управление перенесено на страницу «Подписка».
-          </p>
+        <GlassCard className="mb-5 p-7">
+          <p className="mb-4 text-[15px] text-white/45">{t('dashboard.home.multiTariffMessage')}</p>
           <Link
             to="/subscriptions"
-            className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+            className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
             style={{ fontWeight: 500 }}
           >
-            Перейти к подпискам <ChevronRight size={14} />
+            {t('dashboard.home.gotoSubscriptions')} <ChevronRight size={16} />
           </Link>
         </GlassCard>
       </motion.div>
@@ -253,86 +260,127 @@ export default function CabinetHome() {
     >
       <h1
         className="mb-8 text-white"
-        style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+        style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
       >
-        Главная
+        {t('dashboard.home.title')}
       </h1>
 
       {/* Pending gifts banner */}
       {pendingGifts && pendingGifts.length > 0 && (
-        <GlassCard className="mb-4 p-6">
+        <GlassCard className="mb-5 p-7">
           <div className="mb-2 flex items-center gap-2">
-            <Gift size={16} className="text-white/60" />
-            <span className="text-sm text-white/70" style={{ fontWeight: 500 }}>
-              У вас {pendingGifts.length}{' '}
-              {pendingGifts.length === 1 ? 'непринятый подарок' : 'непринятых подарка'}
+            <Gift size={18} className="text-white/60" />
+            <span className="text-[15px] text-white/75" style={{ fontWeight: 500 }}>
+              {t('dashboard.home.pendingGifts', { count: pendingGifts.length })}
             </span>
           </div>
           <Link
             to="/gift/result"
-            className="inline-flex items-center gap-1.5 text-sm text-white/55 transition-colors hover:text-white/80"
+            className="inline-flex items-center gap-1.5 text-[15px] text-white/60 transition-colors hover:text-white/85"
           >
-            Посмотреть <ChevronRight size={14} />
+            {t('dashboard.home.viewGift')} <ChevronRight size={16} />
           </Link>
         </GlassCard>
       )}
 
       {/* No subscription, trial available */}
       {noSubFresh && (
-        <GlassCard className="mb-4 p-6">
+        <GlassCard className="mb-5 p-7">
           <div className="mb-2 flex items-center gap-2">
-            <Zap size={16} className="text-white/40" />
-            <span className="text-sm text-white/60" style={{ fontWeight: 500 }}>
-              Добро пожаловать в ВЕРНО VPN
+            <Zap size={18} className="text-white/45" />
+            <span className="text-[15px] text-white/65" style={{ fontWeight: 500 }}>
+              {t('dashboard.home.welcomeBrand', { brand: `${appName ?? 'ВЕРНО'} VPN` })}
             </span>
           </div>
-          <p className="mb-4 text-sm text-white/35">
+          <p className="mb-4 text-[15px] text-white/40">
             {trialInfo
-              ? `Начните с бесплатного пробного периода: ${trialInfo.duration_days} дней, ${
-                  trialInfo.traffic_limit_gb === 0
-                    ? 'безлимитный трафик'
-                    : `${trialInfo.traffic_limit_gb} ГБ`
-                }, до ${trialInfo.device_limit} устройств.`
-              : 'Начните с бесплатного пробного периода.'}
+              ? t('dashboard.home.trialOffer', {
+                  days: trialInfo.duration_days,
+                  traffic:
+                    trialInfo.traffic_limit_gb === 0
+                      ? t('dashboard.home.trialUnlimited')
+                      : t('dashboard.home.trialTraffic', { amount: trialInfo.traffic_limit_gb }),
+                  devices: trialInfo.device_limit,
+                })
+              : t('dashboard.home.trialOfferShort')}
           </p>
-          {trialError && <p className="mb-3 text-sm text-red-400/80">{trialError}</p>}
+          {trialError && <p className="mb-3 text-[15px] text-red-400/80">{trialError}</p>}
           <button
             onClick={() => activateTrialMutation.mutate()}
             disabled={activateTrialMutation.isPending}
-            className="rounded-full bg-white px-5 py-2.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
+            className="rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
             style={{ fontWeight: 500 }}
           >
-            {activateTrialMutation.isPending ? 'Активация…' : 'Активировать пробный период'}
+            {activateTrialMutation.isPending
+              ? t('dashboard.home.activating')
+              : t('dashboard.home.activateTrial')}
           </button>
         </GlassCard>
       )}
 
       {/* No subscription, trial used */}
       {noSubTrialUsed && (
-        <GlassCard className="mb-4 p-6">
+        <GlassCard className="mb-5 p-7">
           <div className="mb-2 flex items-center gap-2">
-            <AlertCircle size={16} className="text-white/30" />
-            <span className="text-sm text-white/40" style={{ fontWeight: 500 }}>
-              Подписка не активна
+            <AlertCircle size={18} className="text-white/35" />
+            <span className="text-[15px] text-white/45" style={{ fontWeight: 500 }}>
+              {t('dashboard.home.noSubscription')}
             </span>
           </div>
-          <p className="mb-4 text-sm text-white/30">
-            Пробный период использован. Выберите тариф для продолжения.
+          <p className="mb-4 text-[15px] text-white/35">{t('dashboard.home.trialUsed')}</p>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <button
+              onClick={() => navigate('/subscriptions/renew')}
+              className="rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+              style={{ fontWeight: 500 }}
+            >
+              {t('dashboard.home.selectPlan')}
+            </button>
+            <button
+              onClick={() => navigate('/gifts?action=new')}
+              className="flex items-center justify-center gap-1.5 rounded-full border border-white/15 px-6 py-3 text-[15px] text-white/65 transition-colors hover:bg-white/[0.05]"
+              style={{ fontWeight: 500 }}
+            >
+              <Gift size={16} /> {t('dashboard.home.giftSubscription')}
+            </button>
+          </div>
+        </GlassCard>
+      )}
+
+      {/* Subscription expired / disabled / limited */}
+      {isInactiveSub && subscription && (
+        <GlassCard className="mb-5 p-7">
+          <div className="mb-2 flex items-center gap-2">
+            <AlertCircle size={18} className="text-white/35" />
+            <span className="text-[15px] text-white/45" style={{ fontWeight: 500 }}>
+              {subscription.is_limited
+                ? t('subscriptionPage.limited')
+                : t('dashboard.home.noSubscription')}
+            </span>
+          </div>
+          <p className="mb-4 text-[15px] text-white/35">
+            {subscription.is_trial
+              ? t('dashboard.home.trialUsed')
+              : t('dashboard.expired.paidSubtitle')}
           </p>
           <div className="flex flex-col gap-2 sm:flex-row">
             <button
-              onClick={() => navigate('/subscription/purchase')}
-              className="rounded-full bg-white px-5 py-2.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+              onClick={() =>
+                subscription.is_trial
+                  ? navigate('/subscriptions/renew')
+                  : navigate(`/subscriptions/${subscription.id}/renew`)
+              }
+              className="rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
               style={{ fontWeight: 500 }}
             >
-              Выбрать тариф
+              {subscription.is_trial ? t('dashboard.home.selectPlan') : t('dashboard.home.renew')}
             </button>
             <button
-              onClick={() => navigate('/gift')}
-              className="flex items-center justify-center gap-1.5 rounded-full border border-white/15 px-5 py-2.5 text-sm text-white/60 transition-colors hover:bg-white/[0.05]"
+              onClick={() => navigate('/gifts?action=new')}
+              className="flex items-center justify-center gap-1.5 rounded-full border border-white/15 px-6 py-3 text-[15px] text-white/65 transition-colors hover:bg-white/[0.05]"
               style={{ fontWeight: 500 }}
             >
-              <Gift size={14} /> Подарить подписку
+              <Gift size={16} /> {t('dashboard.home.giftSubscription')}
             </button>
           </div>
         </GlassCard>
@@ -341,45 +389,49 @@ export default function CabinetHome() {
       {/* Active subscription */}
       {isActiveSub && subscription && (
         <>
-          <GlassCard className="mb-4 p-6">
+          <GlassCard className="mb-5 p-7">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="mb-2 flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-green-400" />
-                  <span className="text-sm text-green-400" style={{ fontWeight: 500 }}>
-                    Подписка активна
+                  <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
+                  <span className="text-[15px] text-green-400" style={{ fontWeight: 500 }}>
+                    {t('dashboard.home.subscriptionActive')}
                   </span>
                 </div>
-                <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
-                  <p className="text-white/35">
-                    Тариф: <span className="text-white/65">{planLabelFor(subscription)}</span>
+                <div className="flex flex-wrap gap-x-6 gap-y-1 text-[15px]">
+                  <p className="text-white/40">
+                    {t('dashboard.home.planLabel')}:{' '}
+                    <span className="text-white/70">{planLabelFor(subscription, t)}</span>
                   </p>
-                  <p className="text-white/35">
-                    Активна до:{' '}
-                    <span className="text-white/65">{formatDate(subscription.end_date)}</span>
+                  <p className="text-white/40">
+                    {t('dashboard.home.activeUntil')}:{' '}
+                    <span className="text-white/70">{formatDate(subscription.end_date)}</span>
                   </p>
-                  <p className="text-white/35">
-                    Устройства:{' '}
-                    <span className="text-white/65">
-                      {usedDevices} из {totalDevices || '∞'}
+                  <p className="text-white/40">
+                    {t('dashboard.home.devicesLabel')}:{' '}
+                    <span className="text-white/70">
+                      {t('dashboard.home.devicesOf', {
+                        used: usedDevices,
+                        total: totalDevices || '∞',
+                      })}
                     </span>
                   </p>
                 </div>
               </div>
               <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto">
                 <button
-                  onClick={() => navigate('/subscription/purchase')}
-                  className="rounded-full bg-white px-5 py-2.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+                  onClick={() => navigate(`/subscriptions/${subscription.id}/renew`)}
+                  className="rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
                   style={{ fontWeight: 500 }}
                 >
-                  Продлить подписку
+                  {t('dashboard.home.renew')}
                 </button>
                 <button
-                  onClick={() => navigate('/gift')}
-                  className="flex items-center justify-center gap-1.5 rounded-full border border-white/15 px-5 py-2.5 text-sm text-white/60 transition-colors hover:bg-white/[0.05]"
+                  onClick={() => navigate('/gifts?action=new')}
+                  className="flex items-center justify-center gap-1.5 rounded-full border border-white/15 px-6 py-3 text-[15px] text-white/65 transition-colors hover:bg-white/[0.05]"
                   style={{ fontWeight: 500 }}
                 >
-                  <Gift size={14} /> Подарить подписку
+                  <Gift size={16} /> {t('dashboard.home.giftSubscription')}
                 </button>
               </div>
             </div>
@@ -387,23 +439,24 @@ export default function CabinetHome() {
 
           {/* Traffic */}
           {traffic && (
-            <GlassCard className="mb-4 p-6">
+            <GlassCard className="mb-5 p-7">
               <div className="mb-3 flex items-center justify-between">
                 <p
-                  className="text-xs text-white/40"
+                  className="text-[13px] text-white/45"
                   style={{ fontWeight: 500, letterSpacing: '0.05em' }}
                 >
-                  ТРАФИК
+                  {t('dashboard.home.trafficHeader')}
                 </p>
-                <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-xs text-white/50">
+                <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[13px] text-white/55">
                   {traffic.is_unlimited
-                    ? 'Безлимит'
-                    : `${traffic.traffic_used_gb.toFixed(1)} ГБ из ${
-                        subscription.traffic_limit_gb
-                      } ГБ`}
+                    ? t('subscription.unlimited')
+                    : t('dashboard.home.trafficUsage', {
+                        used: traffic.traffic_used_gb.toFixed(1),
+                        total: subscription.traffic_limit_gb,
+                      })}
                 </span>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
+              <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-white/15 to-white/30"
                   style={{
@@ -417,13 +470,13 @@ export default function CabinetHome() {
                 <button
                   onClick={() => refreshTrafficMutation.mutate()}
                   disabled={trafficCooldown > 0 || refreshTrafficMutation.isPending}
-                  className="mt-3 text-xs text-white/35 transition-colors hover:text-white/55 disabled:opacity-40"
+                  className="mt-3 text-[13px] text-white/40 transition-colors hover:text-white/60 disabled:opacity-40"
                 >
                   {refreshTrafficMutation.isPending
-                    ? 'Обновление…'
+                    ? t('dashboard.home.trafficRefreshing')
                     : trafficCooldown > 0
-                      ? `Обновить через ${trafficCooldown}с`
-                      : 'Обновить трафик'}
+                      ? t('dashboard.home.trafficRefreshIn', { seconds: trafficCooldown })
+                      : t('dashboard.home.trafficRefresh')}
                 </button>
               )}
             </GlassCard>
@@ -431,31 +484,32 @@ export default function CabinetHome() {
 
           {/* Connection key */}
           {subscription.subscription_url && !subscription.hide_subscription_link && (
-            <GlassCard className="mb-4 p-6">
+            <GlassCard className="mb-5 p-7">
               <p
-                className="mb-3 text-xs text-white/40"
+                className="mb-3 text-[13px] text-white/45"
                 style={{ fontWeight: 500, letterSpacing: '0.05em' }}
               >
-                ПОДКЛЮЧЕНИЕ
+                {t('dashboard.home.connectionHeader')}
               </p>
-              <div className="mb-3 flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3">
-                <span className="flex-1 truncate font-mono text-sm text-white/40">
+              <button
+                type="button"
+                onClick={copyKey}
+                aria-label={t('dashboard.home.copyLink')}
+                className="group mb-3 flex w-full items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 text-left transition-colors hover:bg-white/[0.06] active:bg-white/[0.08]"
+              >
+                <span className="flex-1 truncate font-mono text-[15px] text-white/45 group-hover:text-white/65">
                   {subscription.subscription_url}
                 </span>
-                <button
-                  onClick={copyKey}
-                  className="shrink-0 text-white/25 transition-colors hover:text-white/50"
-                  aria-label="Скопировать"
-                >
-                  {copied ? <Check size={15} className="text-green-400" /> : <Copy size={15} />}
-                </button>
-              </div>
+                <span className="shrink-0 text-white/30 transition-colors group-hover:text-white/55">
+                  {copied ? <Check size={17} className="text-green-400" /> : <Copy size={17} />}
+                </span>
+              </button>
               <button
-                onClick={() => navigate(`/subscriptions/${subscription.id}`)}
-                className="w-full rounded-full border border-white/15 py-3 text-sm text-white/60 transition-colors hover:bg-white/[0.05]"
+                onClick={() => navigate('/connection')}
+                className="w-full rounded-full border border-white/15 py-3.5 text-[15px] text-white/65 transition-colors hover:bg-white/[0.05]"
                 style={{ fontWeight: 500 }}
               >
-                Подключиться
+                {t('dashboard.home.connect')}
               </button>
             </GlassCard>
           )}
@@ -463,19 +517,19 @@ export default function CabinetHome() {
       )}
 
       {/* Compact referral */}
-      <GlassCard className="p-6">
+      <GlassCard className="p-7">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm text-white" style={{ fontWeight: 500 }}>
-            Реферальная программа
+          <h3 className="text-[15px] text-white" style={{ fontWeight: 500 }}>
+            {t('dashboard.home.referralTitle')}
           </h3>
           <Link
             to="/referral"
-            className="flex items-center gap-1 text-xs text-white/25 transition-colors hover:text-white/40"
+            className="flex items-center gap-1 text-[13px] text-white/30 transition-colors hover:text-white/50"
           >
-            Подробнее <ChevronRight size={14} />
+            {t('dashboard.home.details')} <ChevronRight size={16} />
           </Link>
         </div>
-        <p className="mt-2 text-xs text-white/25">Приглашайте друзей — до 30% общей выгоды</p>
+        <p className="mt-2 text-[13px] text-white/30">{t('dashboard.home.referralHint')}</p>
       </GlassCard>
     </motion.div>
   );

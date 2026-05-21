@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { Header } from '@/components/landing/Header';
 import { Hero } from '@/components/landing/Hero';
 import { Benefits } from '@/components/landing/Benefits';
@@ -9,6 +10,7 @@ import { FAQ } from '@/components/landing/FAQ';
 import { Footer } from '@/components/landing/Footer';
 
 export default function CabinetLanding() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-black" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
@@ -29,15 +31,15 @@ export default function CabinetLanding() {
               letterSpacing: '-0.02em',
             }}
           >
-            Попробуйте ВЕРНО VPN бесплатно
+            {t('landing.cta.title')}
           </h2>
-          <p className="mb-8 text-sm text-white/35">3 дня без карты и без обязательств</p>
+          <p className="mb-8 text-sm text-white/35">{t('landing.cta.subtitle')}</p>
           <Link
             to="/login"
             className="inline-block rounded-full bg-white px-8 py-4 text-black transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl hover:shadow-white/15 active:scale-95"
             style={{ fontSize: '0.95rem', fontWeight: 500 }}
           >
-            Попробовать бесплатно
+            {t('landing.cta.button')}
           </Link>
         </div>
       </section>

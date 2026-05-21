@@ -20,6 +20,7 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
+    allowedHosts: ['localhost', 'lvh.me', '.lvh.me', '.nip.io'],
     proxy: {
       '/api': {
         target: 'http://localhost:8080',

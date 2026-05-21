@@ -434,7 +434,7 @@ export default function Login() {
             <div className="space-y-3">
               {isLoading && isTelegramWebApp ? (
                 <div className="py-6 text-center">
-                  <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+                  <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
                   <p className="text-sm text-dark-400">{t('auth.authenticating')}</p>
                 </div>
               ) : isTelegramWebApp && error ? (

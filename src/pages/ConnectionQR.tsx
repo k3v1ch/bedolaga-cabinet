@@ -46,13 +46,13 @@ export default function ConnectionQR() {
       <div className="animate-fade-in" style={{ fontFamily: 'Inter, sans-serif' }}>
         <button
           onClick={() => navigate(connectionPath, { replace: true })}
-          className="mb-4 flex items-center gap-1.5 text-sm text-white/40 transition-colors hover:text-white/65"
+          className="mb-4 flex items-center gap-1.5 text-[15px] text-white/40 transition-colors hover:text-white/65"
         >
           <ArrowLeft size={14} /> {t('common.back', { defaultValue: 'Назад' })}
         </button>
         <h1
           className="mb-8 text-white"
-          style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+          style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
         >
           {t('subscription.connection.qrTitle')}
         </h1>
@@ -61,18 +61,18 @@ export default function ConnectionQR() {
           <div className="flex w-full max-w-sm flex-col items-center px-6">
             {appName && (
               <p
-                className="mb-3 text-xs uppercase tracking-[0.05em] text-white/40"
+                className="mb-3 text-[13px] uppercase tracking-[0.05em] text-white/40"
                 style={{ fontWeight: 500 }}
               >
                 {appName}
               </p>
             )}
 
-            <p className="mb-8 text-center text-sm text-white/35">
+            <p className="mb-8 text-center text-[15px] text-white/35">
               {t('subscription.connection.qrScanHint')}
             </p>
 
-            <div className="rounded-3xl bg-white p-6">
+            <div className="rounded-3xl bg-white p-7">
               <QRCodeSVG
                 value={validState.url}
                 size={280}
@@ -83,7 +83,7 @@ export default function ConnectionQR() {
             </div>
 
             {!validState.hideLink && (
-              <p className="mt-6 max-w-full truncate text-center font-mono text-xs text-white/30">
+              <p className="mt-6 max-w-full truncate text-center font-mono text-[13px] text-white/30">
                 {validState.url}
               </p>
             )}
@@ -103,16 +103,16 @@ export default function ConnectionQR() {
       <div className="flex flex-col items-center">
         <div className="flex w-full max-w-sm flex-col items-center px-6">
           {appName && (
-            <p className="mb-3 text-sm font-medium uppercase tracking-wider text-dark-400">
+            <p className="mb-3 text-[15px] font-medium uppercase tracking-wider text-dark-400">
               {appName}
             </p>
           )}
 
-          <p className="mb-8 text-center text-sm text-dark-400">
+          <p className="mb-8 text-center text-[15px] text-dark-400">
             {t('subscription.connection.qrScanHint')}
           </p>
 
-          <div className="rounded-3xl bg-white p-6">
+          <div className="rounded-3xl bg-white p-7">
             <QRCodeSVG
               value={validState.url}
               size={280}
@@ -123,7 +123,7 @@ export default function ConnectionQR() {
           </div>
 
           {!validState.hideLink && (
-            <p className="mt-6 max-w-full truncate text-center font-mono text-xs text-dark-500">
+            <p className="mt-6 max-w-full truncate text-center font-mono text-[13px] text-dark-500">
               {validState.url}
             </p>
           )}

@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState, useCallback, type ReactNode } from 'react';
-import { Link } from 'react-router';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Link, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Check, Gift, Share2, AlertTriangle } from 'lucide-react';
+import { Copy, Check, Gift, AlertTriangle } from 'lucide-react';
 
 import { useAuthStore } from '@/store/auth';
 import { giftApi } from '@/api/gift';
@@ -42,15 +42,16 @@ const formatDate = (iso: string | null | undefined) => {
   return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
-const periodLabel = (days: number): string => {
+const periodLabel = (
+  days: number,
+  t: (key: string, options?: Record<string, unknown>) => string,
+): string => {
   const months = Math.floor(days / 30);
   const remainder = days % 30;
   if (months > 0 && remainder === 0) {
-    if (months === 1) return '1 месяц';
-    if (months >= 2 && months <= 4) return `${months} месяца`;
-    return `${months} месяцев`;
+    return t('renewPage.month', { count: months });
   }
-  return `${days} дн.`;
+  return t('renewPage.days', { count: days });
 };
 
 const isGiftAvailable = (status: string): boolean =>
@@ -68,7 +69,19 @@ export default function CabinetGifts() {
   const { openInvoice, capabilities } = usePlatform();
   const haptic = useHaptic();
 
-  const [view, setView] = useState<View>('main');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialView: View = searchParams.get('action') === 'new' ? 'select' : 'main';
+  const [view, setView] = useState<View>(initialView);
+
+  // Strip the `action=new` query param once consumed so navigating back doesn't re-trigger it.
+  useEffect(() => {
+    if (searchParams.get('action') === 'new') {
+      const next = new URLSearchParams(searchParams);
+      next.delete('action');
+      setSearchParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [selectedTariffId, setSelectedTariffId] = useState<number | null>(null);
   const [selectedPeriodDays, setSelectedPeriodDays] = useState<number | null>(null);
   const [paymentMode, setPaymentMode] = useState<'balance' | 'gateway'>('balance');
@@ -224,20 +237,17 @@ export default function CabinetGifts() {
   }
 
   if (configError || !config) {
-    const errMsg = getApiErrorMessage(
-      configError,
-      t('gift.failedDesc', { defaultValue: 'Не удалось загрузить подарки.' }),
-    );
+    const errMsg = getApiErrorMessage(configError, t('giftsPage.loadFailed'));
     return (
       <div style={{ fontFamily: 'Inter, sans-serif' }} className="max-w-xl">
         <h1
           className="mb-6 text-white"
-          style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+          style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
         >
-          Подарки
+          {t('giftsPage.title')}
         </h1>
         <GlassCard className="p-5">
-          <p className="text-sm text-white/55">{errMsg}</p>
+          <p className="text-[15px] text-white/55">{errMsg}</p>
         </GlassCard>
       </div>
     );
@@ -248,17 +258,17 @@ export default function CabinetGifts() {
       <div style={{ fontFamily: 'Inter, sans-serif' }} className="max-w-xl">
         <h1
           className="mb-6 text-white"
-          style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+          style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
         >
-          Подарки
+          {t('giftsPage.title')}
         </h1>
-        <GlassCard className="p-6 text-center">
+        <GlassCard className="p-7 text-center">
           <Gift size={28} className="mx-auto mb-3 text-white/20" />
-          <p className="mb-1.5 text-sm text-white/55" style={{ fontWeight: 500 }}>
-            Подарки временно недоступны
+          <p className="mb-1.5 text-[15px] text-white/55" style={{ fontWeight: 500 }}>
+            {t('giftsPage.unavailableTitle')}
           </p>
-          <p className="text-xs text-white/30" style={{ lineHeight: 1.6 }}>
-            Функция подарков отключена администратором.
+          <p className="text-[13px] text-white/30" style={{ lineHeight: 1.6 }}>
+            {t('giftsPage.unavailableDesc')}
           </p>
         </GlassCard>
       </div>
@@ -310,15 +320,15 @@ export default function CabinetGifts() {
         <div className="mb-8 flex items-center justify-between">
           <h1
             className="text-white"
-            style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+            style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
           >
-            Выбор подарка
+            {t('giftsPage.selectTitle')}
           </h1>
           <button
             onClick={() => setView('main')}
-            className="text-sm text-white/30 transition-colors hover:text-white/50"
+            className="text-[15px] text-white/30 transition-colors hover:text-white/50"
           >
-            ← Назад
+            {t('giftsPage.back')}
           </button>
         </div>
 
@@ -333,11 +343,11 @@ export default function CabinetGifts() {
                   <button
                     key={days}
                     onClick={() => setSelectedPeriodDays(days)}
-                    className={`relative rounded-full px-4 py-2 text-sm transition-all ${
+                    className={`relative rounded-full px-4 py-2 text-[15px] transition-all ${
                       isSel ? 'bg-white/10 text-white' : 'text-white/35 hover:text-white/55'
                     }`}
                   >
-                    {periodLabel(days)}
+                    {periodLabel(days, t)}
                     {discount && (
                       <span
                         className="absolute -right-1 -top-2.5 rounded-full bg-white/15 px-1.5 py-0.5 text-[10px] text-white/70"
@@ -383,13 +393,15 @@ export default function CabinetGifts() {
                 <div className="flex min-w-0 items-center gap-3">
                   <Gift size={18} className="shrink-0 text-white/30" strokeWidth={1.5} />
                   <div className="min-w-0">
-                    <p className="text-sm text-white/70" style={{ fontWeight: 500 }}>
+                    <p className="text-[15px] text-white/70" style={{ fontWeight: 500 }}>
                       {tariff.name}
                     </p>
-                    <p className="truncate text-xs text-white/25">
-                      {tariff.traffic_limit_gb > 0 ? `${tariff.traffic_limit_gb} ГБ` : 'Безлимит'}
+                    <p className="truncate text-[13px] text-white/25">
+                      {tariff.traffic_limit_gb > 0
+                        ? t('giftsPage.trafficGb', { amount: tariff.traffic_limit_gb })
+                        : t('giftsPage.unlimited')}
                       {' • '}
-                      до {tariff.device_limit} устр.
+                      {t('giftsPage.devicesUpTo', { count: tariff.device_limit })}
                     </p>
                   </div>
                 </div>
@@ -400,13 +412,13 @@ export default function CabinetGifts() {
                         {formatPrice(period.price_kopeks)}
                       </span>
                       {monthlyPrice != null && (
-                        <p className="mt-0.5 text-xs text-white/25">
-                          {formatPrice(monthlyPrice)}/мес
+                        <p className="mt-0.5 text-[13px] text-white/25">
+                          {t('giftsPage.perMonthShort', { price: formatPrice(monthlyPrice) })}
                         </p>
                       )}
                     </>
                   ) : (
-                    <span className="text-xs text-white/25">недоступно</span>
+                    <span className="text-[13px] text-white/25">{t('giftsPage.unavailable')}</span>
                   )}
                 </div>
               </button>
@@ -417,10 +429,10 @@ export default function CabinetGifts() {
         <button
           onClick={() => setView('confirm')}
           disabled={!selectedTariffId || !selectedPeriodDays}
-          className="w-full rounded-full bg-white py-3.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-full bg-white py-3.5 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
           style={{ fontWeight: 500 }}
         >
-          Далее
+          {t('giftsPage.next')}
         </button>
       </motion.div>
     );
@@ -429,7 +441,7 @@ export default function CabinetGifts() {
   // ────────── CONFIRM VIEW ──────────
   if (view === 'confirm' && selectedTariff && selectedPeriod) {
     const hasGateways = config.payment_methods.length > 0;
-    const balanceLabel = `С баланса (${formatPrice(balanceKopeks)})`;
+    const balanceLabel = t('giftsPage.balanceMode', { amount: formatPrice(balanceKopeks) });
     const selectedMethodObj: GiftPaymentMethod | undefined = config.payment_methods.find(
       (m) => m.method_id === selectedMethod,
     );
@@ -444,53 +456,55 @@ export default function CabinetGifts() {
         <div className="mb-8 flex items-center justify-between">
           <h1
             className="text-white"
-            style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+            style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
           >
-            Подтверждение
+            {t('giftsPage.confirmTitle')}
           </h1>
           <button
             onClick={() => setView('select')}
-            className="text-sm text-white/30 transition-colors hover:text-white/50"
+            className="text-[15px] text-white/30 transition-colors hover:text-white/50"
           >
-            ← Назад
+            {t('giftsPage.back')}
           </button>
         </div>
 
         <GlassCard className="mb-4 p-5">
-          <p className="text-sm text-white/40" style={{ lineHeight: 1.65 }}>
-            Вы покупаете подписку в подарок. После оплаты мы создадим промокод — отправьте его
-            другу, чтобы он активировал подписку в своём кабинете. Код также сохранится в разделе
-            «Мои подарки», поэтому его можно скопировать или отправить позже.
+          <p className="text-[15px] text-white/40" style={{ lineHeight: 1.65 }}>
+            {t('giftsPage.confirmDescription')}
           </p>
         </GlassCard>
 
-        <GlassCard className="mb-4 p-6">
+        <GlassCard className="mb-5 p-7">
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-sm text-white/35">Тариф</span>
-              <span className="text-sm text-white/70" style={{ fontWeight: 500 }}>
+              <span className="text-[15px] text-white/35">{t('giftsPage.tariffLabel')}</span>
+              <span className="text-[15px] text-white/70" style={{ fontWeight: 500 }}>
                 {selectedTariff.name}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-white/35">Срок</span>
-              <span className="text-sm text-white/70">{periodLabel(selectedPeriod.days)}</span>
+              <span className="text-[15px] text-white/35">{t('giftsPage.periodLabel')}</span>
+              <span className="text-[15px] text-white/70">
+                {periodLabel(selectedPeriod.days, t)}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-white/35">Устройства</span>
-              <span className="text-sm text-white/70">До {selectedTariff.device_limit}</span>
+              <span className="text-[15px] text-white/35">{t('giftsPage.devicesLabel')}</span>
+              <span className="text-[15px] text-white/70">
+                {t('giftsPage.deviceUpTo', { count: selectedTariff.device_limit })}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-white/35">Трафик</span>
-              <span className="text-sm text-white/70">
+              <span className="text-[15px] text-white/35">{t('giftsPage.trafficLabel')}</span>
+              <span className="text-[15px] text-white/70">
                 {selectedTariff.traffic_limit_gb > 0
-                  ? `${selectedTariff.traffic_limit_gb} ГБ`
-                  : 'Безлимит'}
+                  ? t('giftsPage.trafficGb', { amount: selectedTariff.traffic_limit_gb })
+                  : t('giftsPage.unlimited')}
               </span>
             </div>
             <div className="flex justify-between border-t border-white/[0.06] pt-3">
-              <span className="text-sm text-white/50" style={{ fontWeight: 500 }}>
-                Итого
+              <span className="text-[15px] text-white/50" style={{ fontWeight: 500 }}>
+                {t('giftsPage.totalLabel')}
               </span>
               <span className="text-white" style={{ fontSize: '1.3rem', fontWeight: 600 }}>
                 {formatPrice(selectedPeriod.price_kopeks)}
@@ -505,7 +519,7 @@ export default function CabinetGifts() {
             <div className="inline-flex w-full rounded-full border border-white/[0.08] bg-white/[0.04] p-1">
               <button
                 onClick={() => setPaymentMode('balance')}
-                className={`flex-1 rounded-full px-4 py-2 text-sm transition-all ${
+                className={`flex-1 rounded-full px-4 py-2 text-[15px] transition-all ${
                   paymentMode === 'balance'
                     ? 'bg-white/10 text-white'
                     : 'text-white/35 hover:text-white/55'
@@ -515,13 +529,13 @@ export default function CabinetGifts() {
               </button>
               <button
                 onClick={() => setPaymentMode('gateway')}
-                className={`flex-1 rounded-full px-4 py-2 text-sm transition-all ${
+                className={`flex-1 rounded-full px-4 py-2 text-[15px] transition-all ${
                   paymentMode === 'gateway'
                     ? 'bg-white/10 text-white'
                     : 'text-white/35 hover:text-white/55'
                 }`}
               >
-                Через шлюз
+                {t('giftsPage.gatewayMode')}
               </button>
             </div>
           </div>
@@ -565,11 +579,13 @@ export default function CabinetGifts() {
                           <img src={method.icon_url} alt="" className="h-6 w-6 object-contain" />
                         )}
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm text-white/70" style={{ fontWeight: 500 }}>
+                          <p className="text-[15px] text-white/70" style={{ fontWeight: 500 }}>
                             {method.display_name}
                           </p>
                           {method.description && (
-                            <p className="truncate text-xs text-white/25">{method.description}</p>
+                            <p className="truncate text-[13px] text-white/25">
+                              {method.description}
+                            </p>
                           )}
                         </div>
                         <div
@@ -587,7 +603,7 @@ export default function CabinetGifts() {
                               <button
                                 key={opt.id}
                                 onClick={() => setSelectedSubOption(opt.id)}
-                                className={`rounded-full px-3 py-1.5 text-xs transition-all ${
+                                className={`rounded-full px-3 py-1.5 text-[13px] transition-all ${
                                   selectedSubOption === opt.id
                                     ? 'bg-white text-black'
                                     : 'bg-white/[0.06] text-white/55 hover:bg-white/[0.1]'
@@ -610,15 +626,15 @@ export default function CabinetGifts() {
         {insufficientBalance && (
           <div className="mb-4 flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3">
             <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-400/70" />
-            <p className="text-sm text-amber-400/60">
-              Недостаточно средств.{' '}
+            <p className="text-[15px] text-amber-400/60">
+              {t('giftsPage.insufficientPart1')}{' '}
               <Link
                 to="/balance"
                 className="text-amber-300/80 underline underline-offset-2 transition-colors hover:text-amber-200/90"
               >
-                Пополните баланс
+                {t('giftsPage.insufficientTopUp')}
               </Link>{' '}
-              или выберите оплату через шлюз.
+              {t('giftsPage.insufficientPart2')}
             </p>
           </div>
         )}
@@ -631,7 +647,7 @@ export default function CabinetGifts() {
               exit={{ opacity: 0, y: -8 }}
               className="mb-4 rounded-xl border border-red-500/20 bg-red-500/5 p-3"
             >
-              <p className="text-sm text-red-300/80">{submitError}</p>
+              <p className="text-[15px] text-red-300/80">{submitError}</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -639,16 +655,19 @@ export default function CabinetGifts() {
         <button
           onClick={handleSubmit}
           disabled={!canSubmit || purchaseMutation.isPending}
-          className="w-full rounded-full bg-white py-3.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-full bg-white py-3.5 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
           style={{ fontWeight: 500 }}
         >
           {purchaseMutation.isPending
-            ? 'Оформляем…'
+            ? t('giftsPage.processing')
             : paymentMode === 'balance'
-              ? `Оплатить с баланса · ${formatPrice(currentPrice)}`
-              : `Перейти к оплате · ${formatPrice(currentPrice)}${
-                  selectedMethodObj ? ` через ${selectedMethodObj.display_name}` : ''
-                }`}
+              ? t('giftsPage.payFromBalance', { price: formatPrice(currentPrice) })
+              : selectedMethodObj
+                ? t('giftsPage.payViaGatewayWithMethod', {
+                    price: formatPrice(currentPrice),
+                    method: selectedMethodObj.display_name,
+                  })
+                : t('giftsPage.payViaGateway', { price: formatPrice(currentPrice) })}
         </button>
       </motion.div>
     );
@@ -670,21 +689,20 @@ export default function CabinetGifts() {
     >
       <h1
         className="mb-8 text-white"
-        style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+        style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
       >
-        Подарки
+        {t('giftsPage.title')}
       </h1>
 
       {/* ПОДАРИТЬ ПОДПИСКУ */}
-      <GlassCard className="mb-4 p-6">
+      <GlassCard className="mb-5 p-7">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="mb-1.5 text-sm text-white/55" style={{ fontWeight: 500 }}>
-              Подарить подписку
+            <p className="mb-1.5 text-[15px] text-white/55" style={{ fontWeight: 500 }}>
+              {t('giftsPage.giftSubscription')}
             </p>
-            <p className="text-xs text-white/30" style={{ lineHeight: 1.6 }}>
-              Купите подписку, получите промокод и отправьте другу — он активирует её в своём
-              кабинете.
+            <p className="text-[13px] text-white/30" style={{ lineHeight: 1.6 }}>
+              {t('giftsPage.giftSubscriptionDesc')}
             </p>
           </div>
           <button
@@ -692,21 +710,21 @@ export default function CabinetGifts() {
               setSubmitError(null);
               setView('select');
             }}
-            className="flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+            className="flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
             style={{ fontWeight: 500 }}
           >
-            <Gift size={14} /> Подарить подписку
+            <Gift size={14} /> {t('giftsPage.giftSubscription')}
           </button>
         </div>
       </GlassCard>
 
       {/* МОИ ПОДАРКИ */}
-      <GlassCard className="p-6">
+      <GlassCard className="p-7">
         <p
-          className="mb-4 text-xs text-white/40"
+          className="mb-4 text-[13px] text-white/40"
           style={{ fontWeight: 500, letterSpacing: '0.05em' }}
         >
-          МОИ ПОДАРКИ
+          {t('giftsPage.myGiftsHeader')}
         </p>
 
         {myGiftsLoading ? (
@@ -718,11 +736,11 @@ export default function CabinetGifts() {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.06]">
               <Gift size={20} className="text-white/40" />
             </div>
-            <p className="mb-1.5 text-sm text-white/55" style={{ fontWeight: 500 }}>
-              У вас пока нет подарков
+            <p className="mb-1.5 text-[15px] text-white/55" style={{ fontWeight: 500 }}>
+              {t('giftsPage.noGiftsTitle')}
             </p>
-            <p className="text-xs text-white/30" style={{ lineHeight: 1.6 }}>
-              Приобретите подарок для друга — код появится здесь.
+            <p className="text-[13px] text-white/30" style={{ lineHeight: 1.6 }}>
+              {t('giftsPage.noGiftsDesc')}
             </p>
           </div>
         ) : (
@@ -746,8 +764,8 @@ export default function CabinetGifts() {
 // ────────── ROW COMPONENTS ──────────
 
 function SentGiftRow({ gift }: { gift: SentGift }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
-  const [shared, setShared] = useState(false);
 
   const shortCode = gift.token.slice(0, 12);
   const giftCode = `GIFT-${shortCode}`;
@@ -755,30 +773,16 @@ function SentGiftRow({ gift }: { gift: SentGift }) {
   const available = !activated && isGiftAvailable(gift.status);
 
   const statusLabel = activated
-    ? 'Активирован'
+    ? t('giftsPage.status.activated')
     : available
-      ? 'Доступен'
+      ? t('giftsPage.status.available')
       : gift.status === 'pending'
-        ? 'Ожидает'
+        ? t('giftsPage.status.pending')
         : gift.status === 'failed'
-          ? 'Ошибка'
+          ? t('giftsPage.status.failed')
           : gift.status === 'expired'
-            ? 'Истёк'
+            ? t('giftsPage.status.expired')
             : gift.status;
-
-  const buildShareMessage = useCallback(() => {
-    const botUsername = import.meta.env.VITE_TELEGRAM_BOT_USERNAME as string | undefined;
-    const safeCode = shortCode.replace(/_/g, '%5F');
-    const botLink = botUsername ? `https://t.me/${botUsername}?start=GIFT%5F${safeCode}` : null;
-    const cabinetLink = `${window.location.origin}/gifts?code=${safeCode}`;
-    return [
-      `Дарю тебе подписку! Код: ${giftCode}`,
-      botLink ? `Активировать через бота: ${botLink}` : null,
-      `Активировать в кабинете: ${cabinetLink}`,
-    ]
-      .filter(Boolean)
-      .join('\n');
-  }, [shortCode, giftCode]);
 
   const handleCopy = async () => {
     await copyToClipboard(giftCode);
@@ -786,16 +790,10 @@ function SentGiftRow({ gift }: { gift: SentGift }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleShare = async () => {
-    await copyToClipboard(buildShareMessage());
-    setShared(true);
-    setTimeout(() => setShared(false), 2000);
-  };
-
   return (
     <div className="rounded-xl border border-white/[0.06] bg-white/[0.04] p-4">
       <div className="mb-3 flex items-start justify-between gap-3">
-        <p className="break-all font-mono text-sm text-white/70">{giftCode}</p>
+        <p className="break-all font-mono text-[15px] text-white/70">{giftCode}</p>
         <span
           className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] ${
             available
@@ -808,26 +806,28 @@ function SentGiftRow({ gift }: { gift: SentGift }) {
           {statusLabel}
         </span>
       </div>
-      <div className="mb-4 space-y-1 text-xs">
+      <div className="mb-4 space-y-1 text-[13px]">
         <div className="flex justify-between">
-          <span className="text-white/35">Тариф</span>
+          <span className="text-white/35">{t('giftsPage.row.tariff')}</span>
           <span className="text-white/60">{gift.tariff_name ?? '—'}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-white/35">Срок подписки</span>
-          <span className="text-white/60">{periodLabel(gift.period_days)}</span>
+          <span className="text-white/35">{t('giftsPage.row.period')}</span>
+          <span className="text-white/60">{periodLabel(gift.period_days, t)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-white/35">Устройств</span>
-          <span className="text-white/60">до {gift.device_limit}</span>
+          <span className="text-white/35">{t('giftsPage.row.devices')}</span>
+          <span className="text-white/60">
+            {t('giftsPage.row.devicesUpTo', { count: gift.device_limit })}
+          </span>
         </div>
         <div className="flex justify-between">
-          <span className="text-white/35">Дата покупки</span>
+          <span className="text-white/35">{t('giftsPage.row.purchaseDate')}</span>
           <span className="text-white/60">{formatDate(gift.created_at)}</span>
         </div>
         {activated && gift.activated_by_username && (
           <div className="flex justify-between">
-            <span className="text-white/35">Активировал</span>
+            <span className="text-white/35">{t('giftsPage.row.activatedBy')}</span>
             <span className="text-white/60">{gift.activated_by_username}</span>
           </div>
         )}
@@ -836,29 +836,15 @@ function SentGiftRow({ gift }: { gift: SentGift }) {
         <div className="flex gap-2">
           <button
             onClick={handleCopy}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2 text-xs text-white/50 transition-colors hover:bg-white/[0.04]"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2 text-[13px] text-white/50 transition-colors hover:bg-white/[0.04]"
           >
             {copied ? (
               <>
-                <Check size={12} className="text-green-400" /> Скопировано
+                <Check size={12} className="text-green-400" /> {t('giftsPage.row.copied')}
               </>
             ) : (
               <>
-                <Copy size={12} /> Скопировать
-              </>
-            )}
-          </button>
-          <button
-            onClick={handleShare}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2 text-xs text-white/50 transition-colors hover:bg-white/[0.04]"
-          >
-            {shared ? (
-              <>
-                <Check size={12} className="text-green-400" /> Скопировано
-              </>
-            ) : (
-              <>
-                <Share2 size={12} /> Поделиться
+                <Copy size={12} /> {t('giftsPage.row.copy')}
               </>
             )}
           </button>
@@ -869,46 +855,49 @@ function SentGiftRow({ gift }: { gift: SentGift }) {
 }
 
 function ReceivedGiftRow({ gift }: { gift: ReceivedGift }) {
+  const { t } = useTranslation();
   const statusLabel =
     gift.status === 'delivered'
-      ? 'Получен'
+      ? t('giftsPage.status.delivered')
       : gift.status === 'paid'
-        ? 'Доступен'
+        ? t('giftsPage.status.available')
         : gift.status === 'pending_activation'
-          ? 'Ожидает активации'
+          ? t('giftsPage.status.pendingActivation')
           : gift.status;
 
   return (
     <div className="rounded-xl border border-white/[0.06] bg-white/[0.04] p-4">
       <div className="mb-3 flex items-start justify-between gap-3">
-        <p className="text-sm text-white/70" style={{ fontWeight: 500 }}>
-          Подарок от {gift.sender_display ?? '—'}
+        <p className="text-[15px] text-white/70" style={{ fontWeight: 500 }}>
+          {t('giftsPage.received.from', { sender: gift.sender_display ?? '—' })}
         </p>
         <span className="shrink-0 rounded-full bg-white/[0.08] px-2 py-0.5 text-[11px] text-white/40">
           {statusLabel}
         </span>
       </div>
-      <div className="space-y-1 text-xs">
+      <div className="space-y-1 text-[13px]">
         <div className="flex justify-between">
-          <span className="text-white/35">Тариф</span>
+          <span className="text-white/35">{t('giftsPage.row.tariff')}</span>
           <span className="text-white/60">{gift.tariff_name ?? '—'}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-white/35">Срок подписки</span>
-          <span className="text-white/60">{periodLabel(gift.period_days)}</span>
+          <span className="text-white/35">{t('giftsPage.row.period')}</span>
+          <span className="text-white/60">{periodLabel(gift.period_days, t)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-white/35">Устройств</span>
-          <span className="text-white/60">до {gift.device_limit}</span>
+          <span className="text-white/35">{t('giftsPage.row.devices')}</span>
+          <span className="text-white/60">
+            {t('giftsPage.row.devicesUpTo', { count: gift.device_limit })}
+          </span>
         </div>
         <div className="flex justify-between">
-          <span className="text-white/35">Дата</span>
+          <span className="text-white/35">{t('giftsPage.row.date')}</span>
           <span className="text-white/60">{formatDate(gift.created_at)}</span>
         </div>
       </div>
       {gift.gift_message && (
         <div className="mt-3 rounded-lg border border-white/[0.06] bg-white/[0.04] p-3">
-          <p className="text-xs italic text-white/55" style={{ lineHeight: 1.6 }}>
+          <p className="text-[13px] italic text-white/55" style={{ lineHeight: 1.6 }}>
             {gift.gift_message}
           </p>
         </div>

@@ -55,7 +55,7 @@ function LoadingSkeleton() {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-dark-950">
       <div className="flex flex-col items-center gap-4">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-dark-600 border-t-accent-500" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-white/60" />
       </div>
     </div>
   );

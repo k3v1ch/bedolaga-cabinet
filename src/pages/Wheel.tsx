@@ -475,7 +475,7 @@ export default function Wheel() {
   if (isLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+        <div className="h-12 w-12 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
       </div>
     );
   }

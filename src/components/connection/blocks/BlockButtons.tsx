@@ -84,15 +84,15 @@ export function BlockButtons({
 
   const baseClass = isVerno
     ? variant === 'light'
-      ? 'rounded-full border border-white/[0.12] px-4 py-2 text-sm text-white/65 transition-all hover:bg-white/[0.06] hover:border-white/[0.22] hover:text-white/85'
-      : 'rounded-full px-3 py-1.5 text-sm text-white/55 transition-all hover:bg-white/[0.06] hover:text-white/80'
+      ? 'rounded-full border border-white/[0.12] px-4 py-2 text-[15px] text-white/65 transition-all hover:bg-white/[0.06] hover:border-white/[0.22] hover:text-white/85'
+      : 'rounded-full px-3 py-1.5 text-[15px] text-white/55 transition-all hover:bg-white/[0.06] hover:text-white/80'
     : variant === 'light'
       ? isLight
-        ? 'rounded-xl border border-accent-500/50 px-4 py-2 text-sm font-medium text-accent-600 shadow-sm transition-all hover:bg-accent-500/10'
-        : 'rounded-xl border border-accent-500/40 px-4 py-2 text-sm font-medium text-accent-400 transition-all hover:bg-accent-500/10'
+        ? 'rounded-xl border border-accent-500/50 px-4 py-2 text-[15px] font-medium text-accent-600 shadow-sm transition-all hover:bg-accent-500/10'
+        : 'rounded-xl border border-accent-500/40 px-4 py-2 text-[15px] font-medium text-accent-400 transition-all hover:bg-accent-500/10'
       : isLight
-        ? 'rounded-xl px-3 py-1.5 text-sm font-medium text-dark-300 transition-all hover:bg-dark-700/30'
-        : 'rounded-xl px-3 py-1.5 text-sm font-medium text-dark-300 transition-all hover:bg-dark-700/50';
+        ? 'rounded-xl px-3 py-1.5 text-[15px] font-medium text-dark-300 transition-all hover:bg-dark-700/30'
+        : 'rounded-xl px-3 py-1.5 text-[15px] font-medium text-dark-300 transition-all hover:bg-dark-700/50';
 
   return (
     <div className="mt-3 flex flex-wrap gap-2">
@@ -132,8 +132,8 @@ export function BlockButtons({
               className={`flex items-center gap-2 ${
                 copied
                   ? isVerno
-                    ? 'rounded-full border border-green-400/40 bg-green-500/10 px-4 py-2 text-sm text-green-300/90'
-                    : `rounded-xl border border-success-500 bg-success-500/10 px-4 py-2 text-sm font-medium ${isLight ? 'text-success-600' : 'text-success-400'}`
+                    ? 'rounded-full border border-green-400/40 bg-green-500/10 px-4 py-2 text-[15px] text-green-300/90'
+                    : `rounded-xl border border-success-500 bg-success-500/10 px-4 py-2 text-[15px] font-medium ${isLight ? 'text-success-600' : 'text-success-400'}`
                   : baseClass
               }`}
             >

@@ -23,14 +23,19 @@
     "copy": "کپی",
     "units": {
       "gb": "GB",
-      "perGb": "/GB"
+      "perGb": "/GB",
+      "mo": "ماه"
     },
     "add": "افزودن",
     "refresh": "بازخوانی",
     "retry": "تلاش مجدد",
     "saving": "در حال ذخیره...",
     "understand": "متوجه شدم",
-    "collapse": "جمع کردن"
+    "collapse": "جمع کردن",
+    "processing": "در حال پردازش…",
+    "balance": "موجودی",
+    "topUpBalance": "شارژ موجودی",
+    "ok": "متوجه شدم"
   },
   "nav": {
     "dashboard": "داشبورد",
@@ -202,7 +207,19 @@
     "continueWithDiscord": "ادامه با Discord",
     "continueWithVk": "ادامه با VK",
     "oauthError": "مجوز رد شد یا ناموفق بود",
-    "oauthExpired": "نشست OAuth منقضی شده است. لطفاً دوباره امتحان کنید."
+    "oauthExpired": "نشست OAuth منقضی شده است. لطفاً دوباره امتحان کنید.",
+    "toHome": "صفحه اصلی",
+    "telegram": {
+      "loginError": "خطای ورود از طریق تلگرام",
+      "genericError": "خطای ورود",
+      "linkExpired": "لینک منقضی شده است. لطفاً دوباره تلاش کنید.",
+      "tryAgain": "ورود انجام نشد. لطفاً دوباره تلاش کنید.",
+      "linkFailed": "دریافت لینک ممکن نشد. لطفاً بعداً تلاش کنید.",
+      "unavailable": "Telegram Login در دسترس نیست، صفحه را تازه‌سازی کنید.",
+      "waiting": "در انتظار تأیید در تلگرام…",
+      "signIn": "ورود با تلگرام",
+      "openBotApp": "یا ربات را در اپ باز کنید"
+    }
   },
   "emailVerification": {
     "title": "تایید ایمیل",
@@ -249,6 +266,43 @@
     "suspended": {
       "title": "اشتراک معلق شده",
       "resume": "از سرگیری"
+    },
+    "home": {
+      "title": "خانه",
+      "multiTariffMessage": "شما چند اشتراک دارید — مدیریت به صفحه «اشتراک» منتقل شد.",
+      "gotoSubscriptions": "به اشتراک‌ها",
+      "pendingGifts_other": "شما {{count}} هدیه دریافت‌نشده دارید",
+      "viewGift": "مشاهده",
+      "welcomeBrand": "به {{brand}} خوش آمدید",
+      "trialOffer": "با دوره آزمایشی رایگان شروع کنید: {{days}} روز، {{traffic}}، تا {{devices}} دستگاه.",
+      "trialOfferShort": "با دوره آزمایشی رایگان شروع کنید.",
+      "trialUnlimited": "ترافیک نامحدود",
+      "trialTraffic": "{{amount}} گیگ",
+      "activating": "در حال فعال‌سازی…",
+      "activateTrial": "فعال‌سازی دوره آزمایشی",
+      "noSubscription": "اشتراک غیرفعال",
+      "trialUsed": "دوره آزمایشی استفاده شده است. یک طرح انتخاب کنید.",
+      "selectPlan": "انتخاب طرح",
+      "giftSubscription": "هدیه اشتراک",
+      "subscriptionActive": "اشتراک فعال",
+      "planLabel": "طرح",
+      "activeUntil": "فعال تا",
+      "devicesLabel": "دستگاه‌ها",
+      "devicesOf": "{{used}} از {{total}}",
+      "renew": "تمدید اشتراک",
+      "trafficHeader": "ترافیک",
+      "trafficUsage": "{{used}} گیگ از {{total}} گیگ",
+      "trafficRefreshing": "در حال به‌روزرسانی…",
+      "trafficRefreshIn": "به‌روزرسانی در {{seconds}} ثانیه",
+      "trafficRefresh": "به‌روزرسانی ترافیک",
+      "connectionHeader": "اتصال",
+      "copyLink": "کپی",
+      "connect": "اتصال",
+      "referralTitle": "برنامه معرفی",
+      "referralHint": "دوستان را دعوت کنید — تا ۳۰٪ پاداش",
+      "details": "جزئیات",
+      "planTrial": "آزمایشی",
+      "planActive": "فعال"
     }
   },
   "subscription": {
@@ -387,7 +441,12 @@
       "buyTrafficGb": "خرید {{gb}} GB",
       "buyUnlimited": "خرید نامحدود",
       "manageServers": "مدیریت اسکوادها",
-      "manageServersTitle": "مدیریت اسکوادها"
+      "manageServersTitle": "مدیریت اسکوادها",
+      "currentDeviceLimit": "محدودیت فعلی: {{count}}",
+      "minDeviceLimit": "حداقل: {{count}}",
+      "newDeviceLimit": "محدودیت جدید: {{count}}",
+      "connectedDevices_other": "دستگاه متصل: {{count}}",
+      "disconnectDevicesFirst": "ابتدا {{count}} دستگاه را قطع کنید تا محدودیت کاهش یابد"
     },
     "serverManagement": {
       "statusLegend": "✅ — متصل • ➕ — اضافه خواهد شد (پولی) • ➖ — قطع خواهد شد",
@@ -424,7 +483,8 @@
       "remainingDays": "روزهای باقی‌مانده",
       "switch": "تغییر",
       "title": "تغییر تعرفه",
-      "upgradeCost": "هزینه ارتقا"
+      "upgradeCost": "هزینه ارتقا",
+      "submit": "تغییر طرح"
     },
     "promoGroup": {
       "yourGroup": "گروه شما: {{name}}",
@@ -499,7 +559,22 @@
       "stopScan": "بستن دوربین",
       "noCamera": "دسترسی به دوربین امکان‌پذیر نیست",
       "codeFound": "کد پیدا شد"
-    }
+    },
+    "noRenewalOptions": "گزینه تمدید موجود نیست",
+    "insufficientBalanceAmount": "موجودی کافی نیست. {{missing}} کم دارید",
+    "tariff_label": "طرح",
+    "notFound": "اشتراک پیدا نشد",
+    "notFoundDesc": "ممکن است حذف شده یا وجود نداشته باشد",
+    "backToList": "اشتراک‌های من",
+    "deleteWarning": "اشتراک به‌طور دائمی حذف خواهد شد. تمام داده‌ها، دستگاه‌ها و تنظیمات از بین می‌روند.",
+    "confirmDelete": "بله، حذف کن",
+    "deleteTitle": "حذف اشتراک؟",
+    "delete": "حذف اشتراک",
+    "loadError": "بارگذاری گزینه‌های اشتراک ناموفق بود",
+    "newTariff": "طرح جدید",
+    "allTariffsPurchased": "تمام طرح‌ها خریداری شده",
+    "allTariffsPurchasedDesc": "همه طرح‌های موجود را خریداری کرده‌اید. تمدید در صفحه هر طرح انجام می‌شود.",
+    "noOptionsAvailable": "گزینه اشتراک موجود نیست"
   },
   "balance": {
     "title": "موجودی",
@@ -575,7 +650,12 @@
         "already_used_by_user": "شما قبلاً از این کد استفاده کرده‌اید",
         "user_not_found": "کاربر یافت نشد",
         "server_error": "خطای سرور"
-      }
+      },
+      "placeholderCombined": "کد تخفیف یا هدیه را وارد کنید",
+      "apply": "اعمال",
+      "activatedTitle": "کد تخفیف فعال شد",
+      "discountActivatedTitle": "تخفیف فعال شد",
+      "unrecognized": "کد شناسایی نشد. از معتبر بودن کد تخفیف یا هدیه مطمئن شوید."
     },
     "minAmountError": "حداقل مبلغ: {{amount}}",
     "maxAmountError": "حداکثر مبلغ: {{amount}}",
@@ -633,7 +713,16 @@
       "timeoutDesc": "پردازش پرداخت بیشتر از حد معمول طول می‌کشد. می‌توانید دوباره وضعیت را بررسی کنید.",
       "goToBalance": "مشاهده موجودی",
       "tryAgain": "تلاش مجدد"
-    }
+    },
+    "amountPlaceholderMethod": "مبلغ شارژ (از {{min}} {{currency}})",
+    "amountPlaceholderDefault": "مبلغ شارژ (از ۱۰ {{currency}})",
+    "amountRangeHint": "مبلغ از {{min}} تا {{max}} {{currency}}.",
+    "amountTooSmall": "مبلغ خیلی کم است. حداقل ۱۰ {{currency}} وارد کنید.",
+    "topUpMethod": "روش شارژ",
+    "promoOrGiftHeader": "کد تخفیف یا هدیه",
+    "historyHeader": "تاریخچه تراکنش‌ها",
+    "topUpTitle": "افزایش موجودی",
+    "topUpAmount": "مبلغ شارژ"
   },
   "referral": {
     "title": "برنامه معرفی",
@@ -744,7 +833,39 @@
         "expectedReferrals": "تعداد معرفی ماهانه مورد انتظار",
         "expectedReferralsPlaceholder": "تعداد تخمینی در ماه",
         "desiredCommission": "درصد کمیسیون مورد نظر",
-        "desiredCommissionPlaceholder": "از ۱ تا ۱۰۰٪"
+        "desiredCommissionPlaceholder": "از ۱ تا ۱۰۰٪",
+        "contact": "نام کاربری تلگرام برای ارتباط"
+      },
+      "deepLink": "دیپ‌لینک",
+      "webLink": "لینک وب",
+      "back": "بازگشت به برنامهٔ معرفی",
+      "title": "برنامهٔ شرکای تجاری",
+      "intro": "سطح بعدی مشارکت — برای کسانی که می‌خواهند فعالانه‌تر تبلیغ کنند و درآمد بیشتری داشته باشند.",
+      "contactLabel": "تماس",
+      "requirementsTitle": "الزامات محتوا",
+      "payoutsTitle": "ساختار پرداخت",
+      "payoutsDesc": "شرایط دقیق پس از تأیید درخواست به‌صورت جداگانه توافق می‌شود. کمیسیون پایه از برنامهٔ معرفی استاندارد بالاتر است.",
+      "payoutsNote": "پرداخت‌ها: ماهانه، حداقل آستانهٔ برداشت قابل مذاکره است",
+      "ctaNote": "پس از ارسال، برای بحث دربارهٔ شرایط با شما تماس می‌گیریم",
+      "send": "ارسال درخواست",
+      "fieldsHint": "اگر فیلدی مرتبط نیست — خالی بگذارید",
+      "successTitle": "درخواست ارسال شد",
+      "successDesc": "از علاقهٔ شما به برنامهٔ شرکا سپاس‌گزاریم. درخواست شما را بررسی کرده و به‌زودی با شما تماس می‌گیریم.",
+      "benefit": {
+        "commissionTitle": "کمیسیون بالاتر",
+        "commissionDesc": "درصد بیشتری از هر مشتری جذب‌شده",
+        "withdrawTitle": "برداشت درآمد",
+        "withdrawDesc": "پرداخت واقعی به کارت یا رمزارز",
+        "recurringTitle": "درآمد مکرر از معرفی‌ها",
+        "recurringDesc": "درصدی از هر تمدید معرفی‌های شما",
+        "botTitle": "ربات VPN اختصاصی شما در تلگرام",
+        "botDesc": "ربات سفارشی روی زیرساخت ما"
+      },
+      "req": {
+        "honest": "تبلیغ صادقانه بدون هرزنامه و فریب",
+        "info": "اطلاعات به‌روز دربارهٔ محصول",
+        "rules": "رعایت قوانین پلتفرم‌های انتشار",
+        "methods": "عدم استفاده از روش‌های ممنوع تبلیغ"
       }
     },
     "withdrawal": {
@@ -778,6 +899,14 @@
         "rejected": "رد شده",
         "cancelled": "لغو شده"
       }
+    },
+    "condition": {
+      "invite": "دوست را با لینک خود دعوت می‌کنید",
+      "minTopup": "دوست ثبت‌نام و حساب را شارژ می‌کند (از {{amount}})",
+      "commission": "{{percent}}٪ از هر شارژ او دریافت می‌کنید",
+      "newUserBonus": "دوست در اولین شارژ {{amount}} پاداش می‌گیرد",
+      "inviterBonus": "شما پاداش یک‌بارهٔ {{amount}} می‌گیرید",
+      "maxPayments": "کمیسیون برای {{count}} شارژ اول محاسبه می‌شود"
     }
   },
   "support": {
@@ -3880,7 +4009,18 @@
         "discord": "دیسکورد",
         "vk": "VK"
       }
-    }
+    },
+    "link": "اتصال",
+    "password": "گذرواژه",
+    "changePassword": "تغییر گذرواژه",
+    "referralProgram": "برنامه معرفی",
+    "more": "جزئیات",
+    "botLink": "لینک ربات",
+    "cabinetLink": "لینک حساب",
+    "sendResetLink": "ارسال لینک",
+    "passwordResetSent": "ایمیل ارسال شد",
+    "passwordResetSentDesc": "برای تنظیم گذرواژه جدید، لینک داخل ایمیل را باز کنید.",
+    "passwordResetDescription": "لینک بازنشانی گذرواژه به {{email}} ارسال می‌شود."
   },
   "theme": {
     "colors": "رنگ‌های تم",
@@ -4318,6 +4458,172 @@
       "d456": "۱ سال و ۳ ماه",
       "nDays": "{{count}} روز",
       "nMonths": "{{count}} ماه"
+    },
+    "nav": {
+      "benefits": "مزایا",
+      "pricing": "قیمت",
+      "faq": "سؤالات",
+      "login": "ورود"
+    },
+    "hero": {
+      "badge": "۳ روز رایگان · بدون کارت · بدون تمدید خودکار",
+      "title": "VPN سریع برای تلگرام، یوتیوب، تیک‌تاک و اینترنت روزمره",
+      "subtitle": "روی همهٔ دستگاه‌ها — اتصال در یک دقیقه، سرعت تا ۱۰ Gbps، ترافیک نامحدود و ۳ روز دسترسی رایگان.",
+      "tryFree": "تست رایگان",
+      "loginCta": "ورود به حساب",
+      "tag": {
+        "privacy": "حریم خصوصی",
+        "uptime": "بیست‌وچهارساعته",
+        "speed": "کانال سرور تا ۱۰ Gbps",
+        "devices": "تا ۳۰ دستگاه"
+      }
+    },
+    "benefits": {
+      "title": "چرا VERNO VPN",
+      "items": {
+        "access": {
+          "title": "دسترسی هرجا که نیاز است",
+          "desc": "از هر کجای دنیا به سرویس‌های موردنیاز خود متصل شوید."
+        },
+        "speed": {
+          "title": "سرعت تا ۱۰ Gbps",
+          "desc": "اتصال سریع و پایدار برای ویدیو، پیام‌رسان‌ها و اینترنت روزمره."
+        },
+        "encryption": {
+          "title": "رمزنگاری مطمئن ترافیک",
+          "desc": "داده‌های شما با رمزنگاری مدرن در هر مرحله از اتصال محافظت می‌شوند."
+        },
+        "noLogs": {
+          "title": "بدون لاگ و جمع‌آوری داده مخفی",
+          "desc": "ما لاگی نگه نمی‌داریم و در پشت پرده داده‌ای جمع‌آوری نمی‌کنیم."
+        },
+        "devices": {
+          "title": "تا ۳۰ دستگاه با یک اشتراک",
+          "desc": "یک پلن برای موبایل، لپ‌تاپ، کامپیوتر و دیگر دستگاه‌های سازگار."
+        },
+        "refund": {
+          "title": "اگر کار نکند پول بازمی‌گردد",
+          "desc": "اگر VPN در منطقهٔ شما کار نکند، می‌توانید بازپرداخت کامل دریافت کنید."
+        }
+      }
+    },
+    "pricing": {
+      "title": "پلن‌های ساده",
+      "subtitle": "با ۳ روز رایگان شروع کنید و سپس پلن انتخاب کنید",
+      "term": {
+        "1m": "۱ ماه",
+        "3m": "۳ ماه",
+        "6m": "۶ ماه"
+      },
+      "suffix": {
+        "1m": "/ ماه",
+        "3m": "/ ۳ ماه",
+        "6m": "/ ۶ ماه"
+      },
+      "plans": {
+        "regular": "معمولی",
+        "family": "خانواده",
+        "business": "تجاری"
+      },
+      "devices": {
+        "regular": "تا ۵ دستگاه",
+        "family": "تا ۱۵ دستگاه",
+        "business": "تا ۳۰ دستگاه"
+      },
+      "extra": {
+        "regular": "۶۰ ₽ / دستگاه اضافه",
+        "family": "۴۵ ₽ / دستگاه اضافه",
+        "business": "۳۰ ₽ / دستگاه اضافه"
+      },
+      "badges": {
+        "family": "بهترین انتخاب",
+        "business": "بیشترین صرفه"
+      },
+      "cta": "تست رایگان",
+      "foot": "۳ روز دسترسی رایگان • نامحدود • تا ۵ دستگاه"
+    },
+    "quickConnect": {
+      "title": "اتصال سریع در چند دقیقه",
+      "steps": {
+        "register": {
+          "title": "ثبت‌نام کنید",
+          "desc": "از طریق ایمیل یا تلگرام"
+        },
+        "install": {
+          "title": "اپ را نصب کنید",
+          "desc": "برای همهٔ دستگاه‌ها"
+        },
+        "connect": {
+          "title": "متصل شوید",
+          "desc": "شما عالی هستید — اینترنت آزاد است"
+        }
+      }
+    },
+    "faq": {
+      "title": "سؤالات متداول",
+      "items": {
+        "devices": {
+          "q": "هر اشتراک چند دستگاه؟",
+          "a": "اشتراک VERNO VPN در پلن بالا تا ۳۰ دستگاه و در پلن پایه تا ۵ دستگاه را پشتیبانی می‌کند. موبایل، لپ‌تاپ، کامپیوتر، تبلت، تلویزیون — در یک پلن همه را متصل کنید."
+        },
+        "youtube": {
+          "q": "آیا با یوتیوب و تلگرام کار می‌کند?",
+          "a": "بله. VERNO VPN برای یوتیوب، تلگرام، تیک‌تاک و اینترنت روزمره مناسب است."
+        },
+        "data": {
+          "q": "با داده‌های من چه می‌کنید?",
+          "a": "هیچ کار اضافه‌ای. ما لاگ نگه نمی‌داریم و داده مخفی جمع نمی‌کنیم. ترافیک شما رمزنگاری می‌شود و فعالیتتان خصوصی می‌ماند."
+        },
+        "trial": {
+          "q": "بعد از ۳ روز چه می‌شود?",
+          "a": "دورهٔ رایگان تمام می‌شود و دسترسی به‌صورت خودکار قطع می‌گردد. بدون کارت، بدون تمدید خودکار، بدون کسر هزینه. برای ادامه فقط پلن انتخاب کنید."
+        },
+        "protocol": {
+          "q": "VERNO VPN با چه پروتکلی کار می‌کند?",
+          "a": "VERNO VPN از VLESS استفاده می‌کند — پروتکلی سریع و پایدار برای استفادهٔ روزمره."
+        },
+        "what": {
+          "q": "VPN در اصل چه کار می‌کند?",
+          "a": "VPN ترافیک اینترنت شما را از یک سرور امن عبور می‌دهد. این کار IP واقعی شما را مخفی می‌کند و اتصال را خصوصی‌تر می‌سازد."
+        },
+        "russia": {
+          "q": "آیا استفاده از VPN در روسیه امن است?",
+          "a": "بله. استفاده از VERNO VPN در روسیه امن است. ما لاگ نگه نمی‌داریم، داده ذخیره نمی‌کنیم و ترافیک رمزنگاری و ماسک می‌شود."
+        },
+        "where": {
+          "q": "اشتراک را از کجا بخرم?",
+          "a": "می‌توانید VERNO VPN را مستقیم از وب‌سایت یا از طریق ربات تلگرام تهیه کنید. هرکدام راحت‌تر است انتخاب کنید."
+        },
+        "speed": {
+          "q": "چطور سرعت بیشتر و پینگ کمتر داشته باشم?",
+          "a": "ساده‌ترین راه انتخاب سروری نزدیک‌تر به شماست. هرچه اینترنت بهتر و سرور نزدیک‌تر، سرعت بیشتر و تأخیر کمتر است."
+        },
+        "noWork": {
+          "q": "اگر VPN کار نکرد چه?",
+          "a": "اگر VERNO VPN در منطقهٔ شما کار نکند، می‌توانید درخواست بازپرداخت بدهید. مبلغ کامل ظرف ۷ روز بازگردانده می‌شود."
+        }
+      }
+    },
+    "footer": {
+      "tagline": "VPN سریع و ساده برای اینترنت روزمره. بدون لاگ، بدون شرایط پنهان.",
+      "navigation": "ناوبری",
+      "info": "اطلاعات",
+      "policy": "سیاست حفظ حریم خصوصی",
+      "terms": "شرایط استفاده",
+      "refund": "شرایط بازپرداخت",
+      "bot": "ربات تلگرام",
+      "support": "پشتیبانی",
+      "copyright": "© ۲۰۲۶ VERNO VPN. تمام حقوق محفوظ است."
+    },
+    "cta": {
+      "title": "VERNO VPN را رایگان امتحان کنید",
+      "subtitle": "۳ روز بدون کارت و بدون تعهد",
+      "button": "تست رایگان"
+    },
+    "platforms": {
+      "title": "یک اشتراک — تمام دستگاه‌های شما",
+      "subtitle": "موبایل، لپ‌تاپ، کامپیوتر و دیگر دستگاه‌های سازگار را در یک پلن متصل کنید. سریع، امن و بدون پیچیدگی.",
+      "note": "VERNO VPN از تمام پلتفرم‌های محبوب پشتیبانی می‌کند — برای هر کدام برنامه مناسبی وجود دارد."
     }
   },
   "gift": {
@@ -4332,7 +4638,7 @@
     "giftMessagePlaceholder": "پیام شخصی اضافه کنید (اختیاری)",
     "paymentMode": "روش پرداخت",
     "fromBalance": "از موجودی",
-    "viaGateway": "درگاه پرداخت",
+    "viaGateway": "از طریق سرویس پرداخت",
     "yourBalance": "موجودی شما",
     "insufficientBalance": "موجودی ناکافی",
     "topUpBalance": "شارژ موجودی",
@@ -4376,6 +4682,16 @@
     },
     "warning": {
       "telegram_unresolvable": "نام کاربری تلگرام قابل تأیید نبود. ممکن است گیرنده اعلان هدیه را دریافت نکند."
+    },
+    "activatedTitle": "هدیه فعال شد",
+    "activatedWithTariff": "هدیه فعال شد: {{tariff}}",
+    "activatedWithTariffDays": "هدیه فعال شد: {{tariff}} برای {{days}} روز",
+    "activatedGeneric": "هدیه با موفقیت فعال شد",
+    "errors": {
+      "ownGift": "نمی‌توانید هدیه خود را فعال کنید",
+      "expired": "هدیه منقضی شده است",
+      "alreadyActivated": "این هدیه قبلاً فعال شده است",
+      "generic": "فعال‌سازی هدیه با شکست مواجه شد"
     }
   },
   "news": {
@@ -4437,5 +4753,148 @@
         "linkUrlPrompt": "آدرس پیوند:"
       }
     }
+  },
+  "subscriptionPage": {
+    "title": "اشتراک",
+    "newPlan": "طرح جدید",
+    "noActiveSubs": "اشتراک فعالی ندارید",
+    "selectPlan": "انتخاب طرح",
+    "subscriptionFallback": "اشتراک",
+    "planTrial": "آزمایشی",
+    "planActive": "فعال",
+    "subscriptionActive": "اشتراک فعال",
+    "activeUntil": "فعال تا",
+    "planLabel": "طرح",
+    "devicesLabel": "دستگاه‌ها",
+    "devicesOf": "{{used}} از {{total}}",
+    "renew": "تمدید اشتراک",
+    "giftSubscription": "هدیه اشتراک",
+    "expired": "اشتراک منقضی شد",
+    "limited": "اشتراک محدود",
+    "noActive": "اشتراک فعالی ندارید",
+    "trafficHeader": "ترافیک",
+    "trafficUsage": "{{used}} گیگ از {{total}} گیگ",
+    "trafficRefreshing": "در حال به‌روزرسانی…",
+    "trafficRefreshIn": "به‌روزرسانی در {{seconds}} ثانیه",
+    "trafficRefresh": "به‌روزرسانی ترافیک",
+    "connectionHeader": "اتصال",
+    "copyLink": "کپی",
+    "connect": "اتصال",
+    "devicesHeader": "دستگاه‌های من",
+    "deleteDevicePrompt": "حذف دستگاه؟",
+    "deleteDeviceLabel": "حذف دستگاه",
+    "noDevicesYet": "هنوز دستگاهی متصل نشده است.",
+    "buyDevicesShort": "افزودن",
+    "reduceDevicesShort": "کاهش",
+    "giftsHeader": "هدیه‌های من",
+    "giftsEmptyTitle": "هنوز هدیه‌ای ندارید",
+    "giftsEmptyHint": "برای دوستان خود هدیه بخرید — کد اینجا ظاهر می‌شود.",
+    "giftAvailable": "در دسترس",
+    "giftActivated": "فعال شده",
+    "giftPlan": "طرح",
+    "giftDuration": "مدت اشتراک",
+    "giftDurationDays": "{{days}} روز",
+    "giftDevices": "دستگاه‌ها",
+    "giftDevicesUpTo": "تا {{count}}",
+    "giftPurchaseDate": "تاریخ خرید",
+    "copied": "کپی شد",
+    "shareGift": "اشتراک‌گذاری",
+    "giftShareTitle": "هدیه {{brand}}",
+    "giftShareText": "هدیه {{brand}}\nکد: {{token}}\nطرح: {{tariff}}\nبرای {{days}} روز.",
+    "buyDevicesTitle": "افزودن دستگاه",
+    "willBeAdded": "افزوده می‌شود",
+    "devicesShort": "{{count}} دستگاه",
+    "cost": "هزینه",
+    "devicesAfter": "دستگاه پس از",
+    "devicePriceFormula": "قیمت دستگاه متناسب با مدت باقیمانده اشتراک محاسبه می‌شود: {{perMonth}} {{currency}}/ماه ÷ ۳۰ × {{days}} روز.",
+    "purchaseUnavailable": "خرید در دسترس نیست",
+    "processing": "در حال پردازش…",
+    "confirmPurchase": "تأیید خرید",
+    "insufficientFunds": "موجودی کافی نیست",
+    "insufficientHint": "{{amount}} {{currency}} کم دارید. برای ادامه شارژ کنید.",
+    "topUpBalance": "شارژ موجودی",
+    "devicesAdded": "دستگاه‌ها افزوده شدند",
+    "done": "انجام شد",
+    "reduceDevicesTitle": "کاهش دستگاه",
+    "reduceUnavailable": "کاهش اکنون در دسترس نیست.",
+    "willBeRemoved": "حذف می‌شود",
+    "applying": "در حال اعمال…",
+    "devicesReduced": "دستگاه‌ها کاهش یافتند"
+  },
+  "renewPage": {
+    "back": "← بازگشت",
+    "month_other": "{{count}} ماه",
+    "days": "{{count}} روز",
+    "currentTariff": "فعلی",
+    "trafficGb": "{{amount}} گیگ",
+    "devicesUpTo": "تا {{count}} دستگاه",
+    "perMonth": "{{amount}} {{currency}}/ماه",
+    "unavailable": "در دسترس نیست"
+  },
+  "giftsPage": {
+    "title": "هدیه‌ها",
+    "back": "← بازگشت",
+    "unavailableTitle": "هدیه‌ها موقتاً در دسترس نیستند",
+    "unavailableDesc": "قابلیت هدیه توسط مدیر غیرفعال شده است.",
+    "selectTitle": "انتخاب هدیه",
+    "confirmTitle": "تأیید",
+    "next": "بعدی",
+    "trafficGb": "{{amount}} گیگ",
+    "unlimited": "نامحدود",
+    "devicesUpTo": "تا {{count}} دستگاه",
+    "perMonthShort": "{{price}}/ماه",
+    "unavailable": "در دسترس نیست",
+    "confirmDescription": "در حال خرید اشتراک به‌عنوان هدیه هستید. پس از پرداخت، یک کد تخفیف ساخته می‌شود — آن را برای دوست خود ارسال کنید تا در حساب خود فعال کند. کد در «هدیه‌های من» نیز ذخیره می‌شود.",
+    "tariffLabel": "طرح",
+    "periodLabel": "مدت",
+    "devicesLabel": "دستگاه‌ها",
+    "trafficLabel": "ترافیک",
+    "totalLabel": "مجموع",
+    "deviceUpTo": "تا {{count}}",
+    "balanceMode": "از موجودی ({{amount}})",
+    "gatewayMode": "از طریق سرویس پرداخت",
+    "insufficientPart1": "موجودی کافی نیست.",
+    "insufficientTopUp": "شارژ موجودی",
+    "insufficientPart2": "یا از طریق سرویس پرداخت پرداخت کنید.",
+    "processing": "در حال پردازش…",
+    "payFromBalance": "پرداخت از موجودی · {{price}}",
+    "payViaGateway": "ادامه پرداخت · {{price}}",
+    "payViaGatewayWithMethod": "ادامه پرداخت · {{price}} از طریق {{method}}",
+    "giftSubscription": "هدیه اشتراک",
+    "giftSubscriptionDesc": "اشتراک بخرید، کد تخفیف بگیرید و برای دوست خود بفرستید — او در حساب خود فعال می‌کند.",
+    "myGiftsHeader": "هدیه‌های من",
+    "noGiftsTitle": "هنوز هدیه‌ای ندارید",
+    "noGiftsDesc": "برای دوستان خود هدیه بخرید — کد اینجا ظاهر می‌شود.",
+    "status": {
+      "activated": "فعال شده",
+      "available": "در دسترس",
+      "pending": "در انتظار",
+      "failed": "خطا",
+      "expired": "منقضی شده",
+      "delivered": "دریافت شده",
+      "pendingActivation": "در انتظار فعال‌سازی"
+    },
+    "row": {
+      "tariff": "طرح",
+      "period": "مدت اشتراک",
+      "devices": "دستگاه‌ها",
+      "devicesUpTo": "تا {{count}}",
+      "purchaseDate": "تاریخ خرید",
+      "date": "تاریخ",
+      "activatedBy": "فعال شده توسط",
+      "copied": "کپی شد",
+      "copy": "کپی",
+      "share": "اشتراک‌گذاری"
+    },
+    "received": {
+      "from": "هدیه از طرف {{sender}}"
+    },
+    "share": {
+      "intro": "اشتراک را به شما هدیه می‌دهم! کد: {{code}}",
+      "viaBot": "فعال‌سازی از ربات: {{link}}",
+      "viaCabinet": "فعال‌سازی در حساب: {{link}}"
+    },
+    "loadFailed": "بارگذاری هدیه‌ها ناموفق بود.",
+    "purchaseFailed": "پردازش هدیه ناموفق بود."
   }
 }

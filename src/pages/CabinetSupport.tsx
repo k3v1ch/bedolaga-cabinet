@@ -68,7 +68,7 @@ function MessageMedia({ message }: { message: TicketMessage }) {
             <div className="h-40 w-full animate-pulse rounded-lg bg-white/[0.04]" />
           )}
           {errored ? (
-            <div className="flex h-24 w-full items-center justify-center rounded-lg bg-white/[0.04] text-xs text-white/40">
+            <div className="flex h-24 w-full items-center justify-center rounded-lg bg-white/[0.04] text-[13px] text-white/40">
               {t('support.imageLoadFailed', { defaultValue: 'Не удалось загрузить изображение' })}
             </div>
           ) : (
@@ -84,7 +84,7 @@ function MessageMedia({ message }: { message: TicketMessage }) {
             />
           )}
           {message.media_caption && (
-            <p className="mt-1 text-xs text-white/30">{message.media_caption}</p>
+            <p className="mt-1 text-[13px] text-white/30">{message.media_caption}</p>
           )}
         </div>
         {full && (
@@ -114,7 +114,7 @@ function MessageMedia({ message }: { message: TicketMessage }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="mt-3 inline-flex items-center gap-2 rounded-lg bg-white/[0.06] px-3 py-2 text-xs text-white/60 transition-colors hover:bg-white/[0.1]"
+      className="mt-3 inline-flex items-center gap-2 rounded-lg bg-white/[0.06] px-3 py-2 text-[13px] text-white/60 transition-colors hover:bg-white/[0.1]"
     >
       <Paperclip size={14} />
       {message.media_caption || `Download ${message.media_type}`}
@@ -297,7 +297,7 @@ export default function CabinetSupport() {
       >
         <h1
           className="mb-8 text-white"
-          style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+          style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
         >
           {isAdmin
             ? t('support.ticketsDisabled', { defaultValue: 'Тикеты отключены' })
@@ -307,12 +307,12 @@ export default function CabinetSupport() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.06]">
             <MessageSquare size={28} className="text-white/40" />
           </div>
-          <p className="mb-6 text-sm text-white/50" style={{ lineHeight: 1.6 }}>
+          <p className="mb-6 text-[15px] text-white/50" style={{ lineHeight: 1.6 }}>
             {contact.message}
           </p>
           <button
             onClick={contact.action}
-            className="w-full rounded-full bg-white py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+            className="w-full rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
             style={{ fontWeight: 500 }}
           >
             {contact.buttonText}
@@ -334,7 +334,7 @@ export default function CabinetSupport() {
       <div className="mb-8 flex items-center justify-between">
         <h1
           className="text-white"
-          style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+          style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
         >
           {t('support.title', { defaultValue: 'Поддержка' })}
         </h1>
@@ -345,7 +345,7 @@ export default function CabinetSupport() {
             clearCreateAttachment();
             setRateLimitError(null);
           }}
-          className="flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm text-white/60 transition-colors hover:bg-white/[0.05]"
+          className="flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-[15px] text-white/60 transition-colors hover:bg-white/[0.05]"
         >
           <Plus size={14} /> {t('support.newTicket', { defaultValue: 'Новый тикет' })}
         </button>
@@ -359,10 +359,10 @@ export default function CabinetSupport() {
               <MessageSquare size={18} className="text-white/40" />
             </div>
             <div>
-              <div className="text-sm text-white/70" style={{ fontWeight: 500 }}>
+              <div className="text-[15px] text-white/70" style={{ fontWeight: 500 }}>
                 {t('support.contactUs', { defaultValue: 'Связаться' })}
               </div>
-              <div className="text-xs text-white/30">{supportConfig.support_username}</div>
+              <div className="text-[13px] text-white/30">{supportConfig.support_username}</div>
             </div>
           </div>
           <button
@@ -371,7 +371,7 @@ export default function CabinetSupport() {
               const clean = u.startsWith('@') ? u.slice(1) : u;
               openTelegramLink(`https://t.me/${clean}`);
             }}
-            className="rounded-full border border-white/15 px-4 py-2 text-xs text-white/60 transition-colors hover:bg-white/[0.05]"
+            className="rounded-full border border-white/15 px-4 py-2 text-[13px] text-white/60 transition-colors hover:bg-white/[0.05]"
           >
             {t('support.contactUs', { defaultValue: 'Связаться' })}
           </button>
@@ -381,7 +381,7 @@ export default function CabinetSupport() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-[280px_1fr]">
         {/* Ticket list */}
         <div className="space-y-2">
-          <p className="mb-2 text-xs text-white/30" style={{ fontWeight: 500 }}>
+          <p className="mb-2 text-[13px] text-white/30" style={{ fontWeight: 500 }}>
             {t('support.yourTickets', { defaultValue: 'Ваши обращения' })}
           </p>
           {configLoading || isLoading ? (
@@ -406,12 +406,19 @@ export default function CabinetSupport() {
                       : 'border-white/[0.06] bg-white/[0.03] hover:bg-white/[0.05]'
                   }`}
                 >
-                  <p className="mb-1 truncate text-sm text-white/60" style={{ fontWeight: 500 }}>
+                  <p
+                    className="mb-1 truncate text-[15px] text-white/60"
+                    style={{ fontWeight: 500 }}
+                  >
                     {ticket.title}
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-white/20">{formatDate(ticket.updated_at)}</span>
-                    <span className={`text-xs ${statusColor[ticket.status] || 'text-white/30'}`}>
+                    <span className="text-[13px] text-white/20">
+                      {formatDate(ticket.updated_at)}
+                    </span>
+                    <span
+                      className={`text-[13px] ${statusColor[ticket.status] || 'text-white/30'}`}
+                    >
                       {getStatusLabel(ticket.status)}
                     </span>
                   </div>
@@ -419,18 +426,18 @@ export default function CabinetSupport() {
               );
             })
           ) : (
-            <p className="text-xs text-white/30">
+            <p className="text-[13px] text-white/30">
               {t('support.noTickets', { defaultValue: 'Пока нет обращений' })}
             </p>
           )}
         </div>
 
         {/* Right side */}
-        <GlassCard className="flex min-h-[400px] flex-col p-6">
+        <GlassCard className="flex min-h-[400px] flex-col p-7">
           {!activeTicket && !creating && (
             <div className="flex flex-1 flex-col items-center justify-center text-center">
               <MessageSquare size={32} className="mb-3 text-white/10" />
-              <p className="text-sm text-white/25">
+              <p className="text-[15px] text-white/25">
                 {t('support.selectTicket', {
                   defaultValue: 'Выберите обращение или создайте новое',
                 })}
@@ -441,18 +448,18 @@ export default function CabinetSupport() {
           {activeTicket && !creating && (
             <>
               <div className="mb-4 border-b border-white/[0.06] pb-4">
-                <p className="mb-1 text-sm text-white/70" style={{ fontWeight: 500 }}>
+                <p className="mb-1 text-[15px] text-white/70" style={{ fontWeight: 500 }}>
                   {ticketDetail?.title || activeTicket.title}
                 </p>
                 <div className="flex items-center gap-3">
                   <span
-                    className={`text-xs ${
+                    className={`text-[13px] ${
                       statusColor[ticketDetail?.status || activeTicket.status] || 'text-white/30'
                     }`}
                   >
                     {getStatusLabel(ticketDetail?.status || activeTicket.status)}
                   </span>
-                  <span className="text-xs text-white/20">
+                  <span className="text-[13px] text-white/20">
                     {t('support.created', { defaultValue: 'Создан' })}{' '}
                     {formatDate(activeTicket.created_at)}
                   </span>
@@ -470,7 +477,7 @@ export default function CabinetSupport() {
                     return (
                       <div key={m.id} className={`max-w-[85%] ${isUser ? 'ml-auto' : ''}`}>
                         <div
-                          className={`rounded-xl p-3 text-sm ${
+                          className={`rounded-xl p-3 text-[15px] ${
                             isUser
                               ? 'bg-white/[0.08] text-white/60'
                               : 'border border-white/[0.06] bg-white/[0.04] text-white/50'
@@ -480,7 +487,7 @@ export default function CabinetSupport() {
                           <div className="whitespace-pre-wrap">{m.message_text}</div>
                           <MessageMedia message={m} />
                         </div>
-                        <p className="mt-1 px-1 text-xs text-white/15">
+                        <p className="mt-1 px-1 text-[13px] text-white/15">
                           {isUser
                             ? t('support.you', { defaultValue: 'Вы' })
                             : t('support.supportTeam', { defaultValue: 'Поддержка' })}
@@ -526,7 +533,7 @@ export default function CabinetSupport() {
                         </div>
                       )}
                       {replyAttachment.error && (
-                        <div className="mt-1 text-xs text-red-400">{replyAttachment.error}</div>
+                        <div className="mt-1 text-[13px] text-red-400">{replyAttachment.error}</div>
                       )}
                       <button
                         type="button"
@@ -562,7 +569,7 @@ export default function CabinetSupport() {
                       value={replyMessage}
                       onChange={(e) => setReplyMessage(e.target.value)}
                       maxLength={4000}
-                      className="flex-1 rounded-xl border border-white/[0.08] bg-white/[0.06] px-4 py-2.5 text-sm text-white/60 outline-none transition-all placeholder:text-white/20 focus:border-white/15"
+                      className="flex-1 rounded-xl border border-white/[0.08] bg-white/[0.06] px-4 py-2.5 text-[15px] text-white/60 outline-none transition-all placeholder:text-white/20 focus:border-white/15"
                     />
                     <button
                       type="submit"
@@ -577,13 +584,13 @@ export default function CabinetSupport() {
                     </button>
                   </div>
                   {rateLimitError && (
-                    <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-400">
+                    <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-[13px] text-red-400">
                       {rateLimitError}
                     </div>
                   )}
                 </form>
               ) : ticketDetail?.is_reply_blocked ? (
-                <div className="border-t border-white/[0.06] py-3 text-center text-xs text-white/30">
+                <div className="border-t border-white/[0.06] py-3 text-center text-[13px] text-white/30">
                   {t('support.repliesDisabled', { defaultValue: 'Ответы отключены' })}
                 </div>
               ) : null}
@@ -610,7 +617,7 @@ export default function CabinetSupport() {
               }}
               className="flex flex-col gap-3"
             >
-              <p className="mb-2 text-sm text-white/50" style={{ fontWeight: 500 }}>
+              <p className="mb-2 text-[15px] text-white/50" style={{ fontWeight: 500 }}>
                 {t('support.createTicket', { defaultValue: 'Новое обращение' })}
               </p>
               <input
@@ -621,7 +628,7 @@ export default function CabinetSupport() {
                 required
                 minLength={3}
                 maxLength={255}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white/70 outline-none transition-all placeholder:text-white/20 focus:border-white/20"
+                className="w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-[15px] text-white/70 outline-none transition-all placeholder:text-white/20 focus:border-white/20"
               />
               <textarea
                 placeholder={t('support.messagePlaceholder', {
@@ -633,7 +640,7 @@ export default function CabinetSupport() {
                 required
                 minLength={10}
                 maxLength={4000}
-                className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white/70 outline-none transition-all placeholder:text-white/20 focus:border-white/20"
+                className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-[15px] text-white/70 outline-none transition-all placeholder:text-white/20 focus:border-white/20"
               />
 
               <input
@@ -662,7 +669,7 @@ export default function CabinetSupport() {
                     </div>
                   )}
                   {createAttachment.error && (
-                    <div className="mt-1 text-xs text-red-400">{createAttachment.error}</div>
+                    <div className="mt-1 text-[13px] text-red-400">{createAttachment.error}</div>
                   )}
                   <button
                     type="button"
@@ -679,14 +686,14 @@ export default function CabinetSupport() {
                   className="flex items-center gap-2 text-white/20 transition-colors hover:text-white/40"
                 >
                   <Paperclip size={16} />
-                  <span className="text-xs text-white/15">
+                  <span className="text-[13px] text-white/15">
                     {t('support.attachImage', { defaultValue: 'Прикрепить файл' })}
                   </span>
                 </button>
               )}
 
               {rateLimitError && (
-                <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-400">
+                <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-[13px] text-red-400">
                   {rateLimitError}
                 </div>
               )}
@@ -694,7 +701,7 @@ export default function CabinetSupport() {
               <button
                 type="submit"
                 disabled={createAttachment?.uploading || createMutation.isPending}
-                className="mt-2 w-full rounded-full bg-white py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-60"
+                className="mt-2 w-full rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-60"
                 style={{ fontWeight: 500 }}
               >
                 {t('support.send', { defaultValue: 'Отправить' })}
@@ -708,7 +715,7 @@ export default function CabinetSupport() {
                   clearCreateAttachment();
                   setRateLimitError(null);
                 }}
-                className="mt-1 w-full rounded-full border border-white/10 py-2.5 text-sm text-white/40 transition-colors hover:bg-white/[0.04]"
+                className="mt-1 w-full rounded-full border border-white/10 py-2.5 text-[15px] text-white/40 transition-colors hover:bg-white/[0.04]"
               >
                 {t('common.cancel', { defaultValue: 'Отмена' })}
               </button>

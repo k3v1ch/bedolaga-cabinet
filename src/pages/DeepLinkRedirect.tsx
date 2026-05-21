@@ -193,7 +193,7 @@ export default function DeepLinkRedirect() {
             </div>
 
             {/* Spinner */}
-            <div className="border-3 mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-dark-700 border-t-accent-500" />
+            <div className="border-3 mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-white/10 border-t-white/60" />
 
             {/* Timer */}
             <div className="mb-4">

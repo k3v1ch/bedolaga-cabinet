@@ -24,7 +24,7 @@ function AmountDisplay({ amountKopeks, label }: { amountKopeks: number; label: s
 
   return (
     <div className="w-full rounded-xl border border-white/[0.06] bg-white/[0.03] px-5 py-4 text-center">
-      <p className="text-xs text-white/30">{label}</p>
+      <p className="text-[13px] text-white/30">{label}</p>
       <p
         className="mt-1 text-white"
         style={{ fontSize: '1.5rem', fontWeight: 600, letterSpacing: '-0.01em' }}
@@ -77,7 +77,7 @@ function PrimaryButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="w-full rounded-full bg-white py-3.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-60"
+      className="w-full rounded-full bg-white py-3.5 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-60"
       style={{ fontWeight: 500 }}
     >
       {children}
@@ -90,7 +90,7 @@ function SecondaryButton({ children, onClick }: { children: ReactNode; onClick: 
     <button
       type="button"
       onClick={onClick}
-      className="w-full rounded-full border border-white/10 py-3 text-sm text-white/50 transition-colors hover:bg-white/[0.04] hover:text-white/70"
+      className="w-full rounded-full border border-white/10 py-3 text-[15px] text-white/50 transition-colors hover:bg-white/[0.04] hover:text-white/70"
     >
       {children}
     </button>
@@ -119,7 +119,7 @@ function PendingState({ amountKopeks }: { amountKopeks: number | null }) {
         >
           {t('balance.topUpResult.awaitingPayment', { defaultValue: 'Ожидаем оплату' })}
         </h1>
-        <p className="mt-2 text-sm text-white/35" style={{ lineHeight: 1.6 }}>
+        <p className="mt-2 text-[15px] text-white/35" style={{ lineHeight: 1.6 }}>
           {t('balance.topUpResult.awaitingPaymentDesc', {
             defaultValue: 'Это может занять до нескольких минут. Страницу можно не закрывать.',
           })}
@@ -154,7 +154,7 @@ function SuccessState({ amountKopeks }: { amountKopeks: number | null }) {
         >
           {t('balance.topUpResult.success', { defaultValue: 'Баланс пополнен' })}
         </h1>
-        <p className="mt-2 text-sm text-white/35" style={{ lineHeight: 1.6 }}>
+        <p className="mt-2 text-[15px] text-white/35" style={{ lineHeight: 1.6 }}>
           {t('balance.topUpResult.successDesc', {
             defaultValue: 'Средства уже зачислены на ваш счёт.',
           })}
@@ -192,7 +192,7 @@ function FailedState({ amountKopeks }: { amountKopeks: number | null }) {
         >
           {t('balance.topUpResult.failed', { defaultValue: 'Оплата не прошла' })}
         </h1>
-        <p className="mt-2 text-sm text-white/35" style={{ lineHeight: 1.6 }}>
+        <p className="mt-2 text-[15px] text-white/35" style={{ lineHeight: 1.6 }}>
           {t('balance.topUpResult.failedDesc', {
             defaultValue: 'Попробуйте ещё раз или выберите другой способ оплаты.',
           })}
@@ -229,7 +229,7 @@ function TimeoutState({ onRetry, onGoBack }: { onRetry: () => void; onGoBack: ()
         >
           {t('balance.topUpResult.timeout', { defaultValue: 'Слишком долго' })}
         </h1>
-        <p className="mt-2 text-sm text-white/35" style={{ lineHeight: 1.6 }}>
+        <p className="mt-2 text-[15px] text-white/35" style={{ lineHeight: 1.6 }}>
           {t('balance.topUpResult.timeoutDesc', {
             defaultValue:
               'Мы не получили подтверждение оплаты. Если деньги списались — они будут зачислены автоматически.',

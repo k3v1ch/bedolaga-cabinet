@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -11,14 +12,13 @@ import {
   AlertTriangle,
   CheckCircle,
   Gift,
-  Share2,
   ChevronRight,
 } from 'lucide-react';
 
 import { useAuthStore } from '@/store/auth';
 import { subscriptionApi } from '@/api/subscription';
 import { balanceApi } from '@/api/balance';
-import { giftApi, type SentGift } from '@/api/gift';
+import { giftApi } from '@/api/gift';
 import { API } from '@/config/constants';
 import type { Subscription } from '@/types';
 
@@ -47,7 +47,7 @@ function Popup({ children, onClose }: { children: ReactNode; onClose: () => void
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#0A0A0A]/95 p-6 shadow-2xl shadow-black/50 backdrop-blur-2xl"
+        className="w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#0A0A0A]/95 p-7 shadow-2xl shadow-black/50 backdrop-blur-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {children}
@@ -63,15 +63,19 @@ const formatDate = (iso: string | null | undefined) => {
   return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
-const planLabelFor = (sub: Subscription | null) => {
+const planLabelFor = (
+  sub: Subscription | null,
+  t: (key: string, options?: Record<string, unknown>) => string,
+) => {
   if (!sub) return '—';
-  if (sub.is_trial) return 'Пробный';
-  return sub.tariff_name || 'Активный';
+  if (sub.is_trial) return t('subscriptionPage.planTrial');
+  return sub.tariff_name || t('subscriptionPage.planActive');
 };
 
 const kopecksToRubles = (k: number) => (k / 100).toFixed(0);
 
 export default function CabinetSubscription() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -301,19 +305,6 @@ export default function CabinetSubscription() {
     }
   };
 
-  const shareGiftCode = async (gift: SentGift) => {
-    const text = `Подарок ВЕРНО VPN\nКод: ${gift.token}\nТариф: ${gift.tariff_name ?? '—'}\nНа ${gift.period_days} дн.`;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: 'Подарок ВЕРНО VPN', text });
-        return;
-      } catch {
-        /* fallthrough */
-      }
-    }
-    await copyGiftCode(gift.token);
-  };
-
   // ── Multi-tariff: show simple list ─────────────────────────────────
   if (isMultiTariff) {
     return (
@@ -325,28 +316,28 @@ export default function CabinetSubscription() {
         <div className="mb-8 flex items-center justify-between">
           <h1
             className="text-white"
-            style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+            style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
           >
-            Подписка
+            {t('subscriptionPage.title')}
           </h1>
           <button
-            onClick={() => navigate('/subscription/purchase')}
-            className="rounded-full bg-white px-4 py-2 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+            onClick={() => navigate('/subscriptions/renew')}
+            className="rounded-full bg-white px-4 py-2 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
             style={{ fontWeight: 500 }}
           >
-            Новый тариф
+            {t('subscriptionPage.newPlan')}
           </button>
         </div>
 
         {subList.length === 0 ? (
-          <GlassCard className="p-6 text-center">
-            <p className="mb-4 text-sm text-white/40">Нет активных подписок</p>
+          <GlassCard className="p-7 text-center">
+            <p className="mb-4 text-[15px] text-white/40">{t('subscriptionPage.noActiveSubs')}</p>
             <button
-              onClick={() => navigate('/subscription/purchase')}
-              className="rounded-full bg-white px-6 py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+              onClick={() => navigate('/subscriptions/renew')}
+              className="rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
               style={{ fontWeight: 500 }}
             >
-              Выбрать тариф
+              {t('subscriptionPage.selectPlan')}
             </button>
           </GlassCard>
         ) : (
@@ -358,17 +349,22 @@ export default function CabinetSubscription() {
                 className="block rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl transition-all hover:bg-white/[0.06]"
               >
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="text-sm text-white/70" style={{ fontWeight: 500 }}>
-                    {sub.tariff_name || (sub.is_trial ? 'Пробный' : 'Подписка')}
+                  <span className="text-[15px] text-white/70" style={{ fontWeight: 500 }}>
+                    {sub.tariff_name ||
+                      (sub.is_trial
+                        ? t('subscriptionPage.planTrial')
+                        : t('subscriptionPage.subscriptionFallback'))}
                   </span>
                   <ChevronRight size={16} className="text-white/30" />
                 </div>
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-[13px]">
                   <span className="text-white/35">
-                    Активна до: <span className="text-white/65">{formatDate(sub.end_date)}</span>
+                    {t('subscriptionPage.activeUntil')}:{' '}
+                    <span className="text-white/65">{formatDate(sub.end_date)}</span>
                   </span>
                   <span className="text-white/35">
-                    Устройства: <span className="text-white/65">{sub.device_limit || '∞'}</span>
+                    {t('subscriptionPage.devicesLabel')}:{' '}
+                    <span className="text-white/65">{sub.device_limit || '∞'}</span>
                   </span>
                 </div>
               </Link>
@@ -388,78 +384,82 @@ export default function CabinetSubscription() {
     >
       <h1
         className="mb-8 text-white"
-        style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+        style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
       >
-        Подписка
+        {t('subscriptionPage.title')}
       </h1>
 
-      <GlassCard className="mb-4 p-6">
+      <GlassCard className="mb-5 p-7">
         {isActiveSub && subscription ? (
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="mb-2 flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-green-400" />
-                <span className="text-sm text-green-400" style={{ fontWeight: 500 }}>
-                  Подписка активна
+                <span className="text-[15px] text-green-400" style={{ fontWeight: 500 }}>
+                  {t('subscriptionPage.subscriptionActive')}
                 </span>
               </div>
-              <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
+              <div className="flex flex-wrap gap-x-6 gap-y-1 text-[15px]">
                 <p className="text-white/35">
-                  Активна до:{' '}
+                  {t('subscriptionPage.activeUntil')}:{' '}
                   <span className="text-white/65">{formatDate(subscription.end_date)}</span>
                 </p>
                 <p className="text-white/35">
-                  Тариф: <span className="text-white/65">{planLabelFor(subscription)}</span>
+                  {t('subscriptionPage.planLabel')}:{' '}
+                  <span className="text-white/65">{planLabelFor(subscription, t)}</span>
                 </p>
                 <p className="text-white/35">
-                  Устройства:{' '}
+                  {t('subscriptionPage.devicesLabel')}:{' '}
                   <span className="text-white/65">
-                    {devicesData?.total ?? 0} из {subscription.device_limit || '∞'}
+                    {t('subscriptionPage.devicesOf', {
+                      used: devicesData?.total ?? 0,
+                      total: subscription.device_limit || '∞',
+                    })}
                   </span>
                 </p>
               </div>
             </div>
             <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto">
               <button
-                onClick={() => navigate('/subscriptions/renew')}
-                className="rounded-full bg-white px-5 py-2.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+                onClick={() => navigate(`/subscriptions/${subscription.id}/renew`)}
+                className="rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
                 style={{ fontWeight: 500 }}
               >
-                Продлить подписку
+                {t('subscriptionPage.renew')}
               </button>
               <button
-                onClick={() => navigate('/gift')}
-                className="flex items-center justify-center gap-1.5 rounded-full border border-white/15 px-5 py-2.5 text-sm text-white/60 transition-colors hover:bg-white/[0.05]"
+                onClick={() => navigate('/gifts?action=new')}
+                className="flex items-center justify-center gap-1.5 rounded-full border border-white/15 px-6 py-3 text-[15px] text-white/60 transition-colors hover:bg-white/[0.05]"
                 style={{ fontWeight: 500 }}
               >
-                <Gift size={14} /> Подарить подписку
+                <Gift size={14} /> {t('subscriptionPage.giftSubscription')}
               </button>
             </div>
           </div>
         ) : (
           <div className="py-4 text-center">
-            <p className="mb-4 text-sm text-white/40">
+            <p className="mb-4 text-[15px] text-white/40">
               {subscription?.is_expired
-                ? 'Подписка истекла'
+                ? t('subscriptionPage.expired')
                 : subscription?.is_limited
-                  ? 'Подписка ограничена'
-                  : 'Нет активной подписки'}
+                  ? t('subscriptionPage.limited')
+                  : t('subscriptionPage.noActive')}
             </p>
             <div className="flex flex-col items-center gap-2">
               <button
-                onClick={() => navigate('/subscription/purchase')}
-                className="w-full rounded-full bg-white px-6 py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] sm:w-auto sm:min-w-[220px]"
+                onClick={() => navigate('/subscriptions/renew')}
+                className="w-full rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] sm:w-auto sm:min-w-[220px]"
                 style={{ fontWeight: 500 }}
               >
-                {subscription ? 'Продлить подписку' : 'Выбрать тариф'}
+                {subscription ? t('subscriptionPage.renew') : t('subscriptionPage.selectPlan')}
               </button>
-              {!subscription && trialInfo && !trialInfo.is_available && (
+              {(subscription || (trialInfo && !trialInfo.is_available)) && (
                 <button
-                  onClick={() => navigate('/gift')}
-                  className="flex w-full items-center justify-center gap-1.5 rounded-full border border-white/15 px-6 py-3 text-sm text-white/60 transition-colors hover:bg-white/[0.05] sm:w-auto sm:min-w-[220px]"
+                  onClick={() => navigate('/gifts?action=new')}
+                  className="flex w-full items-center justify-center gap-1.5 rounded-full border border-white/15 px-6 py-3 text-[15px] text-white/60 transition-colors hover:bg-white/[0.05] sm:w-auto sm:min-w-[220px]"
                   style={{ fontWeight: 500 }}
                 >
-                  <Gift size={14} /> Подарить подписку
+                  <Gift size={14} /> {t('subscriptionPage.giftSubscription')}
                 </button>
               )}
             </div>
@@ -471,18 +471,21 @@ export default function CabinetSubscription() {
       {isActiveSub && subscription && (
         <>
           {traffic && (
-            <GlassCard className="mb-4 p-6">
+            <GlassCard className="mb-5 p-7">
               <div className="mb-3 flex items-center justify-between">
                 <p
-                  className="text-xs text-white/40"
+                  className="text-[13px] text-white/40"
                   style={{ fontWeight: 500, letterSpacing: '0.05em' }}
                 >
-                  ТРАФИК
+                  {t('subscriptionPage.trafficHeader')}
                 </p>
-                <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-xs text-white/50">
+                <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[13px] text-white/50">
                   {traffic.is_unlimited
-                    ? 'Безлимит'
-                    : `${traffic.traffic_used_gb.toFixed(1)} ГБ из ${subscription.traffic_limit_gb} ГБ`}
+                    ? t('subscription.unlimited')
+                    : t('subscriptionPage.trafficUsage', {
+                        used: traffic.traffic_used_gb.toFixed(1),
+                        total: subscription.traffic_limit_gb,
+                      })}
                 </span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
@@ -499,59 +502,63 @@ export default function CabinetSubscription() {
                 <button
                   onClick={() => refreshTrafficMutation.mutate()}
                   disabled={trafficCooldown > 0 || refreshTrafficMutation.isPending}
-                  className="mt-3 text-xs text-white/35 transition-colors hover:text-white/55 disabled:opacity-40"
+                  className="mt-3 text-[13px] text-white/35 transition-colors hover:text-white/55 disabled:opacity-40"
                 >
                   {refreshTrafficMutation.isPending
-                    ? 'Обновление…'
+                    ? t('subscriptionPage.trafficRefreshing')
                     : trafficCooldown > 0
-                      ? `Обновить через ${trafficCooldown}с`
-                      : 'Обновить трафик'}
+                      ? t('subscriptionPage.trafficRefreshIn', { seconds: trafficCooldown })
+                      : t('subscriptionPage.trafficRefresh')}
                 </button>
               )}
             </GlassCard>
           )}
 
           {showConnectionBlock && (
-            <GlassCard className="mb-4 p-6">
+            <GlassCard className="mb-5 p-7">
               <p
-                className="mb-3 text-xs text-white/40"
+                className="mb-3 text-[13px] text-white/40"
                 style={{ fontWeight: 500, letterSpacing: '0.05em' }}
               >
-                ПОДКЛЮЧЕНИЕ
+                {t('subscriptionPage.connectionHeader')}
               </p>
-              <div className="mb-3 flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3">
-                <span className="flex-1 truncate font-mono text-sm text-white/40">
+              <button
+                type="button"
+                onClick={copyKey}
+                aria-label={t('subscriptionPage.copyLink')}
+                className="group mb-3 flex w-full items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-left transition-colors hover:bg-white/[0.06] active:bg-white/[0.08]"
+              >
+                <span className="flex-1 truncate font-mono text-[15px] text-white/40 group-hover:text-white/60">
                   {connectionUrl}
                 </span>
-                <button
-                  onClick={copyKey}
-                  className="shrink-0 text-white/25 transition-colors hover:text-white/50"
-                  aria-label="Скопировать"
-                >
+                <span className="shrink-0 text-white/25 transition-colors group-hover:text-white/50">
                   {copied ? <Check size={15} className="text-green-400" /> : <Copy size={15} />}
-                </button>
-              </div>
+                </span>
+              </button>
               <button
                 onClick={() => navigate('/connection')}
-                className="w-full rounded-full border border-white/15 py-3 text-sm text-white/60 transition-colors hover:bg-white/[0.05]"
+                className="w-full rounded-full border border-white/15 py-3 text-[15px] text-white/60 transition-colors hover:bg-white/[0.05]"
                 style={{ fontWeight: 500 }}
               >
-                Подключиться
+                {t('subscriptionPage.connect')}
               </button>
             </GlassCard>
           )}
 
-          <GlassCard className="p-6">
+          <GlassCard className="p-7">
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <p
-                  className="text-xs text-white/40"
+                  className="text-[13px] text-white/40"
                   style={{ fontWeight: 500, letterSpacing: '0.05em' }}
                 >
-                  МОИ УСТРОЙСТВА
+                  {t('subscriptionPage.devicesHeader')}
                 </p>
-                <p className="mt-1 text-xs text-white/25">
-                  {devicesData?.total ?? 0} из {subscription.device_limit || '∞'}
+                <p className="mt-1 text-[13px] text-white/25">
+                  {t('subscriptionPage.devicesOf', {
+                    used: devicesData?.total ?? 0,
+                    total: subscription.device_limit || '∞',
+                  })}
                 </p>
               </div>
             </div>
@@ -564,18 +571,18 @@ export default function CabinetSubscription() {
                     className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.04] px-4 py-3"
                   >
                     <div>
-                      <p className="text-sm text-white/60">{d.device_model || d.hwid}</p>
-                      <p className="text-xs text-white/25">{d.platform}</p>
+                      <p className="text-[15px] text-white/60">{d.device_model || d.hwid}</p>
+                      <p className="text-[13px] text-white/25">{d.platform}</p>
                     </div>
                     <button
                       onClick={() => {
-                        if (confirm('Удалить устройство?')) {
+                        if (confirm(t('subscriptionPage.deleteDevicePrompt'))) {
                           deleteDeviceMutation.mutate(d.hwid);
                         }
                       }}
                       disabled={deleteDeviceMutation.isPending}
                       className="text-white/20 transition-colors hover:text-red-400/70 disabled:opacity-40"
-                      aria-label="Удалить устройство"
+                      aria-label={t('subscriptionPage.deleteDeviceLabel')}
                     >
                       <X size={15} />
                     </button>
@@ -583,7 +590,7 @@ export default function CabinetSubscription() {
                 ))}
               </div>
             ) : (
-              <p className="mb-4 text-xs text-white/30">Пока ни одного устройства не подключено.</p>
+              <p className="mb-4 text-[13px] text-white/30">{t('subscriptionPage.noDevicesYet')}</p>
             )}
 
             <div className="flex gap-2">
@@ -593,9 +600,9 @@ export default function CabinetSubscription() {
                   setBuyState('idle');
                   setShowBuy(true);
                 }}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2.5 text-sm text-white/50 transition-colors hover:bg-white/[0.04]"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2.5 text-[15px] text-white/50 transition-colors hover:bg-white/[0.04]"
               >
-                <Plus size={14} /> Докупить
+                <Plus size={14} /> {t('subscriptionPage.buyDevicesShort')}
               </button>
               <button
                 onClick={() => {
@@ -603,9 +610,9 @@ export default function CabinetSubscription() {
                   setReduceState('idle');
                   setShowReduce(true);
                 }}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2.5 text-sm text-white/50 transition-colors hover:bg-white/[0.04]"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2.5 text-[15px] text-white/50 transition-colors hover:bg-white/[0.04]"
               >
-                <Minus size={14} /> Уменьшить
+                <Minus size={14} /> {t('subscriptionPage.reduceDevicesShort')}
               </button>
             </div>
           </GlassCard>
@@ -613,23 +620,23 @@ export default function CabinetSubscription() {
       )}
 
       {/* Мои подарки — реальный список из getSentGifts */}
-      <GlassCard className="mt-4 p-6">
+      <GlassCard className="mt-4 p-7">
         <p
-          className="mb-4 text-xs text-white/40"
+          className="mb-4 text-[13px] text-white/40"
           style={{ fontWeight: 500, letterSpacing: '0.05em' }}
         >
-          МОИ ПОДАРКИ
+          {t('subscriptionPage.giftsHeader')}
         </p>
         {!sentGifts || sentGifts.length === 0 ? (
           <div className="py-6 text-center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.06]">
               <Gift size={20} className="text-white/40" />
             </div>
-            <p className="mb-1.5 text-sm text-white/55" style={{ fontWeight: 500 }}>
-              У вас пока нет подарков
+            <p className="mb-1.5 text-[15px] text-white/55" style={{ fontWeight: 500 }}>
+              {t('subscriptionPage.giftsEmptyTitle')}
             </p>
-            <p className="text-xs text-white/30" style={{ lineHeight: 1.6 }}>
-              Приобретите подарок для друга — код появится здесь.
+            <p className="text-[13px] text-white/30" style={{ lineHeight: 1.6 }}>
+              {t('subscriptionPage.giftsEmptyHint')}
             </p>
           </div>
         ) : (
@@ -642,7 +649,7 @@ export default function CabinetSubscription() {
                   className="rounded-xl border border-white/[0.06] bg-white/[0.04] p-4"
                 >
                   <div className="mb-3 flex items-start justify-between gap-3">
-                    <p className="break-all font-mono text-sm text-white/70">{gift.token}</p>
+                    <p className="break-all font-mono text-[15px] text-white/70">{gift.token}</p>
                     <span
                       className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] ${
                         isAvailable
@@ -650,47 +657,54 @@ export default function CabinetSubscription() {
                           : 'bg-white/[0.08] text-white/40'
                       }`}
                     >
-                      {isAvailable ? 'Доступен' : 'Активирован'}
+                      {isAvailable
+                        ? t('subscriptionPage.giftAvailable')
+                        : t('subscriptionPage.giftActivated')}
                     </span>
                   </div>
-                  <div className="mb-4 space-y-1 text-xs">
+                  <div className="mb-4 space-y-1 text-[13px]">
                     <div className="flex justify-between">
-                      <span className="text-white/35">Тариф</span>
+                      <span className="text-white/35">{t('subscriptionPage.giftPlan')}</span>
                       <span className="text-white/60">{gift.tariff_name || '—'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-white/35">Срок подписки</span>
-                      <span className="text-white/60">{gift.period_days} дн.</span>
+                      <span className="text-white/35">{t('subscriptionPage.giftDuration')}</span>
+                      <span className="text-white/60">
+                        {t('subscriptionPage.giftDurationDays', { days: gift.period_days })}
+                      </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-white/35">Устройств</span>
-                      <span className="text-white/60">до {gift.device_limit || '∞'}</span>
+                      <span className="text-white/35">{t('subscriptionPage.giftDevices')}</span>
+                      <span className="text-white/60">
+                        {gift.device_limit
+                          ? t('subscriptionPage.giftDevicesUpTo', {
+                              count: gift.device_limit,
+                            })
+                          : '∞'}
+                      </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-white/35">Дата покупки</span>
+                      <span className="text-white/35">
+                        {t('subscriptionPage.giftPurchaseDate')}
+                      </span>
                       <span className="text-white/60">{formatDate(gift.created_at)}</span>
                     </div>
                   </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => copyGiftCode(gift.token)}
-                      className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2 text-xs text-white/50 transition-colors hover:bg-white/[0.04]"
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2 text-[13px] text-white/50 transition-colors hover:bg-white/[0.04]"
                     >
                       {giftCopiedToken === gift.token ? (
                         <>
-                          <Check size={12} className="text-green-400" /> Скопировано
+                          <Check size={12} className="text-green-400" />{' '}
+                          {t('subscriptionPage.copied')}
                         </>
                       ) : (
                         <>
-                          <Copy size={12} /> Скопировать
+                          <Copy size={12} /> {t('subscriptionPage.copyLink')}
                         </>
                       )}
-                    </button>
-                    <button
-                      onClick={() => shareGiftCode(gift)}
-                      className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2 text-xs text-white/50 transition-colors hover:bg-white/[0.04]"
-                    >
-                      <Share2 size={12} /> Поделиться
                     </button>
                   </div>
                 </div>
@@ -706,8 +720,8 @@ export default function CabinetSubscription() {
           <Popup onClose={() => setShowBuy(false)}>
             {buyState === 'idle' && (
               <>
-                <h3 className="mb-5 text-sm text-white" style={{ fontWeight: 600 }}>
-                  Докупить устройства
+                <h3 className="mb-5 text-[15px] text-white" style={{ fontWeight: 600 }}>
+                  {t('subscriptionPage.buyDevicesTitle')}
                 </h3>
                 <div className="mb-5 flex items-center justify-center gap-4">
                   <button
@@ -730,29 +744,43 @@ export default function CabinetSubscription() {
                     <Plus size={16} />
                   </button>
                 </div>
-                <div className="mb-5 space-y-2 text-sm">
+                <div className="mb-5 space-y-2 text-[15px]">
                   <div className="flex justify-between">
-                    <span className="text-white/35">Будет добавлено</span>
-                    <span className="text-white/60">{buyQty} устр.</span>
+                    <span className="text-white/35">{t('subscriptionPage.willBeAdded')}</span>
+                    <span className="text-white/60">
+                      {t('subscriptionPage.devicesShort', { count: buyQty })}
+                    </span>
                   </div>
                   {buyPriceData?.total_price_label && (
                     <div className="flex justify-between">
-                      <span className="text-white/35">Стоимость</span>
+                      <span className="text-white/35">{t('subscriptionPage.cost')}</span>
                       <span className="text-white/60">{buyPriceData.total_price_label}</span>
                     </div>
                   )}
                   {buyPriceData?.current_device_limit !== undefined && (
                     <div className="flex justify-between">
-                      <span className="text-white/35">Устройств после</span>
+                      <span className="text-white/35">{t('subscriptionPage.devicesAfter')}</span>
                       <span className="text-white/60">
                         {(buyPriceData.current_device_limit ?? 0) + buyQty}
                       </span>
                     </div>
                   )}
                 </div>
+                {buyPriceData?.available !== false &&
+                  buyPriceData?.days_left !== undefined &&
+                  buyPriceData?.base_device_price_kopeks !== undefined &&
+                  buyPriceData.base_device_price_kopeks > 0 && (
+                    <p className="mb-4 text-[12px] leading-relaxed text-white/30">
+                      {t('subscriptionPage.devicePriceFormula', {
+                        perMonth: kopecksToRubles(buyPriceData.base_device_price_kopeks),
+                        days: buyPriceData.days_left,
+                        currency: '₽',
+                      })}
+                    </p>
+                  )}
                 {buyPriceData?.available === false && (
-                  <p className="mb-3 text-xs text-amber-400/70">
-                    {buyPriceData.reason || 'Покупка недоступна'}
+                  <p className="mb-3 text-[13px] text-amber-400/70">
+                    {buyPriceData.reason || t('subscriptionPage.purchaseUnavailable')}
                   </p>
                 )}
                 <button
@@ -767,16 +795,18 @@ export default function CabinetSubscription() {
                     buyDevicesMutation.mutate();
                   }}
                   disabled={buyPriceData?.available === false || buyDevicesMutation.isPending}
-                  className="mb-2 w-full rounded-full bg-white py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
+                  className="mb-2 w-full rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
                   style={{ fontWeight: 500 }}
                 >
-                  {buyDevicesMutation.isPending ? 'Оформление…' : 'Подтвердить покупку'}
+                  {buyDevicesMutation.isPending
+                    ? t('subscriptionPage.processing')
+                    : t('subscriptionPage.confirmPurchase')}
                 </button>
                 <button
                   onClick={() => setShowBuy(false)}
-                  className="w-full rounded-full border border-white/[0.08] py-2 text-xs text-white/40 transition-colors hover:bg-white/[0.04]"
+                  className="w-full rounded-full border border-white/[0.08] py-2 text-[13px] text-white/40 transition-colors hover:bg-white/[0.04]"
                 >
-                  Отмена
+                  {t('common.cancel')}
                 </button>
               </>
             )}
@@ -784,34 +814,36 @@ export default function CabinetSubscription() {
               <>
                 <div className="mb-3 flex items-center gap-2">
                   <AlertTriangle size={16} className="text-amber-400/70" />
-                  <h3 className="text-sm text-white" style={{ fontWeight: 600 }}>
-                    Недостаточно средств
+                  <h3 className="text-[15px] text-white" style={{ fontWeight: 600 }}>
+                    {t('subscriptionPage.insufficientFunds')}
                   </h3>
                 </div>
-                <p className="mb-5 text-sm text-white/35">
-                  Не хватает{' '}
-                  {buyPriceData?.total_price_kopeks !== undefined
-                    ? `${kopecksToRubles(
-                        Math.max(0, buyPriceData.total_price_kopeks - balanceKopeks),
-                      )} ₽`
-                    : ''}{' '}
-                  для покупки. Пополните баланс, чтобы продолжить.
+                <p className="mb-5 text-[15px] text-white/35">
+                  {t('subscriptionPage.insufficientHint', {
+                    amount:
+                      buyPriceData?.total_price_kopeks !== undefined
+                        ? kopecksToRubles(
+                            Math.max(0, buyPriceData.total_price_kopeks - balanceKopeks),
+                          )
+                        : '',
+                    currency: '₽',
+                  })}
                 </p>
                 <button
                   onClick={() => {
                     setShowBuy(false);
                     navigate('/balance');
                   }}
-                  className="mb-2 w-full rounded-full bg-white py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+                  className="mb-2 w-full rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
                   style={{ fontWeight: 500 }}
                 >
-                  Пополнить баланс
+                  {t('subscriptionPage.topUpBalance')}
                 </button>
                 <button
                   onClick={() => setShowBuy(false)}
-                  className="w-full rounded-full border border-white/[0.08] py-3 text-sm text-white/50 transition-colors hover:bg-white/[0.04]"
+                  className="w-full rounded-full border border-white/[0.08] py-3 text-[15px] text-white/50 transition-colors hover:bg-white/[0.04]"
                 >
-                  Закрыть
+                  {t('common.close')}
                 </button>
               </>
             )}
@@ -819,16 +851,16 @@ export default function CabinetSubscription() {
               <>
                 <div className="mb-4 text-center">
                   <CheckCircle size={28} className="mx-auto mb-3 text-green-400/60" />
-                  <h3 className="mb-2 text-sm text-white" style={{ fontWeight: 600 }}>
-                    Устройства добавлены
+                  <h3 className="mb-2 text-[15px] text-white" style={{ fontWeight: 600 }}>
+                    {t('subscriptionPage.devicesAdded')}
                   </h3>
                 </div>
                 <button
                   onClick={() => setShowBuy(false)}
-                  className="w-full rounded-full bg-white py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+                  className="w-full rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
                   style={{ fontWeight: 500 }}
                 >
-                  Готово
+                  {t('subscriptionPage.done')}
                 </button>
               </>
             )}
@@ -842,19 +874,19 @@ export default function CabinetSubscription() {
           <Popup onClose={() => setShowReduce(false)}>
             {reduceState === 'idle' && (
               <>
-                <h3 className="mb-5 text-sm text-white" style={{ fontWeight: 600 }}>
-                  Уменьшить устройства
+                <h3 className="mb-5 text-[15px] text-white" style={{ fontWeight: 600 }}>
+                  {t('subscriptionPage.reduceDevicesTitle')}
                 </h3>
                 {reductionInfo?.available === false ? (
                   <>
-                    <p className="mb-5 text-sm text-white/35">
-                      {reductionInfo.reason || 'Уменьшение сейчас недоступно.'}
+                    <p className="mb-5 text-[15px] text-white/35">
+                      {reductionInfo.reason || t('subscriptionPage.reduceUnavailable')}
                     </p>
                     <button
                       onClick={() => setShowReduce(false)}
-                      className="w-full rounded-full border border-white/[0.08] py-3 text-sm text-white/50 transition-colors hover:bg-white/[0.04]"
+                      className="w-full rounded-full border border-white/[0.08] py-3 text-[15px] text-white/50 transition-colors hover:bg-white/[0.04]"
                     >
-                      Закрыть
+                      {t('common.close')}
                     </button>
                   </>
                 ) : (
@@ -882,14 +914,18 @@ export default function CabinetSubscription() {
                         <Plus size={16} />
                       </button>
                     </div>
-                    <div className="mb-5 space-y-2 text-sm">
+                    <div className="mb-5 space-y-2 text-[15px]">
                       <div className="flex justify-between">
-                        <span className="text-white/35">Будет убрано</span>
-                        <span className="text-white/60">{reduceQty} устр.</span>
+                        <span className="text-white/35">{t('subscriptionPage.willBeRemoved')}</span>
+                        <span className="text-white/60">
+                          {t('subscriptionPage.devicesShort', { count: reduceQty })}
+                        </span>
                       </div>
                       {reductionInfo && (
                         <div className="flex justify-between">
-                          <span className="text-white/35">Устройств после</span>
+                          <span className="text-white/35">
+                            {t('subscriptionPage.devicesAfter')}
+                          </span>
                           <span className="text-white/60">
                             {(reductionInfo.current_device_limit ?? 0) - reduceQty}
                           </span>
@@ -900,16 +936,18 @@ export default function CabinetSubscription() {
                       <button
                         onClick={() => reduceMutation.mutate()}
                         disabled={reduceMutation.isPending}
-                        className="flex-1 rounded-full bg-white py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
+                        className="flex-1 rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
                         style={{ fontWeight: 500 }}
                       >
-                        {reduceMutation.isPending ? 'Применение…' : 'Подтвердить'}
+                        {reduceMutation.isPending
+                          ? t('subscriptionPage.applying')
+                          : t('common.confirm')}
                       </button>
                       <button
                         onClick={() => setShowReduce(false)}
-                        className="flex-1 rounded-full border border-white/[0.08] py-3 text-sm text-white/50 transition-colors hover:bg-white/[0.04]"
+                        className="flex-1 rounded-full border border-white/[0.08] py-3 text-[15px] text-white/50 transition-colors hover:bg-white/[0.04]"
                       >
-                        Отмена
+                        {t('common.cancel')}
                       </button>
                     </div>
                   </>
@@ -920,16 +958,16 @@ export default function CabinetSubscription() {
               <>
                 <div className="mb-4 text-center">
                   <CheckCircle size={28} className="mx-auto mb-3 text-green-400/60" />
-                  <h3 className="mb-2 text-sm text-white" style={{ fontWeight: 600 }}>
-                    Устройства убавлены
+                  <h3 className="mb-2 text-[15px] text-white" style={{ fontWeight: 600 }}>
+                    {t('subscriptionPage.devicesReduced')}
                   </h3>
                 </div>
                 <button
                   onClick={() => setShowReduce(false)}
-                  className="w-full rounded-full bg-white py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+                  className="w-full rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
                   style={{ fontWeight: 500 }}
                 >
-                  Готово
+                  {t('subscriptionPage.done')}
                 </button>
               </>
             )}

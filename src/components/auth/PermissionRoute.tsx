@@ -2,7 +2,6 @@ import { Navigate, useLocation } from 'react-router';
 import { useAuthStore } from '../../store/auth';
 import { usePermissionStore } from '../../store/permissions';
 import { saveReturnUrl } from '../../utils/token';
-import PageLoader from '../common/PageLoader';
 import Layout from '../layout/Layout';
 
 interface PermissionRouteProps {
@@ -31,9 +30,10 @@ export function PermissionRoute({
   const hasAnyPermission = usePermissionStore((state) => state.hasAnyPermission);
   const hasAllPermissions = usePermissionStore((state) => state.hasAllPermissions);
 
-  // Still loading auth state, or admin but permissions not fetched yet
+  // Still loading auth state, or admin but permissions not fetched yet —
+  // render nothing so the HTML preloader stays visible until content is ready.
   if (isLoading || (isAdmin && !permissionsLoaded)) {
-    return <PageLoader variant="light" />;
+    return null;
   }
 
   if (!isAuthenticated) {

@@ -123,8 +123,8 @@ export default function CabinetBalance() {
   }, [searchParams, navigate]);
 
   // ── Local state: top-up form ──────────────────────────────────────
-  const [amount, setAmount] = useState('');
-  const [amountError, setAmountError] = useState<string | null>(null);
+  // Amount input lives on /balance/top-up/{methodId} now — the page user lands
+  // on after clicking "Пополнить". Duplicating it here was confusing.
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
 
   const availableMethods = useMemo<PaymentMethod[]>(
@@ -144,34 +144,9 @@ export default function CabinetBalance() {
     [availableMethods, selectedMethod],
   );
 
-  const minRubles = selectedMethodObj ? selectedMethodObj.min_amount_kopeks / 100 : 10;
-  const maxRubles = selectedMethodObj ? selectedMethodObj.max_amount_kopeks / 100 : Infinity;
-
-  const numAmount = parseFloat(amount.replace(',', '.'));
-  const amountInvalid =
-    amount !== '' && (Number.isNaN(numAmount) || numAmount < minRubles || numAmount > maxRubles);
-
   const handleTopUp = () => {
-    if (!selectedMethodObj) {
-      setAmountError(t('balance.errors.selectMethod', { defaultValue: 'Выберите способ' }));
-      return;
-    }
-    if (Number.isNaN(numAmount) || numAmount <= 0) {
-      setAmountError(t('balance.errors.enterAmount', { defaultValue: 'Введите сумму' }));
-      return;
-    }
-    if (numAmount < minRubles || numAmount > maxRubles) {
-      setAmountError(
-        t('balance.errors.amountRange', {
-          min: minRubles,
-          max: Number.isFinite(maxRubles) ? maxRubles : '∞',
-          defaultValue: `Сумма: ${minRubles} – ${Number.isFinite(maxRubles) ? maxRubles : '∞'} ₽`,
-        }),
-      );
-      return;
-    }
-    setAmountError(null);
-    navigate(`/balance/top-up/${selectedMethodObj.id}?amount=${encodeURIComponent(amount)}`);
+    if (!selectedMethodObj) return;
+    navigate(`/balance/top-up/${selectedMethodObj.id}`);
   };
 
   // ── Promocode ──────────────────────────────────────────────────────
@@ -199,11 +174,13 @@ export default function CabinetBalance() {
       const tariff = result.tariff_name ?? '';
       const days = result.period_days ?? 0;
       const description = tariff
-        ? `Подарок активирован: ${tariff}${days ? ` на ${days} дн.` : ''}`
-        : 'Подарок успешно активирован';
+        ? days
+          ? t('gift.activatedWithTariffDays', { tariff, days })
+          : t('gift.activatedWithTariff', { tariff })
+        : t('gift.activatedGeneric');
       setPromoPopup({
         type: 'gift',
-        title: 'Подарок активирован',
+        title: t('gift.activatedTitle'),
         description,
         amount: 0,
       });
@@ -234,12 +211,12 @@ export default function CabinetBalance() {
       }
       const message =
         raw === 'Cannot activate your own gift'
-          ? 'Нельзя активировать собственный подарок'
+          ? t('gift.errors.ownGift')
           : detail.includes('expired')
-            ? 'Срок действия подарка истёк'
+            ? t('gift.errors.expired')
             : detail.includes('already')
-              ? 'Этот подарок уже был активирован'
-              : raw || 'Не удалось активировать подарок';
+              ? t('gift.errors.alreadyActivated')
+              : raw || t('gift.errors.generic');
       return { ok: false, recognized: true, message };
     }
   };
@@ -341,9 +318,7 @@ export default function CabinetBalance() {
       }
 
       // 3) Не распознали ни как промокод, ни как подарок
-      setPromoError(
-        'Не удалось распознать код. Убедитесь, что вы ввели действующий промокод или подарочный код.',
-      );
+      setPromoError(t('balance.promocode.unrecognized'));
       setPromoSelectSubs(null);
       setPromoSelectCode(null);
     } finally {
@@ -379,14 +354,14 @@ export default function CabinetBalance() {
     >
       <h1
         className="mb-8 text-white"
-        style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+        style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
       >
-        Баланс
+        {t('balance.title')}
       </h1>
 
       {/* Balance + Top up */}
-      <GlassCard className="mb-4 p-6">
-        <p className="mb-1 text-xs text-white/35">Текущий баланс</p>
+      <GlassCard className="mb-5 p-7">
+        <p className="mb-1 text-[13px] text-white/35">{t('balance.currentBalance')}</p>
         <p
           className="mb-6 text-white"
           style={{ fontSize: '2.5rem', fontWeight: 600, letterSpacing: '-0.03em' }}
@@ -394,44 +369,10 @@ export default function CabinetBalance() {
           {formatAmount(balanceRubles)} {currencySymbol}
         </p>
 
-        <input
-          type="text"
-          inputMode="decimal"
-          placeholder={
-            selectedMethodObj
-              ? `Сумма пополнения (от ${minRubles} ${currencySymbol})`
-              : `Сумма пополнения (от 10 ${currencySymbol})`
-          }
-          value={amount}
-          onChange={(e) => {
-            setAmount(e.target.value);
-            setAmountError(null);
-          }}
-          className={`mb-2 w-full rounded-xl border bg-white/[0.06] px-4 py-3 text-sm text-white/70 placeholder-white/20 outline-none transition-all ${
-            amountError || amountInvalid
-              ? 'border-amber-500/40 focus:border-amber-500/60'
-              : 'border-white/10 focus:border-white/20'
-          }`}
-        />
-        {(amountError || amountInvalid) && (
-          <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2">
-            <AlertTriangle size={14} className="shrink-0 text-amber-400/70" />
-            <p className="text-xs text-amber-400/70">
-              {amountError ||
-                (selectedMethodObj
-                  ? `Сумма от ${minRubles} до ${
-                      Number.isFinite(maxRubles) ? maxRubles : '∞'
-                    } ${currencySymbol}.`
-                  : `Слишком маленькая сумма. Введите сумму от 10 ${currencySymbol}.`)}
-            </p>
-          </div>
-        )}
-        {!amountError && !amountInvalid && <div className="mb-2" />}
-
         {/* Payment methods */}
-        <p className="mb-2 text-xs text-white/30">Способ пополнения</p>
+        <p className="mb-2 text-[13px] text-white/30">{t('balance.topUpMethod')}</p>
         {availableMethods.length === 0 ? (
-          <p className="mb-4 text-xs text-white/30">
+          <p className="mb-4 text-[13px] text-white/30">
             {t('balance.noPaymentMethods', { defaultValue: 'Способы оплаты недоступны' })}
           </p>
         ) : (
@@ -459,7 +400,7 @@ export default function CabinetBalance() {
                 >
                   <Icon size={18} className="shrink-0 text-white/30" strokeWidth={1.5} />
                   <div className="min-w-0">
-                    <p className="truncate text-sm text-white/60" style={{ fontWeight: 500 }}>
+                    <p className="truncate text-[15px] text-white/60" style={{ fontWeight: 500 }}>
                       {label}
                     </p>
                     {desc && <p className="truncate text-[11px] text-white/20">{desc}</p>}
@@ -473,24 +414,24 @@ export default function CabinetBalance() {
         <button
           onClick={handleTopUp}
           disabled={!selectedMethodObj || availableMethods.length === 0}
-          className="w-full rounded-full bg-white py-3.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-full bg-white py-3.5 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
           style={{ fontWeight: 500 }}
         >
-          Пополнить
+          {t('balance.topUp')}
         </button>
       </GlassCard>
 
       {/* Promo */}
-      <GlassCard className="mb-4 p-6">
+      <GlassCard className="mb-5 p-7">
         <p
-          className="mb-3 text-xs text-white/40"
+          className="mb-3 text-[13px] text-white/40"
           style={{ fontWeight: 500, letterSpacing: '0.05em' }}
         >
-          ПРОМОКОД ИЛИ ПОДАРОК
+          {t('balance.promoOrGiftHeader')}
         </p>
         <input
           type="text"
-          placeholder="Введите промокод или код подарка"
+          placeholder={t('balance.promocode.placeholderCombined')}
           value={promo}
           onChange={(e) => setPromo(e.target.value)}
           onKeyDown={(e) => {
@@ -499,15 +440,17 @@ export default function CabinetBalance() {
             }
           }}
           disabled={promocodeLoading}
-          className="mb-2 w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white/70 placeholder-white/20 outline-none transition-all focus:border-white/20"
+          className="mb-2 w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-[15px] text-white/70 placeholder-white/20 outline-none transition-all focus:border-white/20"
         />
         <button
           onClick={() => handlePromoActivate()}
           disabled={!promo.trim() || promocodeLoading}
-          className="mb-3 w-full rounded-full bg-white py-3.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
+          className="mb-3 w-full rounded-full bg-white py-3.5 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
           style={{ fontWeight: 500 }}
         >
-          {promocodeLoading ? 'Активация…' : 'Применить'}
+          {promocodeLoading
+            ? t('balance.promocode.activating', { defaultValue: 'Активация…' })
+            : t('balance.promocode.apply')}
         </button>
 
         <AnimatePresence mode="wait">
@@ -519,7 +462,7 @@ export default function CabinetBalance() {
               className="mt-1 flex items-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2"
             >
               <AlertTriangle size={14} className="shrink-0 text-red-400/80" />
-              <p className="text-xs text-red-400/80">{promoError}</p>
+              <p className="text-[13px] text-red-400/80">{promoError}</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -530,7 +473,7 @@ export default function CabinetBalance() {
             animate={{ opacity: 1, y: 0 }}
             className="mt-3 space-y-2 rounded-xl border border-white/10 bg-white/[0.04] p-3"
           >
-            <div className="text-xs text-white/55" style={{ fontWeight: 500 }}>
+            <div className="text-[13px] text-white/55" style={{ fontWeight: 500 }}>
               {t('balance.promocode.selectSubscription', {
                 defaultValue: 'К какой подписке применить промокод?',
               })}
@@ -540,10 +483,10 @@ export default function CabinetBalance() {
                 key={sub.id}
                 onClick={() => handlePromoActivate(sub.id)}
                 disabled={promocodeLoading}
-                className="flex w-full items-center justify-between rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white/60 transition-colors hover:bg-white/[0.05] disabled:opacity-50"
+                className="flex w-full items-center justify-between rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-[15px] text-white/60 transition-colors hover:bg-white/[0.05] disabled:opacity-50"
               >
                 <span>{sub.tariff_name}</span>
-                <span className="text-xs text-white/35">
+                <span className="text-[13px] text-white/35">
                   {t('balance.promocode.daysLeft', '{{count}} дн.', { count: sub.days_left })}
                 </span>
               </button>
@@ -553,7 +496,7 @@ export default function CabinetBalance() {
                 setPromoSelectSubs(null);
                 setPromoSelectCode(null);
               }}
-              className="text-xs text-white/35 hover:text-white/55"
+              className="text-[13px] text-white/35 hover:text-white/55"
             >
               {t('common.cancel', { defaultValue: 'Отмена' })}
             </button>
@@ -572,7 +515,7 @@ export default function CabinetBalance() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#0A0A0A] p-6 shadow-2xl shadow-black/50 backdrop-blur-2xl"
+              className="w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#0A0A0A] p-7 shadow-2xl shadow-black/50 backdrop-blur-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-2 flex items-center justify-end">
@@ -593,15 +536,15 @@ export default function CabinetBalance() {
                     <Percent size={20} className="text-green-400/70" />
                   )}
                 </div>
-                <h3 className="mb-2 text-sm text-white" style={{ fontWeight: 600 }}>
+                <h3 className="mb-2 text-[15px] text-white" style={{ fontWeight: 600 }}>
                   {promoPopup.title ??
                     (promoPopup.type === 'bonus'
-                      ? 'Промокод активирован'
+                      ? t('balance.promocode.activatedTitle')
                       : promoPopup.type === 'gift'
-                        ? 'Подарок активирован'
-                        : 'Скидка активирована')}
+                        ? t('gift.activatedTitle')
+                        : t('balance.promocode.discountActivatedTitle'))}
                 </h3>
-                <p className="mb-5 text-sm text-white/35" style={{ lineHeight: 1.6 }}>
+                <p className="mb-5 text-[15px] text-white/35" style={{ lineHeight: 1.6 }}>
                   {promoPopup.description}
                   {promoPopup.amount > 0 && (
                     <>
@@ -614,10 +557,10 @@ export default function CabinetBalance() {
                 </p>
                 <button
                   onClick={() => setPromoPopup(null)}
-                  className="rounded-full bg-white px-6 py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+                  className="rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
                   style={{ fontWeight: 500 }}
                 >
-                  Понятно
+                  {t('common.understand')}
                 </button>
               </div>
             </motion.div>
@@ -626,13 +569,16 @@ export default function CabinetBalance() {
       </AnimatePresence>
 
       {/* History */}
-      <GlassCard className="p-6">
+      <GlassCard className="p-7">
         <button
           onClick={() => setHistoryOpen(!historyOpen)}
           className="flex w-full items-center justify-between"
         >
-          <p className="text-xs text-white/40" style={{ fontWeight: 500, letterSpacing: '0.05em' }}>
-            ИСТОРИЯ ОПЕРАЦИЙ
+          <p
+            className="text-[13px] text-white/40"
+            style={{ fontWeight: 500, letterSpacing: '0.05em' }}
+          >
+            {t('balance.historyHeader')}
           </p>
           <ChevronDown
             size={16}
@@ -669,15 +615,15 @@ export default function CabinetBalance() {
                         className="flex items-start justify-between gap-3 border-b border-white/[0.04] py-2.5 last:border-0"
                       >
                         <div className="min-w-0">
-                          <p className="text-sm text-white/50">{main}</p>
-                          {sub && <p className="text-xs text-white/30">{sub}</p>}
-                          <p className="mt-0.5 text-xs text-white/20">
+                          <p className="text-[15px] text-white/50">{main}</p>
+                          {sub && <p className="text-[13px] text-white/30">{sub}</p>}
+                          <p className="mt-0.5 text-[13px] text-white/20">
                             {formatDate(tx.created_at)}
                           </p>
                         </div>
                         <div className="shrink-0 text-right">
                           <span
-                            className={`text-sm ${
+                            className={`text-[15px] ${
                               isPositive ? 'text-green-400/60' : 'text-white/40'
                             }`}
                           >
@@ -689,7 +635,7 @@ export default function CabinetBalance() {
                     );
                   })
                 ) : (
-                  <p className="py-6 text-center text-xs text-white/30">
+                  <p className="py-6 text-center text-[13px] text-white/30">
                     {t('balance.noTransactions', { defaultValue: 'Нет операций' })}
                   </p>
                 )}
@@ -699,11 +645,11 @@ export default function CabinetBalance() {
                     <button
                       onClick={() => setTransactionsPage((p) => Math.max(1, p - 1))}
                       disabled={transactions.page <= 1}
-                      className="flex-1 rounded-full border border-white/[0.08] py-2 text-xs text-white/50 transition-colors hover:bg-white/[0.04] disabled:opacity-40"
+                      className="flex-1 rounded-full border border-white/[0.08] py-2 text-[13px] text-white/50 transition-colors hover:bg-white/[0.04] disabled:opacity-40"
                     >
                       {t('common.back', { defaultValue: 'Назад' })}
                     </button>
-                    <div className="flex-1 text-center text-xs text-white/35">
+                    <div className="flex-1 text-center text-[13px] text-white/35">
                       {t('balance.page', {
                         current: transactions.page,
                         total: transactions.pages,
@@ -716,7 +662,7 @@ export default function CabinetBalance() {
                         )
                       }
                       disabled={transactions.page >= transactions.pages}
-                      className="flex-1 rounded-full border border-white/[0.08] py-2 text-xs text-white/50 transition-colors hover:bg-white/[0.04] disabled:opacity-40"
+                      className="flex-1 rounded-full border border-white/[0.08] py-2 text-[13px] text-white/50 transition-colors hover:bg-white/[0.04] disabled:opacity-40"
                     >
                       {t('common.next', { defaultValue: 'Вперёд' })}
                     </button>

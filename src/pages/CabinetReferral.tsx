@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import {
   Copy,
   Check,
-  Share2,
   Users,
   Handshake,
   TrendingUp,
@@ -51,15 +50,7 @@ const formatDate = (iso: string | null | undefined, locale = 'ru-RU') => {
   });
 };
 
-function CopyField({
-  label,
-  value,
-  shareText,
-}: {
-  label: string;
-  value: string;
-  shareText?: string;
-}) {
+function CopyField({ label, value }: { label: string; value: string; shareText?: string }) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {
@@ -70,35 +61,22 @@ function CopyField({
       /* noop */
     }
   };
-  const share = () => {
-    if (!value) return;
-    if (navigator.share) {
-      navigator.share({ text: shareText || value, url: value }).catch(() => {});
-      return;
-    }
-    const tg = `https://t.me/share/url?url=${encodeURIComponent(value)}${
-      shareText ? `&text=${encodeURIComponent(shareText)}` : ''
-    }`;
-    window.open(tg, '_blank', 'noopener,noreferrer');
-  };
   return (
     <div>
-      <p className="mb-1.5 text-xs text-white/30">{label}</p>
-      <div className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.04] px-4 py-2.5">
-        <span className="flex-1 truncate font-mono text-sm text-white/35">{value}</span>
-        <button
-          onClick={copy}
-          className="shrink-0 text-white/25 transition-colors hover:text-white/50"
-        >
+      <p className="mb-1.5 text-[13px] text-white/30">{label}</p>
+      <button
+        type="button"
+        onClick={copy}
+        aria-label={`Скопировать ${label}`}
+        className="group flex w-full items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.04] px-4 py-2.5 text-left transition-colors hover:bg-white/[0.06] active:bg-white/[0.08]"
+      >
+        <span className="flex-1 truncate font-mono text-[15px] text-white/35 group-hover:text-white/55">
+          {value}
+        </span>
+        <span className="shrink-0 text-white/25 transition-colors group-hover:text-white/50">
           {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
-        </button>
-        <button
-          onClick={share}
-          className="shrink-0 text-white/25 transition-colors hover:text-white/50"
-        >
-          <Share2 size={14} />
-        </button>
-      </div>
+        </span>
+      </button>
     </div>
   );
 }
@@ -213,13 +191,13 @@ export default function CabinetReferral() {
       >
         <h1
           className="mb-8 text-white"
-          style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+          style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
         >
           {t('referral.title', { defaultValue: 'Реферальная программа' })}
         </h1>
         <GlassCard className="p-8 text-center">
           <Users size={28} className="mx-auto mb-3 text-white/20" />
-          <p className="text-sm text-white/40">
+          <p className="text-[15px] text-white/40">
             {t('referral.disabled', { defaultValue: 'Реферальная программа отключена' })}
           </p>
         </GlassCard>
@@ -236,7 +214,7 @@ export default function CabinetReferral() {
     >
       <h1
         className="mb-8 text-white"
-        style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+        style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
       >
         {t('referral.title', { defaultValue: 'Реферальная программа' })}
       </h1>
@@ -248,7 +226,7 @@ export default function CabinetReferral() {
           <p className="text-white" style={{ fontSize: '1.5rem', fontWeight: 600 }}>
             {info?.total_referrals ?? 0}
           </p>
-          <p className="mt-1 text-xs text-white/30">
+          <p className="mt-1 text-[13px] text-white/30">
             {t('referral.stats.totalReferrals', { defaultValue: 'Всего рефералов' })}
           </p>
         </GlassCard>
@@ -257,7 +235,7 @@ export default function CabinetReferral() {
           <p className="text-white" style={{ fontSize: '1.5rem', fontWeight: 600 }}>
             {formatWithCurrency(info?.total_earnings_rubles ?? 0)}
           </p>
-          <p className="mt-1 text-xs text-white/30">
+          <p className="mt-1 text-[13px] text-white/30">
             {t('referral.stats.totalEarnings', { defaultValue: 'Общий заработок' })}
           </p>
         </GlassCard>
@@ -266,16 +244,16 @@ export default function CabinetReferral() {
           <p className="text-white" style={{ fontSize: '1.5rem', fontWeight: 600 }}>
             {info?.commission_percent ?? 0}%
           </p>
-          <p className="mt-1 text-xs text-white/30">
+          <p className="mt-1 text-[13px] text-white/30">
             {t('referral.stats.commissionRate', { defaultValue: 'Комиссия' })}
           </p>
         </GlassCard>
       </div>
 
       {/* Referral links */}
-      <GlassCard className="mb-4 p-6">
+      <GlassCard className="mb-5 p-7">
         <p
-          className="mb-4 text-xs text-white/40"
+          className="mb-4 text-[13px] text-white/40"
           style={{ fontWeight: 500, letterSpacing: '0.05em' }}
         >
           {t('referral.yourLink', { defaultValue: 'ВАШИ РЕФЕРАЛЬНЫЕ ССЫЛКИ' }).toUpperCase()}
@@ -297,7 +275,7 @@ export default function CabinetReferral() {
           )}
         </div>
         {info?.commission_percent ? (
-          <p className="text-sm text-white/40">
+          <p className="text-[15px] text-white/40">
             {t('referral.shareHint', {
               percent: info.commission_percent,
               defaultValue: `До ${info.commission_percent}% с пополнений друзей`,
@@ -308,14 +286,14 @@ export default function CabinetReferral() {
 
       {/* Program conditions */}
       {terms && (
-        <GlassCard className="mb-4 p-6">
+        <GlassCard className="mb-5 p-7">
           <p
-            className="mb-3 text-xs text-white/40"
+            className="mb-3 text-[13px] text-white/40"
             style={{ fontWeight: 500, letterSpacing: '0.05em' }}
           >
             {t('referral.terms.title', { defaultValue: 'УСЛОВИЯ ПРОГРАММЫ' }).toUpperCase()}
           </p>
-          <div className="space-y-2 text-sm text-white/35" style={{ lineHeight: 1.65 }}>
+          <div className="space-y-2 text-[15px] text-white/35" style={{ lineHeight: 1.65 }}>
             <p>
               •{' '}
               {t('referral.condition.invite', {
@@ -374,10 +352,10 @@ export default function CabinetReferral() {
       )}
 
       {/* Referrals list */}
-      <GlassCard className="mb-4 p-6">
+      <GlassCard className="mb-5 p-7">
         <div className="mb-4 flex items-center gap-2">
           <Users size={15} className="text-white/25" />
-          <span className="text-sm text-white/40" style={{ fontWeight: 500 }}>
+          <span className="text-[15px] text-white/40" style={{ fontWeight: 500 }}>
             {t('referral.yourReferrals', { defaultValue: 'Ваши рефералы' })}
           </span>
         </div>
@@ -393,11 +371,15 @@ export default function CabinetReferral() {
                 className="flex items-start justify-between gap-3 border-b border-white/[0.04] py-2.5 last:border-0"
               >
                 <div>
-                  <p className="text-sm text-white/50">{name}</p>
-                  <p className="text-xs text-white/20">{formatDate(r.created_at, i18n.language)}</p>
+                  <p className="text-[15px] text-white/50">{name}</p>
+                  <p className="text-[13px] text-white/20">
+                    {formatDate(r.created_at, i18n.language)}
+                  </p>
                 </div>
                 <div className="text-right">
-                  <span className={`text-xs ${r.has_paid ? 'text-green-400/60' : 'text-white/25'}`}>
+                  <span
+                    className={`text-[13px] ${r.has_paid ? 'text-green-400/60' : 'text-white/25'}`}
+                  >
                     {r.has_paid
                       ? t('referral.status.paid', { defaultValue: 'Оплатил' })
                       : t('referral.status.pending', { defaultValue: 'Регистрация' })}
@@ -407,7 +389,7 @@ export default function CabinetReferral() {
             );
           })
         ) : (
-          <p className="text-sm text-white/30">
+          <p className="text-[15px] text-white/30">
             {t('referral.noReferrals', { defaultValue: 'У вас пока нет рефералов.' })}
           </p>
         )}
@@ -415,10 +397,10 @@ export default function CabinetReferral() {
 
       {/* Earnings history */}
       {earnings?.items && earnings.items.length > 0 && (
-        <GlassCard className="mb-4 p-6">
+        <GlassCard className="mb-5 p-7">
           <div className="mb-4 flex items-center gap-2">
             <TrendingUp size={15} className="text-white/25" />
-            <span className="text-sm text-white/40" style={{ fontWeight: 500 }}>
+            <span className="text-[15px] text-white/40" style={{ fontWeight: 500 }}>
               {t('referral.earningsHistory', { defaultValue: 'История начислений' })}
             </span>
           </div>
@@ -433,15 +415,18 @@ export default function CabinetReferral() {
                 className="flex items-start justify-between gap-3 border-b border-white/[0.04] py-2.5 last:border-0"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm text-white/50">{refName}</p>
-                  <p className="text-xs text-white/20">
+                  <p className="truncate text-[15px] text-white/50">{refName}</p>
+                  <p className="text-[13px] text-white/20">
                     {t(`referral.reasons.${e.reason}`, {
                       defaultValue: e.reason,
                     })}{' '}
                     • {formatDate(e.created_at, i18n.language)}
                   </p>
                 </div>
-                <span className="shrink-0 text-sm text-green-400/60" style={{ fontWeight: 500 }}>
+                <span
+                  className="shrink-0 text-[15px] text-green-400/60"
+                  style={{ fontWeight: 500 }}
+                >
                   {formatPositive(e.amount_rubles)}
                 </span>
               </div>
@@ -452,14 +437,14 @@ export default function CabinetReferral() {
 
       {/* ── Partner section ───────────────────────────────────────── */}
       {partnerSectionVisible && partnerStatusValue === 'none' && (
-        <GlassCard className="mb-4 p-6">
+        <GlassCard className="mb-5 p-7">
           <div className="mb-2 flex items-center gap-2">
             <Handshake size={16} className="text-white/25" />
-            <span className="text-sm text-white/50" style={{ fontWeight: 500 }}>
+            <span className="text-[15px] text-white/50" style={{ fontWeight: 500 }}>
               {t('referral.partner.becomePartner', { defaultValue: 'Стать партнером' })}
             </span>
           </div>
-          <p className="mb-4 text-xs text-white/25" style={{ lineHeight: 1.6 }}>
+          <p className="mb-4 text-[13px] text-white/25" style={{ lineHeight: 1.6 }}>
             {t('referral.partner.becomePartnerDesc', {
               defaultValue:
                 'Партнёрская программа — следующий уровень: повышенная комиссия, вывод заработка, персональные условия.',
@@ -467,7 +452,7 @@ export default function CabinetReferral() {
           </p>
           <Link
             to="/referral/partner/apply"
-            className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-2.5 text-sm text-white/60 transition-colors hover:bg-white/[0.05]"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-[15px] text-white/60 transition-colors hover:bg-white/[0.05]"
           >
             {t('referral.partner.applyButton', { defaultValue: 'Подать заявку' })}{' '}
             <ChevronRight size={14} />
@@ -476,20 +461,20 @@ export default function CabinetReferral() {
       )}
 
       {partnerSectionVisible && partnerStatusValue === 'pending' && (
-        <GlassCard className="mb-4 border-yellow-500/20 p-6">
+        <GlassCard className="mb-5 border-yellow-500/20 p-7">
           <div className="mb-2 flex items-center gap-2">
             <Clock size={16} className="text-yellow-400/60" />
-            <span className="text-sm text-white/50" style={{ fontWeight: 500 }}>
+            <span className="text-[15px] text-white/50" style={{ fontWeight: 500 }}>
               {t('referral.partner.underReview', { defaultValue: 'Заявка на рассмотрении' })}
             </span>
           </div>
-          <p className="text-xs text-white/30" style={{ lineHeight: 1.6 }}>
+          <p className="text-[13px] text-white/30" style={{ lineHeight: 1.6 }}>
             {t('referral.partner.underReviewDesc', {
               defaultValue: 'Мы рассмотрим вашу заявку в ближайшее время.',
             })}
           </p>
           {partnerStatus?.latest_application?.created_at && (
-            <p className="mt-2 text-xs text-white/20">
+            <p className="mt-2 text-[13px] text-white/20">
               {t('referral.partner.submittedAt', {
                 date: formatDate(partnerStatus.latest_application.created_at, i18n.language),
                 defaultValue: `Отправлено ${formatDate(
@@ -503,21 +488,21 @@ export default function CabinetReferral() {
       )}
 
       {partnerSectionVisible && partnerStatusValue === 'rejected' && (
-        <GlassCard className="mb-4 border-red-500/20 p-6">
+        <GlassCard className="mb-5 border-red-500/20 p-7">
           <div className="mb-2 flex items-center gap-2">
             <AlertCircle size={16} className="text-red-400/60" />
-            <span className="text-sm text-white/50" style={{ fontWeight: 500 }}>
+            <span className="text-[15px] text-white/50" style={{ fontWeight: 500 }}>
               {t('referral.partner.rejected', { defaultValue: 'Заявка отклонена' })}
             </span>
           </div>
           {partnerStatus?.latest_application?.admin_comment && (
-            <p className="mb-4 text-xs text-white/35" style={{ lineHeight: 1.6 }}>
+            <p className="mb-4 text-[13px] text-white/35" style={{ lineHeight: 1.6 }}>
               {partnerStatus.latest_application.admin_comment}
             </p>
           )}
           <Link
             to="/referral/partner/apply"
-            className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-2.5 text-sm text-white/60 transition-colors hover:bg-white/[0.05]"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-[15px] text-white/60 transition-colors hover:bg-white/[0.05]"
           >
             {t('referral.partner.reapplyButton', { defaultValue: 'Подать снова' })}{' '}
             <ChevronRight size={14} />
@@ -526,17 +511,17 @@ export default function CabinetReferral() {
       )}
 
       {partnerSectionVisible && partnerStatusValue === 'approved' && (
-        <GlassCard className="mb-4 border-green-500/20 p-6">
+        <GlassCard className="mb-5 border-green-500/20 p-7">
           <div className="mb-2 flex items-center gap-2">
             <Handshake size={16} className="text-green-400/60" />
-            <span className="text-sm text-white/50" style={{ fontWeight: 500 }}>
+            <span className="text-[15px] text-white/50" style={{ fontWeight: 500 }}>
               {t('referral.partner.partnerStatus', { defaultValue: 'Статус партнёра' })}
             </span>
             <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-[11px] text-green-400/70">
               {t('referral.partner.active', { defaultValue: 'Активен' })}
             </span>
           </div>
-          <p className="text-xs text-white/30" style={{ lineHeight: 1.6 }}>
+          <p className="text-[13px] text-white/30" style={{ lineHeight: 1.6 }}>
             {t('referral.partner.commissionInfo', {
               percent: partnerStatus?.commission_percent ?? 0,
               defaultValue: `Ваша комиссия: ${partnerStatus?.commission_percent ?? 0}%`,
@@ -550,9 +535,9 @@ export default function CabinetReferral() {
         isPartner &&
         partnerStatus?.campaigns &&
         partnerStatus.campaigns.length > 0 && (
-          <GlassCard className="mb-4 p-6">
+          <GlassCard className="mb-5 p-7">
             <p
-              className="mb-4 text-xs text-white/40"
+              className="mb-4 text-[13px] text-white/40"
               style={{ fontWeight: 500, letterSpacing: '0.05em' }}
             >
               {t('referral.partner.yourCampaigns', {
@@ -567,13 +552,15 @@ export default function CabinetReferral() {
                 >
                   <div className="mb-3 flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="truncate text-sm text-white/70" style={{ fontWeight: 500 }}>
+                      <p className="truncate text-[15px] text-white/70" style={{ fontWeight: 500 }}>
                         {c.name}
                       </p>
-                      <p className="mt-0.5 font-mono text-xs text-white/25">{c.start_parameter}</p>
+                      <p className="mt-0.5 font-mono text-[13px] text-white/25">
+                        {c.start_parameter}
+                      </p>
                     </div>
                     <div className="shrink-0 text-right">
-                      <p className="text-sm text-green-400/60" style={{ fontWeight: 500 }}>
+                      <p className="text-[15px] text-green-400/60" style={{ fontWeight: 500 }}>
                         {formatWithCurrency(c.earnings_kopeks / 100)}
                       </p>
                       <p className="text-[11px] text-white/25">
@@ -609,17 +596,17 @@ export default function CabinetReferral() {
 
       {/* Withdrawal section (approved partners only) */}
       {partnerSectionVisible && isPartner && withdrawalBalance && (
-        <GlassCard className="mb-4 p-6">
+        <GlassCard className="mb-5 p-7">
           <div className="mb-4 flex items-center gap-2">
             <Wallet size={16} className="text-white/25" />
-            <span className="text-sm text-white/40" style={{ fontWeight: 500 }}>
+            <span className="text-[15px] text-white/40" style={{ fontWeight: 500 }}>
               {t('referral.withdrawal.title', { defaultValue: 'Вывод средств' })}
             </span>
           </div>
 
           <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-3">
             <div className="col-span-2 rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 md:col-span-1">
-              <p className="text-xs text-white/30">
+              <p className="text-[13px] text-white/30">
                 {t('referral.withdrawal.available', { defaultValue: 'Доступно' })}
               </p>
               <p
@@ -630,34 +617,34 @@ export default function CabinetReferral() {
               </p>
             </div>
             <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3">
-              <p className="text-xs text-white/30">
+              <p className="text-[13px] text-white/30">
                 {t('referral.withdrawal.totalEarned', { defaultValue: 'Всего заработано' })}
               </p>
-              <p className="mt-1 text-sm text-white/60" style={{ fontWeight: 500 }}>
+              <p className="mt-1 text-[15px] text-white/60" style={{ fontWeight: 500 }}>
                 {formatWithCurrency(withdrawalBalance.total_earned / 100)}
               </p>
             </div>
             <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3">
-              <p className="text-xs text-white/30">
+              <p className="text-[13px] text-white/30">
                 {t('referral.withdrawal.withdrawn', { defaultValue: 'Выведено' })}
               </p>
-              <p className="mt-1 text-sm text-white/60" style={{ fontWeight: 500 }}>
+              <p className="mt-1 text-[15px] text-white/60" style={{ fontWeight: 500 }}>
                 {formatWithCurrency(withdrawalBalance.withdrawn / 100)}
               </p>
             </div>
             <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3">
-              <p className="text-xs text-white/30">
+              <p className="text-[13px] text-white/30">
                 {t('referral.withdrawal.spent', { defaultValue: 'Потрачено' })}
               </p>
-              <p className="mt-1 text-sm text-white/60" style={{ fontWeight: 500 }}>
+              <p className="mt-1 text-[15px] text-white/60" style={{ fontWeight: 500 }}>
                 {formatWithCurrency(withdrawalBalance.referral_spent / 100)}
               </p>
             </div>
             <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3">
-              <p className="text-xs text-white/30">
+              <p className="text-[13px] text-white/30">
                 {t('referral.withdrawal.pending', { defaultValue: 'В обработке' })}
               </p>
-              <p className="mt-1 text-sm text-yellow-400/70" style={{ fontWeight: 500 }}>
+              <p className="mt-1 text-[15px] text-yellow-400/70" style={{ fontWeight: 500 }}>
                 {formatWithCurrency(withdrawalBalance.pending / 100)}
               </p>
             </div>
@@ -666,16 +653,18 @@ export default function CabinetReferral() {
           <button
             onClick={() => navigate('/referral/withdrawal/request')}
             disabled={!withdrawalBalance.can_request}
-            className="rounded-full bg-white px-6 py-2.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-full bg-white px-6 py-2.5 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
             style={{ fontWeight: 500 }}
           >
             {t('referral.withdrawal.requestButton', { defaultValue: 'Запросить вывод' })}
           </button>
           {!withdrawalBalance.can_request && withdrawalBalance.cannot_request_reason ? (
-            <p className="mt-2 text-xs text-white/30">{withdrawalBalance.cannot_request_reason}</p>
+            <p className="mt-2 text-[13px] text-white/30">
+              {withdrawalBalance.cannot_request_reason}
+            </p>
           ) : (
             withdrawalBalance.min_amount_kopeks > 0 && (
-              <p className="mt-2 text-xs text-white/30">
+              <p className="mt-2 text-[13px] text-white/30">
                 {t('referral.withdrawal.minAmount', {
                   amount: formatWithCurrency(withdrawalBalance.min_amount_kopeks / 100),
                   defaultValue: `Минимальная сумма вывода: ${formatWithCurrency(
@@ -690,10 +679,10 @@ export default function CabinetReferral() {
 
       {/* Withdrawal history (approved partners only) */}
       {partnerSectionVisible && isPartner && (
-        <GlassCard className="p-6">
+        <GlassCard className="p-7">
           <div className="mb-4 flex items-center gap-2">
             <Clock size={15} className="text-white/25" />
-            <span className="text-sm text-white/40" style={{ fontWeight: 500 }}>
+            <span className="text-[15px] text-white/40" style={{ fontWeight: 500 }}>
               {t('referral.withdrawal.history', { defaultValue: 'История вывода' })}
             </span>
           </div>
@@ -705,16 +694,16 @@ export default function CabinetReferral() {
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-white/60" style={{ fontWeight: 500 }}>
+                    <span className="text-[15px] text-white/60" style={{ fontWeight: 500 }}>
                       {formatWithCurrency(w.amount_rubles)}
                     </span>
                     <span
-                      className={`text-xs ${withdrawalStatusColor[w.status] || 'text-white/30'}`}
+                      className={`text-[13px] ${withdrawalStatusColor[w.status] || 'text-white/30'}`}
                     >
                       {t(`referral.withdrawal.status.${w.status}`, { defaultValue: w.status })}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-xs text-white/20">
+                  <p className="mt-0.5 text-[13px] text-white/20">
                     {formatDate(w.created_at, i18n.language)}
                     {w.payment_details && (
                       <span className="ml-1">
@@ -726,14 +715,14 @@ export default function CabinetReferral() {
                     )}
                   </p>
                   {w.admin_comment && (
-                    <p className="mt-1 text-xs text-white/30">{w.admin_comment}</p>
+                    <p className="mt-1 text-[13px] text-white/30">{w.admin_comment}</p>
                   )}
                 </div>
                 {w.status === 'pending' && (
                   <button
                     onClick={() => cancelWithdrawalMutation.mutate(w.id)}
                     disabled={cancelWithdrawalMutation.isPending}
-                    className="shrink-0 text-xs text-red-400/70 transition-colors hover:text-red-400 disabled:opacity-50"
+                    className="shrink-0 text-[13px] text-red-400/70 transition-colors hover:text-red-400 disabled:opacity-50"
                   >
                     {t('common.cancel', { defaultValue: 'Отменить' })}
                   </button>
@@ -741,7 +730,7 @@ export default function CabinetReferral() {
               </div>
             ))
           ) : (
-            <p className="text-sm text-white/30">
+            <p className="text-[15px] text-white/30">
               {t('referral.withdrawal.noHistory', { defaultValue: 'Пока нет выводов' })}
             </p>
           )}

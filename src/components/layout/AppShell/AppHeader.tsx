@@ -174,14 +174,25 @@ export function AppHeader({
 
   return (
     <>
-      {/* Header - only on mobile */}
+      {/* Header - only on mobile.
+          Top inset accounts for Telegram overlay (status bar / floating close button):
+          non-zero in fullscreen, and also in the swipe-to-expand mini-app mode where
+          the webview extends under TG's UI. Zero in browser, desktop, and the regular
+          bot-menu mode where TG draws its own header above the webview. */}
       <header
         className="glass fixed left-0 right-0 top-0 z-50 shadow-lg shadow-black/10 lg:hidden"
-        style={{
-          paddingTop: isFullscreen
-            ? `${Math.max(safeAreaInset.top, contentSafeAreaInset.top) + (telegramPlatform === 'android' ? 48 : 45)}px`
-            : undefined,
-        }}
+        style={(() => {
+          const overlayInset = Math.max(safeAreaInset.top, contentSafeAreaInset.top);
+          if (isFullscreen) {
+            return {
+              paddingTop: `${overlayInset + (telegramPlatform === 'android' ? 48 : 45)}px`,
+            };
+          }
+          if (overlayInset > 0) {
+            return { paddingTop: `${overlayInset}px` };
+          }
+          return undefined;
+        })()}
       >
         <div
           className="mx-auto w-full px-4"

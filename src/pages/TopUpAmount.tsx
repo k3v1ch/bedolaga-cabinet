@@ -317,7 +317,7 @@ export default function TopUpAmount() {
   if (!method) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
       </div>
     );
   }
@@ -428,7 +428,7 @@ export default function TopUpAmount() {
         </div>
         <div className="flex-1">
           <h3 className="text-lg font-bold text-dark-100">{methodName}</h3>
-          <p className="text-sm text-dark-400">
+          <p className="text-[15px] text-dark-400">
             {formatAmount(minRubles, 0)} – {formatAmount(maxRubles, 0)} {currencySymbol}
           </p>
         </div>
@@ -437,14 +437,16 @@ export default function TopUpAmount() {
       {/* Payment options (if any) */}
       {hasOptions && orderedOptions.length > 0 && (
         <motion.div variants={staggerItem} className="space-y-2">
-          <label className="text-sm font-medium text-dark-400">{t('balance.paymentMethod')}</label>
+          <label className="text-[15px] font-medium text-dark-400">
+            {t('balance.paymentMethod')}
+          </label>
           <div className="grid grid-cols-2 gap-2">
             {orderedOptions.map((opt) => (
               <button
                 key={opt.id}
                 type="button"
                 onClick={() => setSelectedOption(opt.id)}
-                className={`relative rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
+                className={`relative rounded-xl px-4 py-3 text-[15px] font-semibold transition-all duration-200 ${
                   selectedOption === opt.id
                     ? 'bg-accent-500/15 text-accent-400 ring-2 ring-accent-500/40'
                     : 'border border-dark-700/50 bg-dark-800/70 text-dark-300 hover:bg-dark-700/70'
@@ -464,7 +466,7 @@ export default function TopUpAmount() {
 
       {/* Amount input + Submit button - inline */}
       <motion.div variants={staggerItem} className="space-y-2">
-        <label className="text-sm font-medium text-dark-400">{t('balance.enterAmount')}</label>
+        <label className="text-[15px] font-medium text-dark-400">{t('balance.enterAmount')}</label>
         <div className="flex gap-2">
           <div
             className={`relative flex-1 rounded-2xl transition-all duration-200 ${
@@ -547,7 +549,7 @@ export default function TopUpAmount() {
                   {formatAmount(a, 0)}
                 </span>
                 <span
-                  className={`mt-0.5 text-xs ${isSelected ? 'text-accent-400/70' : 'text-dark-500'}`}
+                  className={`mt-0.5 text-[13px] ${isSelected ? 'text-accent-400/70' : 'text-dark-500'}`}
                 >
                   {currencySymbol}
                 </span>
@@ -576,7 +578,7 @@ export default function TopUpAmount() {
               d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <span className="text-sm text-error-400">{error}</span>
+          <span className="text-[15px] text-error-400">{error}</span>
         </motion.div>
       )}
 
@@ -591,7 +593,7 @@ export default function TopUpAmount() {
             <span className="font-semibold">{t('balance.paymentReady')}</span>
           </div>
 
-          <p className="text-sm text-dark-400">{t('balance.clickToOpenPayment')}</p>
+          <p className="text-[15px] text-dark-400">{t('balance.clickToOpenPayment')}</p>
 
           <button
             type="button"
@@ -604,7 +606,7 @@ export default function TopUpAmount() {
 
           <div className="flex items-center gap-2">
             <div className="min-w-0 flex-1 rounded-lg border border-dark-700/50 bg-dark-800/70 px-3 py-2">
-              <p className="truncate text-xs text-dark-500">{paymentUrl}</p>
+              <p className="truncate text-[13px] text-dark-500">{paymentUrl}</p>
             </div>
             <button
               type="button"

@@ -492,7 +492,7 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
             {/* Polling status */}
             {deepLinkPolling && (
               <div className="flex items-center gap-2 text-xs text-dark-400">
-                <span className="h-3 w-3 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+                <span className="h-3 w-3 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
                 {t('auth.waitingForConfirmation')}
               </div>
             )}
@@ -510,7 +510,7 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
           </div>
         ) : (
           <div className="flex items-center gap-2 text-xs text-dark-400">
-            <span className="h-3 w-3 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+            <span className="h-3 w-3 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
             {t('common.loading')}
           </div>
         )}

@@ -159,7 +159,7 @@ export default function TelegramRedirect() {
         {/* Loading State */}
         {status === 'loading' && (
           <div className="mt-8">
-            <div className="border-3 mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-accent-500 border-t-transparent" />
+            <div className="border-3 mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-white/15 border-t-transparent" />
             <p className="text-dark-400">{t('auth.authenticating')}</p>
             <p className="mt-2 text-sm text-dark-500">{t('common.loading')}</p>
           </div>

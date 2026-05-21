@@ -47,10 +47,10 @@ export default function TopUpMethodSelect() {
         <Card>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
             </div>
           ) : !paymentMethods || paymentMethods.length === 0 ? (
-            <div className="py-6 text-center text-sm text-dark-400">
+            <div className="py-6 text-center text-[15px] text-dark-400">
               {t('balance.noPaymentMethods')}
             </div>
           ) : (
@@ -78,11 +78,11 @@ export default function TopUpMethodSelect() {
                       </div>
                     </div>
                     {(translatedDesc || method.description) && (
-                      <div className="mt-1 text-sm text-dark-500">
+                      <div className="mt-1 text-[15px] text-dark-500">
                         {translatedDesc || method.description}
                       </div>
                     )}
-                    <div className="mt-3 text-xs text-dark-600">
+                    <div className="mt-3 text-[13px] text-dark-600">
                       {formatAmount(method.min_amount_kopeks / 100, 0)} –{' '}
                       {formatAmount(method.max_amount_kopeks / 100, 0)} {currencySymbol}
                     </div>

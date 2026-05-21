@@ -5,7 +5,8 @@ import type { Subscription } from '../../types';
 
 interface PurchaseCTAButtonProps {
   subscription: Subscription | null;
-  /** In multi-tariff mode, link to /subscriptions/:id/renew instead of /subscription/purchase */
+  /** Reserved for callers that still pass this flag (no behavior change — both
+      flows now route to the unified /subscriptions/renew page). */
   isMultiTariff?: boolean;
 }
 
@@ -40,14 +41,11 @@ export default function PurchaseCTAButton({
         ? t('subscription.cta.renewHint', 'Продление подписки')
         : t('subscription.cta.activeHint');
 
-  // Trial → purchase page (buy a real tariff, trial can't be renewed)
-  // Multi-tariff active → per-subscription renew page
-  // Otherwise → purchase page
-  const linkTo = isTrial
-    ? '/subscription/purchase'
-    : isMultiTariff && subscription?.id
-      ? '/subscriptions/renew'
-      : '/subscription/purchase';
+  // Unified target: the renewal page handles both buying a new plan (trial /
+  // expired) and renewing an existing one. `isMultiTariff` is kept on the
+  // props for API stability but no longer changes the destination.
+  void isMultiTariff;
+  const linkTo = '/subscriptions/renew';
 
   return (
     <Link to={linkTo} className="block">

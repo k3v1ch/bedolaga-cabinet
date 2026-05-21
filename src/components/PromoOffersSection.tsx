@@ -157,7 +157,7 @@ export default function PromoOffersSection({ className = '' }: PromoOffersSectio
   };
 
   const handleUseNow = () => {
-    navigate('/subscription/purchase');
+    navigate('/subscriptions/renew');
   };
 
   const handleDeactivateClick = () => {

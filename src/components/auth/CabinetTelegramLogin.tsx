@@ -1,34 +1,32 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { Send } from 'lucide-react';
 
 import { brandingApi, type TelegramWidgetConfig } from '@/api/branding';
-import { authApi } from '@/api/auth';
 import { useAuthStore } from '@/store/auth';
-import { getPendingCampaignSlug } from '@/utils/campaign';
 
 /**
  * Verno-style Telegram login.
  *
- * Click behavior:
- *  - OIDC enabled on backend → opens Telegram OIDC popup.
- *  - OIDC disabled → requests deep-link token, opens t.me/<bot>?start=webauth_<token>
- *    in a new tab immediately, and silently polls in the background for auth.
- *    No QR is shown — QR fallback lives on a separate screen if we ever need it.
+ * Behavior:
+ *  - OIDC enabled on backend → click opens Telegram OIDC popup (oauth.telegram.org).
+ *  - OIDC disabled → renders the official Telegram Login Widget iframe, which on
+ *    click opens the same oauth.telegram.org popup. Telegram remembers the profile
+ *    so subsequent logins are one-click.
  */
 
 interface Props {
   referralCode?: string;
 }
 
-const POLL_INTERVAL_MS = 2500;
-
 export default function CabinetTelegramLogin({ referralCode }: Props) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const loginWithTelegramOIDC = useAuthStore((s) => s.loginWithTelegramOIDC);
-  const loginWithDeepLink = useAuthStore((s) => s.loginWithDeepLink);
+  const loginWithTelegramWidget = useAuthStore((s) => s.loginWithTelegramWidget);
 
   const { data: widgetConfig } = useQuery<TelegramWidgetConfig>({
     queryKey: ['telegram-widget-config'],
@@ -41,18 +39,12 @@ export default function CabinetTelegramLogin({ referralCode }: Props) {
   const isOIDC = Boolean(widgetConfig?.oidc_enabled && widgetConfig?.oidc_client_id);
 
   const [loading, setLoading] = useState(false);
-  const [polling, setPolling] = useState(false);
   const [error, setError] = useState('');
   const [oidcScriptReady, setOidcScriptReady] = useState(false);
 
-  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const expireTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pollTokenRef = useRef<string | null>(null);
-  const pollInFlightRef = useRef(false);
+  const widgetContainerRef = useRef<HTMLDivElement>(null);
   const mountedRef = useRef(true);
   const oidcCallbackRef = useRef<(data: { id_token?: string; error?: string }) => void>(undefined);
-  const capturedCampaignRef = useRef<string | null>(null);
-  const codesConsumedRef = useRef(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -61,18 +53,14 @@ export default function CabinetTelegramLogin({ referralCode }: Props) {
     };
   }, []);
 
-  useEffect(() => {
-    return () => {
-      if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current);
-      if (expireTimeoutRef.current) clearTimeout(expireTimeoutRef.current);
-    };
-  }, []);
-
   // ── OIDC ──────────────────────────────────────────────────────────────
   oidcCallbackRef.current = async (data: { id_token?: string; error?: string }) => {
     if (!mountedRef.current) return;
     if (data.error || !data.id_token) {
-      setError(data.error || 'Ошибка входа через Telegram');
+      setError(
+        data.error ||
+          t('auth.telegram.loginError', { defaultValue: 'Ошибка входа через Telegram' }),
+      );
       setLoading(false);
       return;
     }
@@ -83,7 +71,7 @@ export default function CabinetTelegramLogin({ referralCode }: Props) {
       if (mountedRef.current) navigate('/');
     } catch (err: unknown) {
       if (!mountedRef.current) return;
-      let message = 'Ошибка входа';
+      let message = t('auth.telegram.genericError', { defaultValue: 'Ошибка входа' });
       if (isAxiosError(err) && err.response?.data?.detail) message = err.response.data.detail;
       setError(message);
     } finally {
@@ -122,162 +110,90 @@ export default function CabinetTelegramLogin({ referralCode }: Props) {
     }
   }, [isOIDC, widgetConfig?.oidc_client_id, widgetConfig?.request_access]);
 
-  // ── Deep-link polling ─────────────────────────────────────────────────
-  const stopPolling = useCallback(() => {
-    if (pollTimeoutRef.current) {
-      clearTimeout(pollTimeoutRef.current);
-      pollTimeoutRef.current = null;
-    }
-    if (expireTimeoutRef.current) {
-      clearTimeout(expireTimeoutRef.current);
-      expireTimeoutRef.current = null;
-    }
-    pollTokenRef.current = null;
-    pollInFlightRef.current = false;
-    setPolling(false);
-  }, []);
-
-  const schedulePoll = useCallback(() => {
-    if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current);
-    pollTimeoutRef.current = setTimeout(pollOnce, POLL_INTERVAL_MS);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const pollOnce = useCallback(async () => {
-    const token = pollTokenRef.current;
-    if (!token || !mountedRef.current || pollInFlightRef.current) return;
-    pollInFlightRef.current = true;
-    try {
-      await loginWithDeepLink(token, capturedCampaignRef.current);
-      if (expireTimeoutRef.current) {
-        clearTimeout(expireTimeoutRef.current);
-        expireTimeoutRef.current = null;
-      }
-      pollTokenRef.current = null;
-      if (mountedRef.current) {
-        setPolling(false);
-        navigate('/');
-      }
-    } catch (err: unknown) {
-      if (!mountedRef.current) return;
-      if (isAxiosError(err)) {
-        if (err.response?.status === 202) {
-          pollTimeoutRef.current = setTimeout(pollOnce, POLL_INTERVAL_MS);
-          return;
-        }
-        if (err.response?.status === 410) {
-          stopPolling();
-          setError('Срок действия ссылки истёк. Попробуйте снова.');
-          return;
-        }
-      }
-      stopPolling();
-      setError('Не удалось войти. Попробуйте ещё раз.');
-    } finally {
-      pollInFlightRef.current = false;
-    }
-  }, [loginWithDeepLink, navigate, stopPolling]);
-
-  // Visibility resume — browsers throttle setTimeout in hidden tabs.
+  // ── Legacy Telegram Login Widget (non-OIDC) ───────────────────────────────
+  // Renders the official Telegram iframe button. Click → oauth.telegram.org popup
+  // → data-onauth callback runs in our window with signed user payload → we POST
+  // it to /cabinet/auth/telegram/widget. Telegram caches the granted authorization,
+  // so the next click immediately resolves without showing the consent popup.
   useEffect(() => {
-    if (!polling) return;
-    const onVisibility = () => {
-      if (document.visibilityState === 'visible' && mountedRef.current && pollTokenRef.current) {
-        if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current);
-        pollOnce();
+    if (isOIDC || !widgetContainerRef.current || !botUsername || !widgetConfig) return;
+
+    const container = widgetContainerRef.current;
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+
+    const callbackName = '__onCabinetTelegramAuth';
+    (window as unknown as Record<string, unknown>)[callbackName] = async (
+      user: Record<string, unknown>,
+    ) => {
+      if (!mountedRef.current) return;
+      try {
+        setLoading(true);
+        setError('');
+        await loginWithTelegramWidget({
+          id: user.id as number,
+          first_name: user.first_name as string,
+          last_name: (user.last_name as string) || undefined,
+          username: (user.username as string) || undefined,
+          photo_url: (user.photo_url as string) || undefined,
+          auth_date: user.auth_date as number,
+          hash: user.hash as string,
+        });
+        if (mountedRef.current) navigate('/');
+      } catch (err: unknown) {
+        if (!mountedRef.current) return;
+        let message = t('auth.telegram.genericError', { defaultValue: 'Ошибка входа' });
+        if (isAxiosError(err) && err.response?.data?.detail) message = err.response.data.detail;
+        setError(message);
+      } finally {
+        if (mountedRef.current) setLoading(false);
       }
     };
-    document.addEventListener('visibilitychange', onVisibility);
-    return () => document.removeEventListener('visibilitychange', onVisibility);
-  }, [polling, pollOnce]);
 
-  const startDeepLinkAuth = async () => {
+    const script = document.createElement('script');
+    script.src = 'https://telegram.org/js/telegram-widget.js?22';
+    script.setAttribute('data-telegram-login', botUsername);
+    script.setAttribute('data-size', widgetConfig.size || 'large');
+    script.setAttribute('data-radius', String(widgetConfig.radius ?? 12));
+    script.setAttribute('data-userpic', String(widgetConfig.userpic ?? true));
+    script.setAttribute('data-onauth', `${callbackName}(user)`);
+    if (widgetConfig.request_access) script.setAttribute('data-request-access', 'write');
+    script.async = true;
+    container.appendChild(script);
+
+    return () => {
+      delete (window as unknown as Record<string, unknown>)[callbackName];
+      while (container.firstChild) {
+        container.removeChild(container.firstChild);
+      }
+    };
+  }, [isOIDC, botUsername, widgetConfig, loginWithTelegramWidget, navigate, t]);
+
+  const handleOIDCClick = () => {
     setError('');
     setLoading(true);
-
-    if (!codesConsumedRef.current) {
-      capturedCampaignRef.current = getPendingCampaignSlug();
-      codesConsumedRef.current = true;
-    }
-
-    try {
-      const { token, bot_username, expires_in } = await authApi.requestDeepLinkToken();
-      const resolvedBot = bot_username || botUsername;
-      const deepLinkUrl = `https://t.me/${resolvedBot}?start=webauth_${token}`;
-
-      pollTokenRef.current = token;
-      setPolling(true);
-
-      // Open bot immediately. On most browsers this requires the user gesture;
-      // we're inside the click handler so the popup is allowed.
-      window.open(deepLinkUrl, '_blank', 'noopener,noreferrer');
-
-      // Start polling
-      schedulePoll();
-
-      // Hard expire
-      expireTimeoutRef.current = setTimeout(
-        () => {
-          if (!useAuthStore.getState().isAuthenticated) {
-            stopPolling();
-            setError('Срок действия ссылки истёк. Попробуйте снова.');
-          }
-        },
-        (expires_in || 300) * 1000,
-      );
-    } catch {
-      setError('Не удалось получить ссылку. Попробуйте позже.');
-      setPolling(false);
-    } finally {
+    if (window.Telegram?.Login) {
+      window.Telegram.Login.open();
+    } else {
       setLoading(false);
+      setError(
+        t('auth.telegram.unavailable', {
+          defaultValue: 'Telegram Login недоступен, попробуйте обновить страницу.',
+        }),
+      );
     }
-  };
-
-  const handleClick = () => {
-    setError('');
-    if (isOIDC) {
-      setLoading(true);
-      if (window.Telegram?.Login) {
-        window.Telegram.Login.open();
-      } else {
-        setLoading(false);
-        setError('Telegram Login недоступен, попробуйте обновить страницу.');
-      }
-      return;
-    }
-    startDeepLinkAuth();
   };
 
   // ─────────────────────────────── render ───────────────────────────────
 
-  const disabled = loading || (isOIDC && !oidcScriptReady);
-
   return (
     <>
-      {polling ? (
-        <div className="flex flex-col items-center gap-2">
-          <button
-            type="button"
-            disabled
-            className="flex w-full items-center justify-center gap-2.5 rounded-full bg-[#2AABEE]/80 py-3.5 text-white"
-            style={{ fontSize: '0.9rem', fontWeight: 500 }}
-          >
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/50 border-t-white" />
-            Ждём подтверждения в Telegram…
-          </button>
-          <button
-            type="button"
-            onClick={stopPolling}
-            className="text-xs text-white/35 transition-colors hover:text-white/60"
-          >
-            Отмена
-          </button>
-        </div>
-      ) : (
+      {isOIDC ? (
         <button
           type="button"
-          onClick={handleClick}
-          disabled={disabled}
+          onClick={handleOIDCClick}
+          disabled={loading || !oidcScriptReady}
           className="flex w-full items-center justify-center gap-2.5 rounded-full bg-[#2AABEE] py-3.5 text-white transition-all duration-300 hover:bg-[#229ED9] active:scale-[0.97] disabled:opacity-60"
           style={{ fontSize: '0.9rem', fontWeight: 500 }}
         >
@@ -286,8 +202,14 @@ export default function CabinetTelegramLogin({ referralCode }: Props) {
           ) : (
             <Send size={16} />
           )}
-          Войти через Telegram
+          {t('auth.telegram.signIn', { defaultValue: 'Войти через Telegram' })}
         </button>
+      ) : (
+        <div
+          ref={widgetContainerRef}
+          className="flex w-full items-center justify-center"
+          aria-busy={loading}
+        />
       )}
 
       {error && (
@@ -296,9 +218,11 @@ export default function CabinetTelegramLogin({ referralCode }: Props) {
         </p>
       )}
 
-      {!polling && botUsername && botUsername !== 'your_bot' && (
+      {botUsername && botUsername !== 'your_bot' && (
         <>
-          <p className="mt-3 text-center text-xs text-white/30">Или откройте бота в приложении</p>
+          <p className="mt-3 text-center text-xs text-white/30">
+            {t('auth.telegram.openBotApp', { defaultValue: 'Или откройте бота в приложении' })}
+          </p>
           <a
             href={
               referralCode

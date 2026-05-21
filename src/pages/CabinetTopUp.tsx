@@ -3,17 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import {
-  AlertTriangle,
-  ArrowLeft,
-  Bitcoin,
-  Check,
-  Copy,
-  CreditCard,
-  ExternalLink,
-  QrCode,
-  Sparkles,
-} from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Bitcoin, CreditCard, QrCode, Sparkles } from 'lucide-react';
 
 import { balanceApi } from '@/api/balance';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -133,8 +123,26 @@ export default function CabinetTopUp() {
   const [selectedOption, setSelectedOption] = useState<string | null>(
     getPreferredOptionId(method?.options),
   );
-  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+
+  /**
+   * Open the freshly-created payment URL. In a real browser we use a same-tab
+   * redirect (`window.location.href`) instead of `window.open` because:
+   *  1) `window.open` triggered from an async mutation callback often hits the
+   *     popup-blocker (the user-gesture window has expired by then).
+   *  2) Payment-gateway pages are designed to be the next destination, so a
+   *     same-tab nav is the standard checkout pattern.
+   * In Telegram WebApp we keep the SDK-aware openers so TG handles the link
+   * properly (in-Telegram browser / native open).
+   */
+  const openPaymentUrl = (url: string) => {
+    if (url.includes('t.me/')) {
+      openTelegramLink(url);
+    } else if (platform === 'telegram') {
+      openLink(url);
+    } else {
+      window.location.href = url;
+    }
+  };
 
   // Method not in cache → bounce to method selection
   useEffect(() => {
@@ -205,21 +213,33 @@ export default function CabinetTopUp() {
     },
     onSuccess: (data) => {
       const redirectUrl = data.payment_url || data.invoice_url;
-      if (redirectUrl) {
-        setPaymentUrl(redirectUrl);
-        if (method && data.payment_id) {
-          const methodKey = method.id.toLowerCase().replace(/-/g, '_');
-          const displayName =
-            t(`balance.paymentMethods.${methodKey}.name`, { defaultValue: '' }) || method.name;
-          saveTopUpPendingInfo({
-            amount_kopeks: data.amount_kopeks,
-            method_id: method.id,
-            method_name: displayName,
-            payment_id: data.payment_id,
-            created_at: Date.now(),
-          });
-        }
+      if (!redirectUrl) {
+        setError(
+          t('balance.errors.noPaymentLink', {
+            defaultValue: 'Не удалось получить ссылку на оплату',
+          }),
+        );
+        return;
       }
+
+      // Persist pending top-up info so /balance/top-up/result and the
+      // notification flow can pick it up after the user returns from the
+      // payment gateway.
+      if (method && data.payment_id) {
+        const methodKey = method.id.toLowerCase().replace(/-/g, '_');
+        const displayName =
+          t(`balance.paymentMethods.${methodKey}.name`, { defaultValue: '' }) || method.name;
+        saveTopUpPendingInfo({
+          amount_kopeks: data.amount_kopeks,
+          method_id: method.id,
+          method_name: displayName,
+          payment_id: data.payment_id,
+          created_at: Date.now(),
+        });
+      }
+
+      // Open the gateway directly — no intermediate "link ready" UI.
+      openPaymentUrl(redirectUrl);
     },
     onError: (err: unknown) => {
       const detail =
@@ -261,7 +281,6 @@ export default function CabinetTopUp() {
 
   const handleSubmit = () => {
     setError(null);
-    setPaymentUrl(null);
     inputRef.current?.blur();
 
     if (!checkRateLimit(RATE_LIMIT_KEYS.PAYMENT, 3, 30000)) {
@@ -298,23 +317,6 @@ export default function CabinetTopUp() {
       : convertAmount(rub).toFixed(currencyDecimals);
   const isPending = topUpMutation.isPending || starsPaymentMutation.isPending;
 
-  const handleOpenPayment = () => {
-    if (!paymentUrl) return;
-    if (paymentUrl.includes('t.me/')) openTelegramLink(paymentUrl);
-    else openLink(paymentUrl);
-  };
-
-  const handleCopyUrl = async () => {
-    if (!paymentUrl) return;
-    try {
-      await navigator.clipboard.writeText(paymentUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* no-op */
-    }
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -324,20 +326,20 @@ export default function CabinetTopUp() {
       {/* Back link */}
       <button
         onClick={handleNavigateBack}
-        className="mb-6 flex items-center gap-1.5 text-sm text-white/40 transition-colors hover:text-white/65"
+        className="mb-6 flex items-center gap-1.5 text-[15px] text-white/40 transition-colors hover:text-white/65"
       >
-        <ArrowLeft size={14} /> Назад
+        <ArrowLeft size={14} /> {t('common.back', { defaultValue: 'Назад' })}
       </button>
 
       <h1
         className="mb-6 text-white"
-        style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+        style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
       >
-        Пополнение баланса
+        {t('balance.topUpTitle', { defaultValue: 'Пополнение баланса' })}
       </h1>
 
       {/* Method header card */}
-      <GlassCard className="mb-4 p-6">
+      <GlassCard className="mb-5 p-7">
         <div className="flex items-center gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04]">
             <Icon size={20} className="text-white/60" strokeWidth={1.5} />
@@ -346,7 +348,7 @@ export default function CabinetTopUp() {
             <p className="text-base text-white" style={{ fontWeight: 600 }}>
               {methodName}
             </p>
-            <p className="mt-0.5 text-xs text-white/35">
+            <p className="mt-0.5 text-[13px] text-white/35">
               {methodDesc ? `${methodDesc} · ` : ''}
               {formatAmount(minRubles, 0)} – {formatAmount(maxRubles, 0)} {currencySymbol}
             </p>
@@ -356,12 +358,12 @@ export default function CabinetTopUp() {
 
       {/* Sub-options (e.g. SBP / card) */}
       {hasOptions && orderedOptions.length > 0 && (
-        <GlassCard className="mb-4 p-6">
+        <GlassCard className="mb-5 p-7">
           <p
-            className="mb-3 text-xs text-white/40"
+            className="mb-3 text-[13px] text-white/40"
             style={{ fontWeight: 500, letterSpacing: '0.05em' }}
           >
-            СПОСОБ ОПЛАТЫ
+            {t('balance.paymentMethod', { defaultValue: 'СПОСОБ ОПЛАТЫ' }).toUpperCase()}
           </p>
           <div className="grid grid-cols-2 gap-2">
             {orderedOptions.map((opt) => {
@@ -378,7 +380,7 @@ export default function CabinetTopUp() {
                   }`}
                 >
                   <p
-                    className={`text-sm ${isSelected ? 'text-white/80' : 'text-white/55'}`}
+                    className={`text-[15px] ${isSelected ? 'text-white/80' : 'text-white/55'}`}
                     style={{ fontWeight: 500 }}
                   >
                     {opt.name}
@@ -394,12 +396,12 @@ export default function CabinetTopUp() {
       )}
 
       {/* Amount */}
-      <GlassCard className="mb-4 p-6">
+      <GlassCard className="mb-5 p-7">
         <p
-          className="mb-3 text-xs text-white/40"
+          className="mb-3 text-[13px] text-white/40"
           style={{ fontWeight: 500, letterSpacing: '0.05em' }}
         >
-          СУММА ПОПОЛНЕНИЯ
+          {t('balance.topUpAmount', { defaultValue: 'СУММА ПОПОЛНЕНИЯ' }).toUpperCase()}
         </p>
         <div className="relative mb-3">
           <input
@@ -420,7 +422,7 @@ export default function CabinetTopUp() {
             className="w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3.5 pr-12 text-white outline-none transition-all placeholder:text-white/20 focus:border-white/20"
             style={{ fontSize: '1.25rem', fontWeight: 500 }}
           />
-          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/35">
+          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[15px] text-white/35">
             {currencySymbol}
           </span>
         </div>
@@ -438,7 +440,7 @@ export default function CabinetTopUp() {
                     setAmount(val);
                     inputRef.current?.blur();
                   }}
-                  className={`rounded-xl border py-2.5 text-sm transition-all ${
+                  className={`rounded-xl border py-2.5 text-[15px] transition-all ${
                     isSelected
                       ? 'border-white/20 bg-white/[0.08] text-white'
                       : 'border-white/[0.06] bg-white/[0.03] text-white/55 hover:bg-white/[0.05]'
@@ -456,10 +458,12 @@ export default function CabinetTopUp() {
           type="button"
           onClick={handleSubmit}
           disabled={isPending || !amount || parseFloat(amount) <= 0}
-          className="w-full rounded-full bg-white py-3.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-full bg-white py-3.5 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
           style={{ fontWeight: 500 }}
         >
-          {isPending ? 'Обработка…' : t('balance.topUp', { defaultValue: 'Пополнить' })}
+          {isPending
+            ? t('common.processing', { defaultValue: 'Обработка…' })
+            : t('balance.topUp', { defaultValue: 'Пополнить' })}
         </button>
       </GlassCard>
 
@@ -468,44 +472,7 @@ export default function CabinetTopUp() {
         <GlassCard className="mb-4 border-amber-500/20 bg-amber-500/[0.04] p-4">
           <div className="flex items-start gap-2">
             <AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-400/70" />
-            <p className="text-sm text-amber-400/80">{error}</p>
-          </div>
-        </GlassCard>
-      )}
-
-      {/* Payment URL */}
-      {paymentUrl && (
-        <GlassCard className="mb-4 p-6">
-          <div className="mb-3 flex items-center gap-2">
-            <Check size={16} className="text-green-400/70" />
-            <p className="text-sm text-white" style={{ fontWeight: 500 }}>
-              {t('balance.paymentReady', { defaultValue: 'Ссылка на оплату готова' })}
-            </p>
-          </div>
-          <p className="mb-4 text-sm text-white/35" style={{ lineHeight: 1.6 }}>
-            {t('balance.clickToOpenPayment', {
-              defaultValue: 'Нажмите кнопку ниже, чтобы открыть страницу оплаты в новой вкладке',
-            })}
-          </p>
-          <button
-            type="button"
-            onClick={handleOpenPayment}
-            className="mb-3 flex w-full items-center justify-center gap-2 rounded-full bg-white py-3.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
-            style={{ fontWeight: 500 }}
-          >
-            <ExternalLink size={14} />
-            {t('balance.openPaymentPage', { defaultValue: 'Открыть страницу оплаты' })}
-          </button>
-          <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2.5">
-            <span className="flex-1 truncate font-mono text-xs text-white/40">{paymentUrl}</span>
-            <button
-              type="button"
-              onClick={handleCopyUrl}
-              className="shrink-0 text-white/30 transition-colors hover:text-white/60"
-              aria-label="Скопировать"
-            >
-              {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
-            </button>
+            <p className="text-[15px] text-amber-400/80">{error}</p>
           </div>
         </GlassCard>
       )}

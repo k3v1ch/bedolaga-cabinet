@@ -41,12 +41,12 @@ function EmptyState({ onBuy }: { onBuy: () => void }) {
       <h3 className="mb-2 text-xl font-semibold" style={{ color: g.text }}>
         {t('subscriptions.empty', 'Нет подписок')}
       </h3>
-      <p className="mb-6 text-sm" style={{ color: g.textSecondary }}>
+      <p className="mb-6 text-[15px]" style={{ color: g.textSecondary }}>
         {t('subscriptions.emptyDesc', 'У вас пока нет активных подписок')}
       </p>
       <button
         onClick={onBuy}
-        className="rounded-xl bg-accent-500 px-8 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-600"
+        className="rounded-xl bg-accent-500 px-8 py-3 text-[15px] font-medium text-white transition-colors hover:bg-accent-600"
       >
         {t('subscriptions.buy', 'Купить подписку')}
       </button>
@@ -120,8 +120,8 @@ export default function Subscriptions() {
         </h1>
         {!isLoading && subscriptions.length > 0 && (
           <button
-            onClick={() => navigate('/subscription/purchase')}
-            className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-medium transition-colors"
+            onClick={() => navigate('/subscriptions/renew')}
+            className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-[15px] font-medium transition-colors"
             style={{
               background: 'rgba(var(--color-accent-400), 0.1)',
               color: 'rgb(var(--color-accent-400))',
@@ -166,7 +166,7 @@ export default function Subscriptions() {
         />
       )}
       {hasNoSubscriptions && !trialLoading && !trialInfo?.is_available && (
-        <EmptyState onBuy={() => navigate('/subscription/purchase')} />
+        <EmptyState onBuy={() => navigate('/subscriptions/renew')} />
       )}
 
       {/* Subscription grid */}

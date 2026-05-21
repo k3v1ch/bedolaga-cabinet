@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Check, Share2, ChevronRight, ChevronDown, X, Mail, Lock } from 'lucide-react';
+import { Copy, Check, ChevronRight, ChevronDown, X, Mail, Lock } from 'lucide-react';
 
 import { useAuthStore } from '@/store/auth';
 import { authApi } from '@/api/auth';
@@ -39,49 +39,29 @@ const formatDate = (iso: string | null | undefined) => {
   return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
-function CopyField({
-  label,
-  value,
-  shareText,
-}: {
-  label: string;
-  value: string;
-  shareText?: string;
-}) {
+function CopyField({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
   const copy = () => {
     navigator.clipboard.writeText(value);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-  const share = () => {
-    if (navigator.share) {
-      navigator.share({ text: shareText || value, url: value }).catch(() => {});
-      return;
-    }
-    const tg = `https://t.me/share/url?url=${encodeURIComponent(value)}${
-      shareText ? `&text=${encodeURIComponent(shareText)}` : ''
-    }`;
-    window.open(tg, '_blank', 'noopener,noreferrer');
-  };
   return (
     <div>
-      <p className="mb-1.5 text-xs text-white/30">{label}</p>
-      <div className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.04] px-4 py-2.5">
-        <span className="flex-1 truncate font-mono text-sm text-white/35">{value}</span>
-        <button
-          onClick={copy}
-          className="shrink-0 text-white/25 transition-colors hover:text-white/50"
-        >
+      <p className="mb-1.5 text-[13px] text-white/30">{label}</p>
+      <button
+        type="button"
+        onClick={copy}
+        aria-label={`Скопировать ${label}`}
+        className="group flex w-full items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.04] px-4 py-2.5 text-left transition-colors hover:bg-white/[0.06] active:bg-white/[0.08]"
+      >
+        <span className="flex-1 truncate font-mono text-[15px] text-white/35 group-hover:text-white/55">
+          {value}
+        </span>
+        <span className="shrink-0 text-white/25 transition-colors group-hover:text-white/50">
           {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
-        </button>
-        <button
-          onClick={share}
-          className="shrink-0 text-white/25 transition-colors hover:text-white/50"
-        >
-          <Share2 size={14} />
-        </button>
-      </div>
+        </span>
+      </button>
     </div>
   );
 }
@@ -105,10 +85,10 @@ function Toggle({
     <div className="border-b border-white/[0.04] py-3 last:border-0">
       <div className="flex items-start justify-between">
         <div className="pr-4">
-          <p className="text-sm text-white/55" style={{ fontWeight: 500 }}>
+          <p className="text-[15px] text-white/55" style={{ fontWeight: 500 }}>
             {label}
           </p>
-          <p className="mt-0.5 text-xs text-white/25">{desc}</p>
+          <p className="mt-0.5 text-[13px] text-white/25">{desc}</p>
         </div>
         <button
           onClick={() => !disabled && onChange(!checked)}
@@ -147,7 +127,7 @@ function SmallSelect<T extends string | number>({
   const [open, setOpen] = useState(false);
   const fmt = (v: T) => (formatLabel ? formatLabel(v) : String(v));
   return (
-    <div className="flex items-center gap-2 text-xs">
+    <div className="flex items-center gap-2 text-[13px]">
       <span className="shrink-0 text-white/25">{label}</span>
       <div className="relative">
         <button
@@ -166,7 +146,7 @@ function SmallSelect<T extends string | number>({
                   onChange(o);
                   setOpen(false);
                 }}
-                className={`block w-full px-3 py-1.5 text-left text-xs transition-colors ${
+                className={`block w-full px-3 py-1.5 text-left text-[13px] transition-colors ${
                   value === o
                     ? 'bg-white/[0.06] text-white/70'
                     : 'text-white/35 hover:bg-white/[0.04]'
@@ -192,7 +172,7 @@ function Popup({ children, onClose }: { children: ReactNode; onClose: () => void
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#0A0A0A]/95 p-6 shadow-2xl shadow-black/50 backdrop-blur-2xl"
+        className="w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#0A0A0A]/95 p-7 shadow-2xl shadow-black/50 backdrop-blur-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {children}
@@ -384,8 +364,21 @@ export default function CabinetProfile() {
   // ── Notifications ───────────────────────────────────────────────────
   const updateNotificationsMutation = useMutation({
     mutationFn: notificationsApi.updateSettings,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notification-settings'] });
+    onMutate: async (update: NotificationSettingsUpdate) => {
+      await queryClient.cancelQueries({ queryKey: ['notification-settings'] });
+      const previous = queryClient.getQueryData<NotificationSettings>(['notification-settings']);
+      if (previous) {
+        queryClient.setQueryData<NotificationSettings>(['notification-settings'], {
+          ...previous,
+          ...update,
+        });
+      }
+      return { previous };
+    },
+    onError: (_err, _update, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['notification-settings'], context.previous);
+      }
     },
   });
 
@@ -420,15 +413,15 @@ export default function CabinetProfile() {
     >
       <h1
         className="mb-8 text-white"
-        style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+        style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
       >
         {t('profile.title', { defaultValue: 'Профиль' })}
       </h1>
 
       {/* Account info */}
-      <GlassCard className="mb-4 p-6">
+      <GlassCard className="mb-5 p-7">
         <p
-          className="mb-4 text-xs text-white/40"
+          className="mb-4 text-[13px] text-white/40"
           style={{ fontWeight: 500, letterSpacing: '0.05em' }}
         >
           {t('profile.accountInfo', { defaultValue: 'ИНФОРМАЦИЯ ОБ АККАУНТЕ' }).toUpperCase()}
@@ -436,13 +429,13 @@ export default function CabinetProfile() {
         <div className="space-y-3">
           {/* Telegram */}
           <div className="flex items-center justify-between border-b border-white/[0.04] py-2">
-            <span className="text-sm text-white/35">Telegram</span>
+            <span className="text-[15px] text-white/35">Telegram</span>
             {tgLinked ? (
-              <span className="text-sm text-white/60">{tgUsername || '—'}</span>
+              <span className="text-[15px] text-white/60">{tgUsername || '—'}</span>
             ) : (
               <button
                 onClick={() => navigate('/profile/accounts')}
-                className="text-sm text-white/50 underline decoration-white/20 underline-offset-2 transition-colors hover:text-white/70"
+                className="text-[15px] text-white/50 underline decoration-white/20 underline-offset-2 transition-colors hover:text-white/70"
               >
                 {t('profile.link', { defaultValue: 'Привязать' })}
               </button>
@@ -451,8 +444,8 @@ export default function CabinetProfile() {
 
           {/* Telegram ID */}
           <div className="flex items-center justify-between border-b border-white/[0.04] py-2">
-            <span className="text-sm text-white/35">Telegram ID</span>
-            <span className="font-mono text-sm text-white/60">
+            <span className="text-[15px] text-white/35">Telegram ID</span>
+            <span className="font-mono text-[15px] text-white/60">
               {tgLinked ? user?.telegram_id : '—'}
             </span>
           </div>
@@ -460,10 +453,10 @@ export default function CabinetProfile() {
           {/* Email */}
           {isEmailAuthEnabled && (
             <div className="flex items-start justify-between gap-3 border-b border-white/[0.04] py-2">
-              <span className="pt-0.5 text-sm text-white/35">Email</span>
+              <span className="pt-0.5 text-[15px] text-white/35">Email</span>
               {emailLinked ? (
                 <div className="flex min-w-0 flex-col items-end gap-1">
-                  <span className="max-w-[220px] truncate text-sm text-white/60 sm:max-w-none">
+                  <span className="max-w-[220px] truncate text-[15px] text-white/60 sm:max-w-none">
                     {user?.email}
                   </span>
                   {isEmailVerificationEnabled && (
@@ -486,7 +479,7 @@ export default function CabinetProfile() {
                         disabled={
                           verificationResendCooldown > 0 || resendVerificationMutation.isPending
                         }
-                        className="text-xs text-white/30 transition-colors hover:text-white/50 disabled:opacity-50"
+                        className="text-[13px] text-white/30 transition-colors hover:text-white/50 disabled:opacity-50"
                       >
                         {verificationResendCooldown > 0
                           ? t('profile.resendIn', {
@@ -505,7 +498,7 @@ export default function CabinetProfile() {
                         setEmailError(null);
                         setEmailPopup('email');
                       }}
-                      className="text-xs text-white/30 transition-colors hover:text-white/50"
+                      className="text-[13px] text-white/30 transition-colors hover:text-white/50"
                     >
                       {t('profile.changeEmail.button', { defaultValue: 'Изменить' })}
                     </button>
@@ -514,7 +507,7 @@ export default function CabinetProfile() {
               ) : (
                 <button
                   onClick={() => navigate('/profile/accounts')}
-                  className="text-sm text-white/50 underline decoration-white/20 underline-offset-2 transition-colors hover:text-white/70"
+                  className="text-[15px] text-white/50 underline decoration-white/20 underline-offset-2 transition-colors hover:text-white/70"
                 >
                   {t('profile.linkEmail', { defaultValue: 'Привязать' })}
                 </button>
@@ -525,7 +518,7 @@ export default function CabinetProfile() {
           {/* Password */}
           {isEmailAuthEnabled && emailLinked && (
             <div className="flex items-center justify-between border-b border-white/[0.04] py-2">
-              <span className="text-sm text-white/35">
+              <span className="text-[15px] text-white/35">
                 {t('profile.password', { defaultValue: 'Пароль' })}
               </span>
               <button
@@ -533,7 +526,7 @@ export default function CabinetProfile() {
                   setPwdError(null);
                   setPwdPopup('confirm');
                 }}
-                className="text-xs text-white/30 transition-colors hover:text-white/50"
+                className="text-[13px] text-white/30 transition-colors hover:text-white/50"
               >
                 {t('profile.changePassword', { defaultValue: 'Сменить пароль' })}
               </button>
@@ -542,20 +535,20 @@ export default function CabinetProfile() {
 
           {/* Registration date */}
           <div className="flex items-center justify-between py-2">
-            <span className="text-sm text-white/35">
+            <span className="text-[15px] text-white/35">
               {t('profile.registeredAt', { defaultValue: 'Дата регистрации' })}
             </span>
-            <span className="text-sm text-white/60">{formatDate(user?.created_at)}</span>
+            <span className="text-[15px] text-white/60">{formatDate(user?.created_at)}</span>
           </div>
         </div>
       </GlassCard>
 
       {/* Referral block */}
       {showReferralBlock && (
-        <GlassCard className="mb-4 p-6">
+        <GlassCard className="mb-5 p-7">
           <div className="mb-4 flex items-center justify-between">
             <p
-              className="text-xs text-white/40"
+              className="text-[13px] text-white/40"
               style={{ fontWeight: 500, letterSpacing: '0.05em' }}
             >
               {t('profile.referralProgram', {
@@ -564,7 +557,7 @@ export default function CabinetProfile() {
             </p>
             <Link
               to="/referral"
-              className="flex items-center gap-1 text-xs text-white/30 transition-colors hover:text-white/50"
+              className="flex items-center gap-1 text-[13px] text-white/30 transition-colors hover:text-white/50"
             >
               {t('profile.more', { defaultValue: 'Подробнее' })} <ChevronRight size={12} />
             </Link>
@@ -587,9 +580,9 @@ export default function CabinetProfile() {
       )}
 
       {/* Notifications */}
-      <GlassCard className="p-6">
+      <GlassCard className="p-7">
         <p
-          className="mb-4 text-xs text-white/40"
+          className="mb-4 text-[13px] text-white/40"
           style={{ fontWeight: 500, letterSpacing: '0.05em' }}
         >
           {t('profile.notifications.title', {
@@ -612,7 +605,6 @@ export default function CabinetProfile() {
               })}
               checked={notificationSettings.subscription_expiry_enabled}
               onChange={(v) => updateNotification('subscription_expiry_enabled', v)}
-              disabled={updateNotificationsMutation.isPending}
             >
               <SmallSelect<number>
                 label={t('profile.notifications.daysBeforeExpiry', {
@@ -633,7 +625,6 @@ export default function CabinetProfile() {
               })}
               checked={notificationSettings.traffic_warning_enabled}
               onChange={(v) => updateNotification('traffic_warning_enabled', v)}
-              disabled={updateNotificationsMutation.isPending}
             >
               <SmallSelect<number>
                 label={t('profile.notifications.atPercent', {
@@ -655,9 +646,8 @@ export default function CabinetProfile() {
               })}
               checked={notificationSettings.balance_low_enabled}
               onChange={(v) => updateNotification('balance_low_enabled', v)}
-              disabled={updateNotificationsMutation.isPending}
             >
-              <div className="flex items-center gap-2 text-xs">
+              <div className="flex items-center gap-2 text-[13px]">
                 <span className="shrink-0 text-white/25">
                   {t('profile.notifications.threshold', { defaultValue: 'Порог' })}
                 </span>
@@ -669,7 +659,7 @@ export default function CabinetProfile() {
                       updateNotification('balance_low_threshold', Number(e.target.value))
                     }
                     min={0}
-                    className="h-full w-14 bg-transparent px-3 text-xs text-white/50 outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    className="h-full w-14 bg-transparent px-3 text-[13px] text-white/50 outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
                   <span className="pr-3 text-white/25">₽</span>
                 </div>
@@ -683,7 +673,6 @@ export default function CabinetProfile() {
               })}
               checked={notificationSettings.news_enabled}
               onChange={(v) => updateNotification('news_enabled', v)}
-              disabled={updateNotificationsMutation.isPending}
             />
 
             <Toggle
@@ -695,11 +684,10 @@ export default function CabinetProfile() {
               })}
               checked={notificationSettings.promo_offers_enabled}
               onChange={(v) => updateNotification('promo_offers_enabled', v)}
-              disabled={updateNotificationsMutation.isPending}
             />
           </>
         ) : (
-          <p className="text-sm text-white/30">
+          <p className="text-[15px] text-white/30">
             {t('profile.notifications.unavailable', { defaultValue: 'Настройки недоступны' })}
           </p>
         )}
@@ -710,7 +698,7 @@ export default function CabinetProfile() {
         {emailPopup === 'email' && (
           <Popup onClose={resetEmailFlow}>
             <div className="mb-5 flex items-center justify-between">
-              <h3 className="text-sm text-white" style={{ fontWeight: 600 }}>
+              <h3 className="text-[15px] text-white" style={{ fontWeight: 600 }}>
                 {t('profile.changeEmail.title', { defaultValue: 'Изменить Email' })}
               </h3>
               <button
@@ -720,7 +708,7 @@ export default function CabinetProfile() {
                 <X size={16} />
               </button>
             </div>
-            <p className="mb-4 text-sm text-white/30" style={{ lineHeight: 1.6 }}>
+            <p className="mb-4 text-[15px] text-white/30" style={{ lineHeight: 1.6 }}>
               {t('profile.changeEmail.description', {
                 defaultValue: 'Введите новый адрес. На него будет отправлен код подтверждения.',
               })}
@@ -736,14 +724,14 @@ export default function CabinetProfile() {
                   handleSubmitEmail();
                 }
               }}
-              className="mb-3 w-full rounded-xl border border-white/[0.08] bg-white/[0.06] px-4 py-3 text-sm text-white/70 outline-none transition-all placeholder:text-white/20 focus:border-white/15"
+              className="mb-3 w-full rounded-xl border border-white/[0.08] bg-white/[0.06] px-4 py-3 text-[15px] text-white/70 outline-none transition-all placeholder:text-white/20 focus:border-white/15"
               autoComplete="email"
             />
-            {emailError && <p className="mb-3 text-xs text-red-400/80">{emailError}</p>}
+            {emailError && <p className="mb-3 text-[13px] text-red-400/80">{emailError}</p>}
             <button
               onClick={handleSubmitEmail}
               disabled={requestEmailChangeMutation.isPending || !emailInput.trim()}
-              className="w-full rounded-full bg-white py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-60"
+              className="w-full rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-60"
               style={{ fontWeight: 500 }}
             >
               {requestEmailChangeMutation.isPending
@@ -758,7 +746,7 @@ export default function CabinetProfile() {
         {emailPopup === 'code' && (
           <Popup onClose={resetEmailFlow}>
             <div className="mb-5 flex items-center justify-between">
-              <h3 className="text-sm text-white" style={{ fontWeight: 600 }}>
+              <h3 className="text-[15px] text-white" style={{ fontWeight: 600 }}>
                 {t('profile.changeEmail.verify', { defaultValue: 'Подтверждение' })}
               </h3>
               <button
@@ -768,7 +756,7 @@ export default function CabinetProfile() {
                 <X size={16} />
               </button>
             </div>
-            <p className="mb-4 text-sm text-white/30" style={{ lineHeight: 1.6 }}>
+            <p className="mb-4 text-[15px] text-white/30" style={{ lineHeight: 1.6 }}>
               {t('profile.changeEmail.codeSentTo', {
                 email: emailInput,
                 defaultValue: `Код отправлен на ${emailInput}`,
@@ -790,11 +778,11 @@ export default function CabinetProfile() {
               className="mb-3 w-full rounded-xl border border-white/[0.08] bg-white/[0.06] px-4 py-3 text-center text-2xl tracking-[0.5em] text-white/70 outline-none transition-all placeholder:text-white/20 focus:border-white/15"
               autoComplete="one-time-code"
             />
-            {emailError && <p className="mb-3 text-xs text-red-400/80">{emailError}</p>}
+            {emailError && <p className="mb-3 text-[13px] text-red-400/80">{emailError}</p>}
             <button
               onClick={handleSubmitCode}
               disabled={verifyEmailChangeMutation.isPending || !emailCode.trim()}
-              className="mb-2 w-full rounded-full bg-white py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-60"
+              className="mb-2 w-full rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-60"
               style={{ fontWeight: 500 }}
             >
               {t('profile.changeEmail.verify', { defaultValue: 'Подтвердить' })}
@@ -805,7 +793,7 @@ export default function CabinetProfile() {
                 requestEmailChangeMutation.mutate(emailInput.trim());
               }}
               disabled={resendCooldown > 0 || requestEmailChangeMutation.isPending}
-              className="w-full rounded-full border border-white/10 py-2.5 text-sm text-white/40 transition-colors hover:bg-white/[0.04] disabled:opacity-50"
+              className="w-full rounded-full border border-white/10 py-2.5 text-[15px] text-white/40 transition-colors hover:bg-white/[0.04] disabled:opacity-50"
             >
               {resendCooldown > 0
                 ? t('profile.changeEmail.resendIn', {
@@ -825,15 +813,15 @@ export default function CabinetProfile() {
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.06]">
                 <Mail size={20} className="text-green-400/60" />
               </div>
-              <h3 className="mb-2 text-sm text-white" style={{ fontWeight: 600 }}>
+              <h3 className="mb-2 text-[15px] text-white" style={{ fontWeight: 600 }}>
                 {t('profile.changeEmail.success', { defaultValue: 'Email обновлён' })}
               </h3>
-              <p className="mb-5 text-sm text-white/30" style={{ lineHeight: 1.6 }}>
+              <p className="mb-5 text-[15px] text-white/30" style={{ lineHeight: 1.6 }}>
                 <span className="text-white/50">{user?.email || emailInput}</span>
               </p>
               <button
                 onClick={resetEmailFlow}
-                className="rounded-full bg-white px-6 py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+                className="rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
                 style={{ fontWeight: 500 }}
               >
                 {t('common.ok', { defaultValue: 'Понятно' })}
@@ -851,7 +839,7 @@ export default function CabinetProfile() {
             }}
           >
             <div className="mb-5 flex items-center justify-between">
-              <h3 className="text-sm text-white" style={{ fontWeight: 600 }}>
+              <h3 className="text-[15px] text-white" style={{ fontWeight: 600 }}>
                 {t('profile.changePassword', { defaultValue: 'Сменить пароль' })}
               </h3>
               <button
@@ -864,20 +852,20 @@ export default function CabinetProfile() {
                 <X size={16} />
               </button>
             </div>
-            <p className="mb-4 text-sm text-white/30" style={{ lineHeight: 1.6 }}>
+            <p className="mb-4 text-[15px] text-white/30" style={{ lineHeight: 1.6 }}>
               {t('profile.passwordResetDescription', {
                 email: user?.email || '',
                 defaultValue: `На адрес ${user?.email || ''} будет отправлена ссылка для сброса пароля.`,
               })}
             </p>
-            {pwdError && <p className="mb-3 text-xs text-red-400/80">{pwdError}</p>}
+            {pwdError && <p className="mb-3 text-[13px] text-red-400/80">{pwdError}</p>}
             <button
               onClick={() => {
                 if (!user?.email) return;
                 forgotPasswordMutation.mutate(user.email);
               }}
               disabled={forgotPasswordMutation.isPending || !user?.email}
-              className="w-full rounded-full bg-white py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-60"
+              className="w-full rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-60"
               style={{ fontWeight: 500 }}
             >
               {forgotPasswordMutation.isPending
@@ -893,17 +881,17 @@ export default function CabinetProfile() {
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.06]">
                 <Lock size={20} className="text-green-400/60" />
               </div>
-              <h3 className="mb-2 text-sm text-white" style={{ fontWeight: 600 }}>
+              <h3 className="mb-2 text-[15px] text-white" style={{ fontWeight: 600 }}>
                 {t('profile.passwordResetSent', { defaultValue: 'Письмо отправлено' })}
               </h3>
-              <p className="mb-5 text-sm text-white/30" style={{ lineHeight: 1.6 }}>
+              <p className="mb-5 text-[15px] text-white/30" style={{ lineHeight: 1.6 }}>
                 {t('profile.passwordResetSentDesc', {
                   defaultValue: 'Перейдите по ссылке из письма, чтобы задать новый пароль.',
                 })}
               </p>
               <button
                 onClick={() => setPwdPopup('none')}
-                className="rounded-full bg-white px-6 py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
+                className="rounded-full bg-white px-6 py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97]"
                 style={{ fontWeight: 500 }}
               >
                 {t('common.ok', { defaultValue: 'Понятно' })}

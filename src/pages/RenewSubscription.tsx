@@ -8,6 +8,7 @@ import { useTheme } from '../hooks/useTheme';
 import { getGlassColors } from '../utils/glassTheme';
 import { useCurrency } from '../hooks/useCurrency';
 import { useHaptic } from '../platform';
+import { useActivePromoDiscount } from '../hooks/useActivePromoDiscount';
 import InsufficientBalancePrompt from '../components/InsufficientBalancePrompt';
 import { WebBackButton } from '../components/WebBackButton';
 import type { Tariff, TariffsPurchaseOptions } from '../types';
@@ -31,6 +32,10 @@ export default function RenewSubscription() {
   const g = getGlassColors(isDark);
   const { formatAmount, currencySymbol } = useCurrency();
   const { impact } = useHaptic();
+  // Active promo offer (one claimed in the bot via "Получить" button). The
+  // purchase-options endpoint already factors in promo-group/loyalty discounts
+  // but NOT this offer, so we apply it on top of every displayed price.
+  const { applyPromoDiscount, activeDiscount, hasActiveDiscount } = useActivePromoDiscount();
 
   const [selectedPeriod, setSelectedPeriod] = useState<number | null>(null);
   const [selectedTariffId, setSelectedTariffId] = useState<number | null>(null);
@@ -114,6 +119,63 @@ export default function RenewSubscription() {
     },
   });
 
+  // Purchase a brand-new subscription/tariff. Used when the user has no active
+  // subscription (trial used + expired, or never had one) — in that case the
+  // renew/switch endpoints fail with "No active subscription with tariff".
+  const purchaseTariffMutation = useMutation({
+    mutationFn: ({ tariffId, periodDays }: { tariffId: number; periodDays: number }) =>
+      subscriptionApi.purchaseTariff(tariffId, periodDays),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      queryClient.invalidateQueries({ queryKey: ['subscriptions-list'] });
+      queryClient.invalidateQueries({ queryKey: ['purchase-options'] });
+      queryClient.invalidateQueries({ queryKey: ['balance'] });
+      navigate('/subscriptions', { replace: true });
+    },
+    onError: (err: unknown) => {
+      const detail =
+        err && typeof err === 'object' && 'response' in err
+          ? ((err as { response?: { data?: { detail?: unknown } } }).response?.data?.detail ?? null)
+          : null;
+
+      if (detail && typeof detail === 'object' && 'code' in (detail as Record<string, unknown>)) {
+        const typed = detail as { code: string; missing_amount?: number };
+        if (typed.code === 'insufficient_funds' && typed.missing_amount) {
+          setError(`insufficient:${typed.missing_amount}`);
+          return;
+        }
+      }
+      setError(typeof detail === 'string' ? detail : t('common.error'));
+    },
+  });
+
+  // Classic-mode purchase (no tariff IDs — uses the legacy selection payload).
+  const submitPurchaseMutation = useMutation({
+    mutationFn: (periodDays: number) => subscriptionApi.submitPurchase({ period_days: periodDays }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      queryClient.invalidateQueries({ queryKey: ['subscriptions-list'] });
+      queryClient.invalidateQueries({ queryKey: ['purchase-options'] });
+      queryClient.invalidateQueries({ queryKey: ['balance'] });
+      navigate('/subscriptions', { replace: true });
+    },
+    onError: (err: unknown) => {
+      const detail =
+        err && typeof err === 'object' && 'response' in err
+          ? ((err as { response?: { data?: { detail?: unknown } } }).response?.data?.detail ?? null)
+          : null;
+
+      if (detail && typeof detail === 'object' && 'code' in (detail as Record<string, unknown>)) {
+        const typed = detail as { code: string; missing_amount?: number };
+        if (typed.code === 'insufficient_funds' && typed.missing_amount) {
+          setError(`insufficient:${typed.missing_amount}`);
+          return;
+        }
+      }
+      setError(typeof detail === 'string' ? detail : t('common.error'));
+    },
+  });
+
   const handleRenew = (periodDays: number) => {
     impact('medium');
     setError(null);
@@ -126,12 +188,26 @@ export default function RenewSubscription() {
     switchMutation.mutate(tariffId);
   };
 
-  const isSubmitting = renewMutation.isPending || switchMutation.isPending;
+  const handlePurchase = (tariffId: number | null, periodDays: number) => {
+    impact('medium');
+    setError(null);
+    if (tariffId != null) {
+      purchaseTariffMutation.mutate({ tariffId, periodDays });
+    } else {
+      submitPurchaseMutation.mutate(periodDays);
+    }
+  };
+
+  const isSubmitting =
+    renewMutation.isPending ||
+    switchMutation.isPending ||
+    purchaseTariffMutation.isPending ||
+    submitPurchaseMutation.isPending;
 
   if (isLoading) {
     return (
       <div className="flex min-h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
       </div>
     );
   }
@@ -145,11 +221,9 @@ export default function RenewSubscription() {
       const months = Math.floor(days / 30);
       const remainder = days % 30;
       if (months > 0 && remainder === 0) {
-        if (months === 1) return '1 месяц';
-        if (months >= 2 && months <= 4) return `${months} месяца`;
-        return `${months} месяцев`;
+        return t('renewPage.month', { count: months });
       }
-      return `${days} дн.`;
+      return t('renewPage.days', { count: days });
     };
 
     // Multi-tariff mode: list all tariffs (Обычный/Семейный/Бизнес/…)
@@ -233,17 +307,39 @@ export default function RenewSubscription() {
         ? (options.find((o) => o.period_days === activeDays) ?? null)
         : null;
 
-    const activePriceKopeks =
+    const rawActivePriceKopeks =
       activeTariffPeriod?.price_kopeks ?? classicOption?.price_kopeks ?? null;
-    const activeOriginalPrice =
+    const rawActiveOriginalPrice =
       activeTariffPeriod?.original_price_kopeks ?? classicOption?.original_price_kopeks ?? null;
+    // Apply the active promo offer (claimed in the bot) on top of any
+    // promo-group discount already baked into the price.
+    const activeDiscountResult =
+      rawActivePriceKopeks != null
+        ? applyPromoDiscount(rawActivePriceKopeks, rawActiveOriginalPrice)
+        : null;
+    const activePriceKopeks = activeDiscountResult?.price ?? rawActivePriceKopeks;
+    const activeOriginalPrice = activeDiscountResult?.original ?? rawActiveOriginalPrice;
     const activeAffordable = activePriceKopeks != null ? balanceKopeks >= activePriceKopeks : false;
 
     const isSwitchAction =
       isMultiTariff && activeTariffId != null && activeTariffId !== currentTariffId;
 
+    // "No active subscription to renew" — happens when the user used the trial
+    // and the trial subscription expired, or they never had any subscription.
+    // The renew/switch endpoints require an active sub with a tariff and would
+    // otherwise return "No active subscription with tariff". In that case we
+    // fall back to the purchase endpoints, which create a brand-new sub.
+    const hasActiveSubToRenew = isMultiTariff
+      ? tariffsMode?.has_subscription === true && tariffsMode?.subscription_is_expired !== true
+      : !!subscription && subscription.is_active;
+
     const handleSubmit = () => {
       if (activeDays == null) return;
+      if (!hasActiveSubToRenew) {
+        // Purchase flow: tariff mode → purchaseTariff, classic → submitPurchase
+        handlePurchase(isMultiTariff ? activeTariffId : null, activeDays);
+        return;
+      }
       if (isSwitchAction && activeTariffId != null) {
         handleSwitch(activeTariffId);
       } else {
@@ -257,23 +353,40 @@ export default function RenewSubscription() {
         <div className="mb-8 flex items-center justify-between">
           <h1
             className="text-white"
-            style={{ fontSize: '1.6rem', fontWeight: 600, letterSpacing: '-0.02em' }}
+            style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
           >
-            {isSwitchAction
-              ? t('subscription.switchTariff.title', 'Сменить тариф')
-              : t('subscription.extend', 'Продлить подписку')}
+            {!hasActiveSubToRenew
+              ? t('subscription.getSubscription', 'Оформить подписку')
+              : isSwitchAction
+                ? t('subscription.switchTariff.title', 'Сменить тариф')
+                : t('subscription.extend', 'Продлить подписку')}
           </h1>
           <button
             onClick={() => navigate('/subscriptions')}
-            className="text-sm text-white/30 transition-colors hover:text-white/50"
+            className="text-[15px] text-white/30 transition-colors hover:text-white/50"
           >
-            ← Назад
+            {t('renewPage.back')}
           </button>
         </div>
 
+        {/* Active promo offer banner (only when user claimed an offer in bot) */}
+        {hasActiveDiscount && activeDiscount?.discount_percent && (
+          <div className="mb-6 flex items-center gap-3 rounded-2xl border border-green-400/25 bg-green-400/[0.06] px-4 py-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-400/15 text-base">
+              🎁
+            </span>
+            <p className="text-[14px] text-white/75" style={{ fontWeight: 500 }}>
+              {t('renewPage.promoOfferActive', {
+                defaultValue: 'Активная скидка {{percent}}% применена к ценам ниже',
+                percent: activeDiscount.discount_percent,
+              })}
+            </p>
+          </div>
+        )}
+
         {pillDays.length === 0 ? (
-          <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-center">
-            <p className="text-sm text-white/40">
+          <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.04] p-7 text-center">
+            <p className="text-[15px] text-white/40">
               {t('subscription.noRenewalOptions', 'Нет доступных вариантов продления')}
             </p>
           </div>
@@ -293,7 +406,7 @@ export default function RenewSubscription() {
                           setSelectedPeriod(days);
                           setError(null);
                         }}
-                        className={`relative rounded-full px-4 py-2 text-sm transition-all ${
+                        className={`relative rounded-full px-4 py-2 text-[15px] transition-all ${
                           isSel ? 'bg-white/10 text-white' : 'text-white/35 hover:text-white/55'
                         }`}
                       >
@@ -326,9 +439,15 @@ export default function RenewSubscription() {
                     const isSel = activeTariffId === tr.id;
                     const unavailable = activeDays != null && !period;
                     const Icon = tariffIcon(tr.tier_level);
+                    // Apply active promo offer (claimed in bot) on top of any
+                    // promo-group/loyalty discount baked into period.price_kopeks.
+                    const periodDiscount = period
+                      ? applyPromoDiscount(period.price_kopeks, period.original_price_kopeks)
+                      : null;
+                    const finalPrice = periodDiscount?.price ?? period?.price_kopeks ?? 0;
+                    const originalPrice = periodDiscount?.original ?? null;
                     const months = period ? Math.max(1, Math.round(period.days / 30)) : 0;
-                    const monthly =
-                      period && months > 1 ? Math.round(period.price_kopeks / months) : null;
+                    const monthly = period && months > 1 ? Math.round(finalPrice / months) : null;
                     return (
                       <button
                         key={tr.id}
@@ -349,51 +468,64 @@ export default function RenewSubscription() {
                         <div className="flex min-w-0 items-center gap-3">
                           <Icon size={18} className="shrink-0 text-white/30" strokeWidth={1.5} />
                           <div className="min-w-0 text-left">
-                            <p className="text-sm text-white/70" style={{ fontWeight: 500 }}>
+                            <p className="text-[15px] text-white/70" style={{ fontWeight: 500 }}>
                               {tr.name}
                               {tr.id === currentTariffId && (
                                 <span className="ml-2 rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] text-white/40">
-                                  Текущий
+                                  {t('renewPage.currentTariff')}
                                 </span>
                               )}
                             </p>
-                            <p className="text-xs text-white/25">
+                            <p className="text-[13px] text-white/25">
                               {tr.is_unlimited_traffic
-                                ? 'Безлимит'
+                                ? t('subscription.unlimited')
                                 : tr.traffic_limit_gb > 0
-                                  ? `${tr.traffic_limit_gb} ГБ`
+                                  ? t('renewPage.trafficGb', { amount: tr.traffic_limit_gb })
                                   : tr.traffic_limit_label}
                               {' • '}
-                              до {tr.device_limit} устр.
+                              {t('renewPage.devicesUpTo', { count: tr.device_limit })}
                             </p>
                           </div>
                         </div>
                         <div className="shrink-0 text-right">
                           {period ? (
                             <>
-                              <span
-                                className="text-white"
-                                style={{ fontSize: '1.2rem', fontWeight: 600 }}
-                              >
-                                {period.price_kopeks === 0
-                                  ? 'Бесплатно'
-                                  : `${formatAmount(period.price_kopeks / 100)} ${currencySymbol}`}
-                              </span>
+                              <div className="flex items-center justify-end gap-2">
+                                <span
+                                  className="text-white"
+                                  style={{ fontSize: '1.2rem', fontWeight: 600 }}
+                                >
+                                  {finalPrice === 0
+                                    ? t('subscription.free')
+                                    : `${formatAmount(finalPrice / 100)} ${currencySymbol}`}
+                                </span>
+                                {periodDiscount?.percent != null && periodDiscount.percent > 0 && (
+                                  <span
+                                    className="rounded-md bg-green-400/15 px-1.5 py-0.5 text-[11px] text-green-400/90"
+                                    style={{ fontWeight: 600 }}
+                                  >
+                                    −{periodDiscount.percent}%
+                                  </span>
+                                )}
+                              </div>
                               {monthly != null && (
-                                <p className="mt-0.5 text-xs text-white/25">
-                                  {formatAmount(monthly / 100)} {currencySymbol}/мес
+                                <p className="mt-0.5 text-[13px] text-white/25">
+                                  {t('renewPage.perMonth', {
+                                    amount: formatAmount(monthly / 100),
+                                    currency: currencySymbol,
+                                  })}
                                 </p>
                               )}
-                              {period.original_price_kopeks &&
-                                period.original_price_kopeks > period.price_kopeks && (
-                                  <p className="mt-0.5 text-xs text-white/25 line-through">
-                                    {formatAmount(period.original_price_kopeks / 100)}{' '}
-                                    {currencySymbol}
-                                  </p>
-                                )}
+                              {originalPrice && originalPrice > finalPrice && (
+                                <p className="mt-0.5 text-[13px] text-white/25 line-through">
+                                  {formatAmount(originalPrice / 100)} {currencySymbol}
+                                </p>
+                              )}
                             </>
                           ) : (
-                            <span className="text-xs text-white/25">недоступно</span>
+                            <span className="text-[13px] text-white/25">
+                              {t('renewPage.unavailable')}
+                            </span>
                           )}
                         </div>
                       </button>
@@ -407,41 +539,57 @@ export default function RenewSubscription() {
                   <div className="flex min-w-0 items-center gap-3">
                     <User size={18} className="shrink-0 text-white/30" strokeWidth={1.5} />
                     <div className="min-w-0 text-left">
-                      <p className="text-sm text-white/70" style={{ fontWeight: 500 }}>
-                        {subscription.tariff_name ?? t('subscription.tariff', 'Тариф')}
+                      <p className="text-[15px] text-white/70" style={{ fontWeight: 500 }}>
+                        {subscription.tariff_name ?? t('subscription.tariff_label')}
                       </p>
-                      <p className="text-xs text-white/25">
+                      <p className="text-[13px] text-white/25">
                         {subscription.traffic_limit_gb > 0
-                          ? `${subscription.traffic_limit_gb} ГБ`
-                          : 'Безлимит'}
+                          ? t('renewPage.trafficGb', { amount: subscription.traffic_limit_gb })
+                          : t('subscription.unlimited')}
                         {' • '}
-                        до {subscription.device_limit} устр.
+                        {t('renewPage.devicesUpTo', { count: subscription.device_limit })}
                       </p>
                     </div>
                   </div>
                   <div className="shrink-0 text-right">
-                    <span className="text-white" style={{ fontSize: '1.2rem', fontWeight: 600 }}>
-                      {classicOption.price_kopeks === 0
-                        ? t('subscription.free', 'Бесплатно')
-                        : `${formatAmount(classicOption.price_kopeks / 100)} ${currencySymbol}`}
-                    </span>
+                    <div className="flex items-center justify-end gap-2">
+                      <span className="text-white" style={{ fontSize: '1.2rem', fontWeight: 600 }}>
+                        {activePriceKopeks === 0
+                          ? t('subscription.free', 'Бесплатно')
+                          : `${formatAmount((activePriceKopeks ?? 0) / 100)} ${currencySymbol}`}
+                      </span>
+                      {activeDiscountResult?.percent != null &&
+                        activeDiscountResult.percent > 0 && (
+                          <span
+                            className="rounded-md bg-green-400/15 px-1.5 py-0.5 text-[11px] text-green-400/90"
+                            style={{ fontWeight: 600 }}
+                          >
+                            −{activeDiscountResult.percent}%
+                          </span>
+                        )}
+                    </div>
                     {(() => {
                       const months = Math.max(1, Math.round(classicOption.period_days / 30));
-                      if (months > 1 && classicOption.price_kopeks > 0) {
-                        const perMonth = classicOption.price_kopeks / months;
+                      if (months > 1 && (activePriceKopeks ?? 0) > 0) {
+                        const perMonth = (activePriceKopeks ?? 0) / months;
                         return (
-                          <p className="mt-0.5 text-xs text-white/25">
-                            {formatAmount(perMonth / 100)} {currencySymbol}/мес
+                          <p className="mt-0.5 text-[13px] text-white/25">
+                            {t('renewPage.perMonth', {
+                              amount: formatAmount(perMonth / 100),
+                              currency: currencySymbol,
+                            })}
                           </p>
                         );
                       }
                       return null;
                     })()}
-                    {activeOriginalPrice && (
-                      <p className="mt-0.5 text-xs text-white/25 line-through">
-                        {formatAmount(activeOriginalPrice / 100)} {currencySymbol}
-                      </p>
-                    )}
+                    {activeOriginalPrice &&
+                      activePriceKopeks != null &&
+                      activeOriginalPrice > activePriceKopeks && (
+                        <p className="mt-0.5 text-[13px] text-white/25 line-through">
+                          {formatAmount(activeOriginalPrice / 100)} {currencySymbol}
+                        </p>
+                      )}
                   </div>
                 </div>
               )
@@ -451,7 +599,7 @@ export default function RenewSubscription() {
             {activePriceKopeks != null && !activeAffordable && activePriceKopeks > 0 && (
               <div className="mb-4 flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3">
                 <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-400/70" />
-                <p className="text-sm text-amber-400/70">
+                <p className="text-[15px] text-amber-400/70">
                   {t(
                     'subscription.insufficientBalanceAmount',
                     'Недостаточно средств. Не хватает {{missing}}',
@@ -484,7 +632,7 @@ export default function RenewSubscription() {
         {error && !missingAmount && (
           <div className="mb-4 flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2.5">
             <AlertTriangle size={14} className="shrink-0 text-red-400/80" />
-            <p className="text-xs text-red-400/80">{error}</p>
+            <p className="text-[13px] text-red-400/80">{error}</p>
           </div>
         )}
 
@@ -494,7 +642,7 @@ export default function RenewSubscription() {
           disabled={
             activeDays == null || activePriceKopeks == null || !activeAffordable || isSubmitting
           }
-          className="w-full rounded-full bg-white py-3.5 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40"
+          className="w-full rounded-full bg-white py-3.5 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40"
           style={{ fontWeight: 500 }}
         >
           {isSubmitting
@@ -517,7 +665,7 @@ export default function RenewSubscription() {
             {t('subscription.extend', 'Продлить подписку')}
           </h1>
           {subscription?.tariff_name && (
-            <p className="mt-1 text-sm" style={{ color: g.textSecondary }}>
+            <p className="mt-1 text-[15px]" style={{ color: g.textSecondary }}>
               {subscription.tariff_name}
             </p>
           )}
@@ -528,7 +676,7 @@ export default function RenewSubscription() {
         className="flex items-center justify-between rounded-2xl p-4"
         style={{ background: g.cardBg, border: `1px solid ${g.cardBorder}` }}
       >
-        <span className="text-sm" style={{ color: g.textSecondary }}>
+        <span className="text-[15px]" style={{ color: g.textSecondary }}>
           {t('common.balance', 'Баланс')}
         </span>
         <span className="text-base font-semibold" style={{ color: g.text }}>
@@ -538,7 +686,7 @@ export default function RenewSubscription() {
 
       {!options || options.length === 0 ? (
         <div
-          className="rounded-2xl p-6 text-center"
+          className="rounded-2xl p-7 text-center"
           style={{ background: g.cardBg, border: `1px solid ${g.cardBorder}` }}
         >
           <p style={{ color: g.textSecondary }}>
@@ -621,7 +769,9 @@ export default function RenewSubscription() {
       {missingAmount && <InsufficientBalancePrompt missingAmountKopeks={missingAmount} compact />}
 
       {error && !missingAmount && (
-        <div className="rounded-xl bg-red-400/10 p-3 text-center text-sm text-red-400">{error}</div>
+        <div className="rounded-xl bg-red-400/10 p-3 text-center text-[15px] text-red-400">
+          {error}
+        </div>
       )}
 
       {selectedPeriod && (
