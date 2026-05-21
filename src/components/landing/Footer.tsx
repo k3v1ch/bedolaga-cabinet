@@ -60,14 +60,21 @@ export function Footer() {
               {t('landing.footer.info')}
             </p>
             <div className="flex flex-col gap-2.5">
-              <a href="#" className="text-sm text-white/25 transition-colors hover:text-white/50">
+              <a
+                href="https://telegra.ph/Politika-konfidencialnosti-05-15-38"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-white/25 transition-colors hover:text-white/50"
+              >
                 {t('landing.footer.policy')}
               </a>
-              <a href="#" className="text-sm text-white/25 transition-colors hover:text-white/50">
+              <a
+                href="https://telegra.ph/Polzovatelskoe-soglashenie-05-15-23"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-white/25 transition-colors hover:text-white/50"
+              >
                 {t('landing.footer.terms')}
-              </a>
-              <a href="#" className="text-sm text-white/25 transition-colors hover:text-white/50">
-                {t('landing.footer.refund')}
               </a>
               <a
                 href="https://t.me/VernoVPNbot"

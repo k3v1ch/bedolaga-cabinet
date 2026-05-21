@@ -8,6 +8,7 @@ import { useTheme } from '../hooks/useTheme';
 import { getGlassColors } from '../utils/glassTheme';
 import { useCurrency } from '../hooks/useCurrency';
 import { useHaptic } from '../platform';
+import { useActivePromoDiscount } from '../hooks/useActivePromoDiscount';
 import InsufficientBalancePrompt from '../components/InsufficientBalancePrompt';
 import { WebBackButton } from '../components/WebBackButton';
 import type { Tariff, TariffsPurchaseOptions } from '../types';
@@ -31,6 +32,10 @@ export default function RenewSubscription() {
   const g = getGlassColors(isDark);
   const { formatAmount, currencySymbol } = useCurrency();
   const { impact } = useHaptic();
+  // Active promo offer (one claimed in the bot via "Получить" button). The
+  // purchase-options endpoint already factors in promo-group/loyalty discounts
+  // but NOT this offer, so we apply it on top of every displayed price.
+  const { applyPromoDiscount, activeDiscount, hasActiveDiscount } = useActivePromoDiscount();
 
   const [selectedPeriod, setSelectedPeriod] = useState<number | null>(null);
   const [selectedTariffId, setSelectedTariffId] = useState<number | null>(null);
@@ -114,6 +119,63 @@ export default function RenewSubscription() {
     },
   });
 
+  // Purchase a brand-new subscription/tariff. Used when the user has no active
+  // subscription (trial used + expired, or never had one) — in that case the
+  // renew/switch endpoints fail with "No active subscription with tariff".
+  const purchaseTariffMutation = useMutation({
+    mutationFn: ({ tariffId, periodDays }: { tariffId: number; periodDays: number }) =>
+      subscriptionApi.purchaseTariff(tariffId, periodDays),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      queryClient.invalidateQueries({ queryKey: ['subscriptions-list'] });
+      queryClient.invalidateQueries({ queryKey: ['purchase-options'] });
+      queryClient.invalidateQueries({ queryKey: ['balance'] });
+      navigate('/subscriptions', { replace: true });
+    },
+    onError: (err: unknown) => {
+      const detail =
+        err && typeof err === 'object' && 'response' in err
+          ? ((err as { response?: { data?: { detail?: unknown } } }).response?.data?.detail ?? null)
+          : null;
+
+      if (detail && typeof detail === 'object' && 'code' in (detail as Record<string, unknown>)) {
+        const typed = detail as { code: string; missing_amount?: number };
+        if (typed.code === 'insufficient_funds' && typed.missing_amount) {
+          setError(`insufficient:${typed.missing_amount}`);
+          return;
+        }
+      }
+      setError(typeof detail === 'string' ? detail : t('common.error'));
+    },
+  });
+
+  // Classic-mode purchase (no tariff IDs — uses the legacy selection payload).
+  const submitPurchaseMutation = useMutation({
+    mutationFn: (periodDays: number) => subscriptionApi.submitPurchase({ period_days: periodDays }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      queryClient.invalidateQueries({ queryKey: ['subscriptions-list'] });
+      queryClient.invalidateQueries({ queryKey: ['purchase-options'] });
+      queryClient.invalidateQueries({ queryKey: ['balance'] });
+      navigate('/subscriptions', { replace: true });
+    },
+    onError: (err: unknown) => {
+      const detail =
+        err && typeof err === 'object' && 'response' in err
+          ? ((err as { response?: { data?: { detail?: unknown } } }).response?.data?.detail ?? null)
+          : null;
+
+      if (detail && typeof detail === 'object' && 'code' in (detail as Record<string, unknown>)) {
+        const typed = detail as { code: string; missing_amount?: number };
+        if (typed.code === 'insufficient_funds' && typed.missing_amount) {
+          setError(`insufficient:${typed.missing_amount}`);
+          return;
+        }
+      }
+      setError(typeof detail === 'string' ? detail : t('common.error'));
+    },
+  });
+
   const handleRenew = (periodDays: number) => {
     impact('medium');
     setError(null);
@@ -126,7 +188,21 @@ export default function RenewSubscription() {
     switchMutation.mutate(tariffId);
   };
 
-  const isSubmitting = renewMutation.isPending || switchMutation.isPending;
+  const handlePurchase = (tariffId: number | null, periodDays: number) => {
+    impact('medium');
+    setError(null);
+    if (tariffId != null) {
+      purchaseTariffMutation.mutate({ tariffId, periodDays });
+    } else {
+      submitPurchaseMutation.mutate(periodDays);
+    }
+  };
+
+  const isSubmitting =
+    renewMutation.isPending ||
+    switchMutation.isPending ||
+    purchaseTariffMutation.isPending ||
+    submitPurchaseMutation.isPending;
 
   if (isLoading) {
     return (
@@ -231,17 +307,39 @@ export default function RenewSubscription() {
         ? (options.find((o) => o.period_days === activeDays) ?? null)
         : null;
 
-    const activePriceKopeks =
+    const rawActivePriceKopeks =
       activeTariffPeriod?.price_kopeks ?? classicOption?.price_kopeks ?? null;
-    const activeOriginalPrice =
+    const rawActiveOriginalPrice =
       activeTariffPeriod?.original_price_kopeks ?? classicOption?.original_price_kopeks ?? null;
+    // Apply the active promo offer (claimed in the bot) on top of any
+    // promo-group discount already baked into the price.
+    const activeDiscountResult =
+      rawActivePriceKopeks != null
+        ? applyPromoDiscount(rawActivePriceKopeks, rawActiveOriginalPrice)
+        : null;
+    const activePriceKopeks = activeDiscountResult?.price ?? rawActivePriceKopeks;
+    const activeOriginalPrice = activeDiscountResult?.original ?? rawActiveOriginalPrice;
     const activeAffordable = activePriceKopeks != null ? balanceKopeks >= activePriceKopeks : false;
 
     const isSwitchAction =
       isMultiTariff && activeTariffId != null && activeTariffId !== currentTariffId;
 
+    // "No active subscription to renew" — happens when the user used the trial
+    // and the trial subscription expired, or they never had any subscription.
+    // The renew/switch endpoints require an active sub with a tariff and would
+    // otherwise return "No active subscription with tariff". In that case we
+    // fall back to the purchase endpoints, which create a brand-new sub.
+    const hasActiveSubToRenew = isMultiTariff
+      ? tariffsMode?.has_subscription === true && tariffsMode?.subscription_is_expired !== true
+      : !!subscription && subscription.is_active;
+
     const handleSubmit = () => {
       if (activeDays == null) return;
+      if (!hasActiveSubToRenew) {
+        // Purchase flow: tariff mode → purchaseTariff, classic → submitPurchase
+        handlePurchase(isMultiTariff ? activeTariffId : null, activeDays);
+        return;
+      }
       if (isSwitchAction && activeTariffId != null) {
         handleSwitch(activeTariffId);
       } else {
@@ -257,9 +355,11 @@ export default function RenewSubscription() {
             className="text-white"
             style={{ fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}
           >
-            {isSwitchAction
-              ? t('subscription.switchTariff.title', 'Сменить тариф')
-              : t('subscription.extend', 'Продлить подписку')}
+            {!hasActiveSubToRenew
+              ? t('subscription.getSubscription', 'Оформить подписку')
+              : isSwitchAction
+                ? t('subscription.switchTariff.title', 'Сменить тариф')
+                : t('subscription.extend', 'Продлить подписку')}
           </h1>
           <button
             onClick={() => navigate('/subscriptions')}
@@ -268,6 +368,21 @@ export default function RenewSubscription() {
             {t('renewPage.back')}
           </button>
         </div>
+
+        {/* Active promo offer banner (only when user claimed an offer in bot) */}
+        {hasActiveDiscount && activeDiscount?.discount_percent && (
+          <div className="mb-6 flex items-center gap-3 rounded-2xl border border-green-400/25 bg-green-400/[0.06] px-4 py-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-400/15 text-base">
+              🎁
+            </span>
+            <p className="text-[14px] text-white/75" style={{ fontWeight: 500 }}>
+              {t('renewPage.promoOfferActive', {
+                defaultValue: 'Активная скидка {{percent}}% применена к ценам ниже',
+                percent: activeDiscount.discount_percent,
+              })}
+            </p>
+          </div>
+        )}
 
         {pillDays.length === 0 ? (
           <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.04] p-7 text-center">
@@ -324,9 +439,15 @@ export default function RenewSubscription() {
                     const isSel = activeTariffId === tr.id;
                     const unavailable = activeDays != null && !period;
                     const Icon = tariffIcon(tr.tier_level);
+                    // Apply active promo offer (claimed in bot) on top of any
+                    // promo-group/loyalty discount baked into period.price_kopeks.
+                    const periodDiscount = period
+                      ? applyPromoDiscount(period.price_kopeks, period.original_price_kopeks)
+                      : null;
+                    const finalPrice = periodDiscount?.price ?? period?.price_kopeks ?? 0;
+                    const originalPrice = periodDiscount?.original ?? null;
                     const months = period ? Math.max(1, Math.round(period.days / 30)) : 0;
-                    const monthly =
-                      period && months > 1 ? Math.round(period.price_kopeks / months) : null;
+                    const monthly = period && months > 1 ? Math.round(finalPrice / months) : null;
                     return (
                       <button
                         key={tr.id}
@@ -369,14 +490,24 @@ export default function RenewSubscription() {
                         <div className="shrink-0 text-right">
                           {period ? (
                             <>
-                              <span
-                                className="text-white"
-                                style={{ fontSize: '1.2rem', fontWeight: 600 }}
-                              >
-                                {period.price_kopeks === 0
-                                  ? t('subscription.free')
-                                  : `${formatAmount(period.price_kopeks / 100)} ${currencySymbol}`}
-                              </span>
+                              <div className="flex items-center justify-end gap-2">
+                                <span
+                                  className="text-white"
+                                  style={{ fontSize: '1.2rem', fontWeight: 600 }}
+                                >
+                                  {finalPrice === 0
+                                    ? t('subscription.free')
+                                    : `${formatAmount(finalPrice / 100)} ${currencySymbol}`}
+                                </span>
+                                {periodDiscount?.percent != null && periodDiscount.percent > 0 && (
+                                  <span
+                                    className="rounded-md bg-green-400/15 px-1.5 py-0.5 text-[11px] text-green-400/90"
+                                    style={{ fontWeight: 600 }}
+                                  >
+                                    −{periodDiscount.percent}%
+                                  </span>
+                                )}
+                              </div>
                               {monthly != null && (
                                 <p className="mt-0.5 text-[13px] text-white/25">
                                   {t('renewPage.perMonth', {
@@ -385,13 +516,11 @@ export default function RenewSubscription() {
                                   })}
                                 </p>
                               )}
-                              {period.original_price_kopeks &&
-                                period.original_price_kopeks > period.price_kopeks && (
-                                  <p className="mt-0.5 text-[13px] text-white/25 line-through">
-                                    {formatAmount(period.original_price_kopeks / 100)}{' '}
-                                    {currencySymbol}
-                                  </p>
-                                )}
+                              {originalPrice && originalPrice > finalPrice && (
+                                <p className="mt-0.5 text-[13px] text-white/25 line-through">
+                                  {formatAmount(originalPrice / 100)} {currencySymbol}
+                                </p>
+                              )}
                             </>
                           ) : (
                             <span className="text-[13px] text-white/25">
@@ -423,15 +552,26 @@ export default function RenewSubscription() {
                     </div>
                   </div>
                   <div className="shrink-0 text-right">
-                    <span className="text-white" style={{ fontSize: '1.2rem', fontWeight: 600 }}>
-                      {classicOption.price_kopeks === 0
-                        ? t('subscription.free', 'Бесплатно')
-                        : `${formatAmount(classicOption.price_kopeks / 100)} ${currencySymbol}`}
-                    </span>
+                    <div className="flex items-center justify-end gap-2">
+                      <span className="text-white" style={{ fontSize: '1.2rem', fontWeight: 600 }}>
+                        {activePriceKopeks === 0
+                          ? t('subscription.free', 'Бесплатно')
+                          : `${formatAmount((activePriceKopeks ?? 0) / 100)} ${currencySymbol}`}
+                      </span>
+                      {activeDiscountResult?.percent != null &&
+                        activeDiscountResult.percent > 0 && (
+                          <span
+                            className="rounded-md bg-green-400/15 px-1.5 py-0.5 text-[11px] text-green-400/90"
+                            style={{ fontWeight: 600 }}
+                          >
+                            −{activeDiscountResult.percent}%
+                          </span>
+                        )}
+                    </div>
                     {(() => {
                       const months = Math.max(1, Math.round(classicOption.period_days / 30));
-                      if (months > 1 && classicOption.price_kopeks > 0) {
-                        const perMonth = classicOption.price_kopeks / months;
+                      if (months > 1 && (activePriceKopeks ?? 0) > 0) {
+                        const perMonth = (activePriceKopeks ?? 0) / months;
                         return (
                           <p className="mt-0.5 text-[13px] text-white/25">
                             {t('renewPage.perMonth', {
@@ -443,11 +583,13 @@ export default function RenewSubscription() {
                       }
                       return null;
                     })()}
-                    {activeOriginalPrice && (
-                      <p className="mt-0.5 text-[13px] text-white/25 line-through">
-                        {formatAmount(activeOriginalPrice / 100)} {currencySymbol}
-                      </p>
-                    )}
+                    {activeOriginalPrice &&
+                      activePriceKopeks != null &&
+                      activeOriginalPrice > activePriceKopeks && (
+                        <p className="mt-0.5 text-[13px] text-white/25 line-through">
+                          {formatAmount(activeOriginalPrice / 100)} {currencySymbol}
+                        </p>
+                      )}
                   </div>
                 </div>
               )
