@@ -96,8 +96,38 @@
 
     <script>
         (function() {
+            // Allowlist of permitted URL schemes. Without this, an attacker can
+            // craft ?url=javascript:... and execute arbitrary JS in this origin
+            // (DOM XSS leading to token theft from session/localStorage).
+            const ALLOWED_SCHEMES = [
+                'https://',
+                'http://',
+                'happ://',
+                'flclash://',
+                'clash://',
+                'sing-box://',
+                'v2rayng://',
+                'sub://',
+                'shadowrocket://',
+                'hiddify://',
+                'streisand://',
+                'quantumult://',
+                'surge://',
+                'loon://',
+                'nekobox://',
+                'v2box://'
+            ];
+
+            function isAllowedUrl(value) {
+                if (!value) return false;
+                const lower = value.toLowerCase().trim();
+                return ALLOWED_SCHEMES.some(function (scheme) {
+                    return lower.indexOf(scheme) === 0;
+                });
+            }
+
             const params = new URLSearchParams(window.location.search);
-            const url = params.get('url');
+            const rawUrl = params.get('url');
             const lang = params.get('lang') || 'en';
 
             const texts = {
@@ -124,13 +154,14 @@
             document.getElementById('errorText').textContent = t.error;
             document.getElementById('manualBtn').textContent = t.btn;
 
-            if (!url) {
+            if (!isAllowedUrl(rawUrl)) {
                 document.getElementById('title').textContent = t.noUrl;
                 document.getElementById('subtitle').textContent = '';
                 document.querySelector('.spinner').style.display = 'none';
                 return;
             }
 
+            const url = rawUrl;
             const manualBtn = document.getElementById('manualBtn');
             manualBtn.href = url;
 
