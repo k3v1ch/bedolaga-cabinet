@@ -242,10 +242,14 @@ export default function CabinetReferral() {
         <GlassCard className="p-5 text-center">
           <Gift size={18} className="mx-auto mb-2 text-white/20" />
           <p className="text-white" style={{ fontSize: '1.5rem', fontWeight: 600 }}>
-            {info?.commission_percent ?? 0}%
+            {info?.commission_percent
+              ? `${info.commission_percent}%`
+              : `+${terms?.welcome_days_percent ?? 0}%`}
           </p>
           <p className="mt-1 text-[13px] text-white/30">
-            {t('referral.stats.commissionRate', { defaultValue: 'Комиссия' })}
+            {info?.commission_percent
+              ? t('referral.stats.commissionRate', { defaultValue: 'Комиссия' })
+              : t('referral.stats.welcomeBonus', { defaultValue: 'Бонус дней' })}
           </p>
         </GlassCard>
       </div>
@@ -309,13 +313,33 @@ export default function CabinetReferral() {
                 )} ${currencySymbol})`,
               })}
             </p>
-            <p>
-              •{' '}
-              {t('referral.condition.commission', {
-                percent: terms.commission_percent,
-                defaultValue: `Вы получаете ${terms.commission_percent}% с каждого его пополнения`,
-              })}
-            </p>
+            {terms.welcome_days_percent > 0 && (
+              <p>
+                •{' '}
+                {t('referral.condition.welcomeDays', {
+                  percent: terms.welcome_days_percent,
+                  defaultValue: `Вы и друг получаете +${terms.welcome_days_percent}% дней к подписке`,
+                })}
+              </p>
+            )}
+            {terms.welcome_money_percent > 0 && (
+              <p>
+                •{' '}
+                {t('referral.condition.welcomeMoney', {
+                  percent: terms.welcome_money_percent,
+                  defaultValue: `Вы и друг получаете +${terms.welcome_money_percent}% от пополнения на баланс`,
+                })}
+              </p>
+            )}
+            {terms.commission_percent > 0 && (
+              <p>
+                •{' '}
+                {t('referral.condition.commission', {
+                  percent: terms.commission_percent,
+                  defaultValue: `Вы получаете ${terms.commission_percent}% с каждого его пополнения`,
+                })}
+              </p>
+            )}
             {terms.first_topup_bonus_kopeks > 0 && (
               <p>
                 •{' '}

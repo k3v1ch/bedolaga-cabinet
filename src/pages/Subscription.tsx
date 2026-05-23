@@ -293,14 +293,6 @@ export default function Subscription() {
     enabled: !!subscription,
   });
 
-  // Delete device mutation
-  const deleteDeviceMutation = useMutation({
-    mutationFn: (hwid: string) => subscriptionApi.deleteDevice(hwid, subscriptionId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['devices', subscriptionId] });
-    },
-  });
-
   // Delete all devices mutation
   const deleteAllDevicesMutation = useMutation({
     mutationFn: () => subscriptionApi.deleteAllDevices(subscriptionId),

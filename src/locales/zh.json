@@ -738,6 +738,7 @@
       "totalReferrals": "总推荐数",
       "activeReferrals": "活跃",
       "totalEarnings": "总收益",
+      "welcomeBonus": "奖励天数",
       "commissionRate": "佣金比例"
     },
     "terms": {
@@ -903,6 +904,8 @@
     "condition": {
       "invite": "您通过链接邀请朋友",
       "minTopup": "朋友注册并充值余额(自 {{amount}})",
+      "welcomeDays": "您和好友各获得 +{{percent}}% 订阅天数",
+      "welcomeMoney": "您和好友各获得 +{{percent}}% 充值金额到余额",
       "commission": "您可获得每笔充值的 {{percent}}%",
       "newUserBonus": "朋友首次充值获得 {{amount}} 奖励",
       "inviterBonus": "您获得一次性奖励 {{amount}}",

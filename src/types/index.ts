@@ -477,6 +477,8 @@ export interface ReferralTerms {
   first_topup_bonus_rubles: number;
   inviter_bonus_kopeks: number;
   inviter_bonus_rubles: number;
+  welcome_money_percent: number;
+  welcome_days_percent: number;
   max_commission_payments: number;
   partner_section_visible?: boolean;
 }

@@ -934,7 +934,8 @@
       "totalReferrals": "Всего рефералов",
       "activeReferrals": "Активных",
       "totalEarnings": "Общий заработок",
-      "commissionRate": "Комиссия"
+      "commissionRate": "Комиссия",
+      "welcomeBonus": "Бонус дней"
     },
     "terms": {
       "title": "Условия программы",
@@ -1099,6 +1100,8 @@
     "condition": {
       "invite": "Вы приглашаете друга по своей ссылке",
       "commission": "Вы получаете {{percent}}% с каждого его пополнения",
+      "welcomeDays": "Вы и друг получаете +{{percent}}% дней к подписке",
+      "welcomeMoney": "Вы и друг получаете +{{percent}}% от пополнения на баланс",
       "newUserBonus": "Друг получает бонус {{amount}} на первое пополнение",
       "inviterBonus": "Вы получаете единоразовый бонус {{amount}} за приглашённого",
       "maxPayments": "Комиссия начисляется с первых {{count}} пополнений",
