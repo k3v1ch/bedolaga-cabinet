@@ -27,6 +27,7 @@ interface ColoredItemComboboxProps {
   onCreateNew: (name: string, color: string) => Promise<ColoredItem>;
   onDelete?: (item: ColoredItem) => Promise<void>;
   placeholder?: string;
+  ariaLabel?: string;
   isLoading?: boolean;
   colors?: string[];
   className?: string;
@@ -39,6 +40,7 @@ export function ColoredItemCombobox({
   onCreateNew,
   onDelete,
   placeholder,
+  ariaLabel,
   isLoading = false,
   colors = DEFAULT_COLORS,
   className,
@@ -190,6 +192,7 @@ export function ColoredItemCombobox({
           isOpen ? 'border-accent-500/50' : 'border-dark-700 hover:border-dark-600',
           isLoading && 'animate-pulse',
         )}
+        aria-label={ariaLabel}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
