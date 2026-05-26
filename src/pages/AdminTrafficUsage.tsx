@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   useReactTable,
   getCoreRowModel,
@@ -13,7 +14,6 @@ import {
   adminTrafficApi,
   type UserTrafficItem,
   type TrafficNodeInfo,
-  type TrafficUsageResponse,
   type TrafficParams,
   type TrafficEnrichmentData,
 } from '../api/adminTraffic';
@@ -1130,89 +1130,75 @@ export default function AdminTrafficUsage() {
     customEnd,
   ]);
 
-  const applyData = useCallback((data: TrafficUsageResponse) => {
-    setItems(data.items);
-    setNodes(data.nodes);
-    setTotal(data.total);
-    setAvailableTariffs(data.available_tariffs);
-    setAvailableStatuses(data.available_statuses);
-    setPeriodDays(data.period_days);
-  }, []);
+  const queryClient = useQueryClient();
+  const params = useMemo(() => buildParams(), [buildParams]);
 
-  const loadData = useCallback(
-    async (skipCache = false) => {
-      const params = buildParams();
+  // 5 min staleTime mirrors the previous in-memory cache TTL, so navigating
+  // away and back inside the window doesn't refetch. React Query handles
+  // dedup + per-key caching; the adminTrafficApi's own Map cache stays as a
+  // harmless L2 (still hit by background prefetch + tests).
+  const trafficQuery = useQuery({
+    queryKey: ['admin-traffic', params] as const,
+    queryFn: () => adminTrafficApi.getTrafficUsage(params),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
 
-      // Check cache first — apply instantly without any loading state
-      if (!skipCache) {
-        const cached = adminTrafficApi.getCached(params);
-        if (cached) {
-          applyData(cached);
-          setInitialLoading(false);
-          return;
-        }
-      }
-
-      try {
-        setLoading(true);
-        const data = await adminTrafficApi.getTrafficUsage(params, { skipCache });
-        applyData(data);
-      } catch {
-        // silently fail — keep stale data visible
-      } finally {
-        setLoading(false);
-        setInitialLoading(false);
-      }
-    },
-    [buildParams, applyData],
-  );
-
-  // Load on param change
+  // Sync trafficQuery into the existing state vars so the rest of the
+  // page (selectors, table, derived memos) is untouched.
   useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  // Load enrichment after main data arrives
+    if (!trafficQuery.data) return;
+    setItems(trafficQuery.data.items);
+    setNodes(trafficQuery.data.nodes);
+    setTotal(trafficQuery.data.total);
+    setAvailableTariffs(trafficQuery.data.available_tariffs);
+    setAvailableStatuses(trafficQuery.data.available_statuses);
+    setPeriodDays(trafficQuery.data.period_days);
+  }, [trafficQuery.data]);
   useEffect(() => {
-    if (initialLoading || items.length === 0) return;
-    let cancelled = false;
-    const load = async () => {
-      setEnrichmentLoading(true);
-      try {
-        const res = await adminTrafficApi.getEnrichment();
-        if (!cancelled) setEnrichment(res.data);
-      } catch {
-        // silently fail — enrichment is optional
-      } finally {
-        if (!cancelled) setEnrichmentLoading(false);
-      }
-    };
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [initialLoading, items.length]);
+    setLoading(trafficQuery.isFetching);
+    if (!trafficQuery.isLoading) setInitialLoading(false);
+  }, [trafficQuery.isFetching, trafficQuery.isLoading]);
 
-  // Prefetch adjacent periods in background (only in period mode)
+  // Enrichment query — gated on first data arrival so we don't fetch tags
+  // before there's anyone to tag.
+  const enrichmentQuery = useQuery({
+    queryKey: ['admin-traffic-enrichment'] as const,
+    queryFn: () => adminTrafficApi.getEnrichment(),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+    enabled: !trafficQuery.isLoading && items.length > 0,
+  });
+  useEffect(() => {
+    if (enrichmentQuery.data) setEnrichment(enrichmentQuery.data.data);
+  }, [enrichmentQuery.data]);
+  useEffect(() => {
+    setEnrichmentLoading(enrichmentQuery.isFetching);
+  }, [enrichmentQuery.isFetching]);
+
+  // Prefetch adjacent periods in background via queryClient — populates the
+  // cache so switching period feels instant.
   useEffect(() => {
     if (dateMode) return;
     const prefetchPeriods = PERIODS.filter((p) => p !== period);
     const timer = setTimeout(() => {
       prefetchPeriods.forEach((p) => {
-        const params: TrafficParams = {
+        const prefetchParams: TrafficParams = {
           period: p,
           limit,
           offset: 0,
           sort_by: 'total_bytes',
           sort_desc: true,
         };
-        if (!adminTrafficApi.getCached(params)) {
-          adminTrafficApi.getTrafficUsage(params).catch(() => {});
-        }
+        queryClient.prefetchQuery({
+          queryKey: ['admin-traffic', prefetchParams] as const,
+          queryFn: () => adminTrafficApi.getTrafficUsage(prefetchParams),
+          staleTime: 5 * 60 * 1000,
+        });
       });
     }, 500);
     return () => clearTimeout(timer);
-  }, [period, dateMode]);
+  }, [period, dateMode, limit, queryClient]);
 
   useEffect(() => {
     if (toast) {
@@ -1320,14 +1306,12 @@ export default function AdminTrafficUsage() {
   };
 
   const handleRefresh = () => {
-    loadData(true);
-    setEnrichment(null);
-    setEnrichmentLoading(true);
-    adminTrafficApi
-      .getEnrichment({ skipCache: true })
-      .then((res) => setEnrichment(res.data))
-      .catch(() => {})
-      .finally(() => setEnrichmentLoading(false));
+    // Force-bypass both layers: drop the API's Map cache, invalidate React
+    // Query, and explicitly refetch enrichment.
+    adminTrafficApi.invalidateCache();
+    queryClient.invalidateQueries({ queryKey: ['admin-traffic'] });
+    queryClient.invalidateQueries({ queryKey: ['admin-traffic-enrichment'] });
+    enrichmentQuery.refetch();
   };
 
   const availableCountries = useMemo(() => {
