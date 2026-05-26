@@ -420,7 +420,7 @@ export default function ConnectedAccounts() {
     },
   });
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
     setEmailError(null);
     setEmailSuccess(null);

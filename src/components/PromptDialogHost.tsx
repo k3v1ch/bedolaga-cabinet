@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState, type SyntheticEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useFocusTrap } from '../hooks/useFocusTrap';
@@ -25,7 +25,7 @@ export function PromptDialogHost() {
 
   if (!request) return null;
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
     const trimmed = value.trim();
     if (!trimmed) {

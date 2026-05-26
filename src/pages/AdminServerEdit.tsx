@@ -54,7 +54,7 @@ export default function AdminServerEdit() {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
     const data: ServerUpdateRequest = {
       display_name: displayName,

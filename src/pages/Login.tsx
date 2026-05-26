@@ -221,7 +221,7 @@ export default function Login() {
     }
   };
 
-  const handleEmailSubmit = async (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     setError('');
 
@@ -282,7 +282,7 @@ export default function Login() {
     }
   };
 
-  const handleForgotPassword = async (e: React.FormEvent) => {
+  const handleForgotPassword = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     setForgotPasswordError('');
 

@@ -210,7 +210,7 @@ export default function AdminUsers() {
   });
   const stats = statsQuery.data ?? null;
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: React.SyntheticEvent) => {
     e.preventDefault();
   };
 

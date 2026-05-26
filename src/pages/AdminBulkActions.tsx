@@ -1704,7 +1704,7 @@ export default function AdminBulkActions() {
     return () => clearTimeout(searchTimerRef.current);
   }, []);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
     clearTimeout(searchTimerRef.current);
     setOffset(0);

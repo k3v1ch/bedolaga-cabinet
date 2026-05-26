@@ -177,7 +177,7 @@ export default function AdminTickets() {
     }
   };
 
-  const handleReply = async (e: React.FormEvent) => {
+  const handleReply = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!selectedTicketId) return;
     if (attachments.some((a) => a.uploading || a.error)) return;

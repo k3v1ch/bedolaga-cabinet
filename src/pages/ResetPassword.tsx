@@ -15,7 +15,7 @@ export default function ResetPassword() {
   const [status, setStatus] = useState<'form' | 'loading' | 'success' | 'error'>('form');
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     setError('');
 

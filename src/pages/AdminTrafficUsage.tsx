@@ -1221,7 +1221,7 @@ export default function AdminTrafficUsage() {
     }
   }, [toast]);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: React.SyntheticEvent) => {
     e.preventDefault();
     setOffset(0);
     setCommittedSearch(searchInput);
