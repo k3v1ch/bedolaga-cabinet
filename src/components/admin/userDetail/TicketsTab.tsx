@@ -262,7 +262,8 @@ function ChatView({
       <div className="flex items-center gap-3">
         <button
           onClick={onBack}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-dark-800 transition-colors hover:bg-dark-700"
+          aria-label={t('common.back', 'Back')}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-dark-800 transition-colors hover:bg-dark-700 sm:h-8 sm:w-8"
         >
           <svg
             className="h-4 w-4 text-dark-400"
@@ -296,14 +297,15 @@ function ChatView({
         </div>
       </div>
 
-      {/* Status buttons */}
+      {/* Status buttons — 36px mobile / 26px desktop. Active state matters
+          and gets mis-tapped on mobile when too small. */}
       <div className="flex flex-wrap gap-1.5">
         {STATUS_VALUES.map((s) => (
           <button
             key={s}
             onClick={() => onStatusChange(s)}
             disabled={selectedTicket.status === s || actionLoading}
-            className={`rounded-lg border px-2.5 py-1 text-xs transition-all ${
+            className={`min-h-[36px] rounded-lg border px-2.5 py-1.5 text-xs transition-all sm:min-h-0 sm:py-1 ${
               selectedTicket.status === s
                 ? 'border-accent-500/50 bg-accent-500/20 text-accent-400'
                 : 'border-dark-700/50 text-dark-400 hover:border-dark-600 hover:text-dark-200'
@@ -364,7 +366,8 @@ function ChatView({
           <button
             onClick={onReply}
             disabled={!replyText.trim() || replySending}
-            className="shrink-0 self-end rounded-lg bg-accent-500 px-4 py-2 text-sm text-white transition-colors hover:bg-accent-600 disabled:opacity-50"
+            aria-label={t('admin.tickets.sendReply', 'Send reply')}
+            className="min-h-[44px] min-w-[44px] shrink-0 self-end rounded-lg bg-accent-500 px-4 py-2 text-sm text-white transition-colors hover:bg-accent-600 disabled:opacity-50 sm:min-h-0 sm:min-w-0"
           >
             {replySending ? (
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
