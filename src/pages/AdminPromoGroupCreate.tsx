@@ -192,11 +192,12 @@ export default function AdminPromoGroupCreate() {
       <div className="card space-y-4">
         {/* Name */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-dark-300">
+          <label htmlFor="pg-name" className="mb-2 block text-sm font-medium text-dark-300">
             {t('admin.promoGroups.form.name')}
             <span className="text-error-400">*</span>
           </label>
           <input
+            id="pg-name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -349,11 +350,12 @@ export default function AdminPromoGroupCreate() {
 
         {/* Auto-assign */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-dark-300">
+          <label htmlFor="pg-auto-assign" className="mb-2 block text-sm font-medium text-dark-300">
             {t('admin.promoGroups.form.autoAssign')}
           </label>
           <div className="flex items-center gap-2">
             <input
+              id="pg-auto-assign"
               type="number"
               value={autoAssignSpent}
               onChange={(e) => {
