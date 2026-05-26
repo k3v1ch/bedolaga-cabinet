@@ -323,7 +323,7 @@ export default function TvQuickConnect({ subscriptionUrl, isLight }: Props) {
       {toast && (
         <div
           className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-xl px-5 py-3 text-sm font-medium shadow-lg transition-all ${
-            toast.type === 'success' ? 'bg-emerald-500/90 text-white' : 'bg-error-500/90 text-white'
+            toast.type === 'success' ? 'bg-success-500/90 text-white' : 'bg-error-500/90 text-white'
           }`}
         >
           {toast.text}

@@ -170,7 +170,7 @@ export default function RenewSubscription() {
                       {option.period_days} {t('common.units.days', 'дней')}
                     </span>
                     {option.discount_percent > 0 && (
-                      <span className="ml-2 rounded-full bg-emerald-400/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
+                      <span className="ml-2 rounded-full bg-success-400/15 px-2 py-0.5 text-[10px] font-semibold text-success-400">
                         -{option.discount_percent}%
                       </span>
                     )}
