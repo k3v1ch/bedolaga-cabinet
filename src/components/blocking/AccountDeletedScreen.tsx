@@ -76,7 +76,7 @@ export default function AccountDeletedScreen() {
           {t('blocking.accountDeleted.title')}
         </h1>
 
-        <p className="mb-6 text-lg text-gray-400">{t('blocking.accountDeleted.description')}</p>
+        <p className="mb-6 text-lg text-dark-400">{t('blocking.accountDeleted.description')}</p>
 
         <div className="space-y-3">
           {deepLink && (
@@ -91,13 +91,13 @@ export default function AccountDeletedScreen() {
           <button
             type="button"
             onClick={handleRetry}
-            className="block w-full rounded-xl bg-dark-800 px-6 py-3 text-base font-medium text-gray-200 transition-colors hover:bg-dark-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-dark-950"
+            className="block w-full rounded-xl bg-dark-800 px-6 py-3 text-base font-medium text-dark-200 transition-colors hover:bg-dark-700 focus:outline-none focus:ring-2 focus:ring-dark-400 focus:ring-offset-2 focus:ring-offset-dark-950"
           >
             {t('blocking.accountDeleted.retry')}
           </button>
         </div>
 
-        <p className="mt-8 text-sm text-gray-500">{t('blocking.accountDeleted.hint')}</p>
+        <p className="mt-8 text-sm text-dark-500">{t('blocking.accountDeleted.hint')}</p>
       </div>
     </div>
   );

@@ -42,17 +42,17 @@ export default function BlacklistedScreen() {
         </h1>
 
         {/* Message */}
-        <p className="mb-6 text-lg text-gray-400">{t('blocking.blacklisted.defaultMessage')}</p>
+        <p className="mb-6 text-lg text-dark-400">{t('blocking.blacklisted.defaultMessage')}</p>
 
         {/* Reason */}
         {blacklistedInfo?.message && (
           <div className="mb-6 rounded-xl bg-dark-800/50 p-4">
-            <p className="mb-1 text-sm text-gray-500">{t('blocking.blacklisted.reason')}:</p>
-            <p className="text-gray-300">{blacklistedInfo.message}</p>
+            <p className="mb-1 text-sm text-dark-500">{t('blocking.blacklisted.reason')}:</p>
+            <p className="text-dark-300">{blacklistedInfo.message}</p>
           </div>
         )}
 
-        <p className="mt-8 text-sm text-gray-500">{t('blocking.blacklisted.contactSupport')}</p>
+        <p className="mt-8 text-sm text-dark-500">{t('blocking.blacklisted.contactSupport')}</p>
       </div>
     </div>
   );

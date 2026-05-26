@@ -108,7 +108,7 @@ export default function ChannelSubscriptionScreen() {
         </h1>
 
         {/* Message */}
-        <p className="mb-6 text-lg text-gray-400">
+        <p className="mb-6 text-lg text-dark-400">
           {channelInfo?.message || t('blocking.channel.defaultMessage')}
         </p>
 
@@ -184,7 +184,7 @@ export default function ChannelSubscriptionScreen() {
           ) : cooldown > 0 ? (
             <>
               <svg
-                className="h-5 w-5 text-gray-500"
+                className="h-5 w-5 text-dark-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -214,7 +214,7 @@ export default function ChannelSubscriptionScreen() {
         </button>
 
         {/* Hint */}
-        <p className="mt-4 text-sm text-gray-500">{t('blocking.channel.hint')}</p>
+        <p className="mt-4 text-sm text-dark-500">{t('blocking.channel.hint')}</p>
       </div>
     </div>
   );
