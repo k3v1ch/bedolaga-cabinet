@@ -200,9 +200,16 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   return <Layout>{children}</Layout>;
 }
 
-// Suspense wrapper for lazy components
+// Suspense + error boundary wrapper for lazy routes. The boundary lives
+// OUTSIDE Suspense so chunk-load failures (caught by lazyWithRetry's reload
+// path) and render-time exceptions both surface in the page-level fallback
+// instead of crashing the entire shell via the top-level boundary.
 function LazyPage({ children }: { children: React.ReactNode }) {
-  return <Suspense fallback={<PageLoader variant="dark" />}>{children}</Suspense>;
+  return (
+    <ErrorBoundary level="page">
+      <Suspense fallback={<PageLoader variant="dark" />}>{children}</Suspense>
+    </ErrorBoundary>
+  );
 }
 
 function BlockingOverlay() {
