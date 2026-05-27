@@ -199,12 +199,13 @@ export default function CabinetBalance() {
       const axiosError = error as { response?: { data?: { detail?: string } }; message?: string };
       const raw = axiosError.response?.data?.detail || '';
       const detail = raw.toLowerCase();
-      // "Not found" / "invalid" → код не похож на подарочный, пробуем как промокод
+      // "Not found" / "invalid" / "too short" → код не похож на подарочный, пробуем как промокод
       const looksUnknown =
         detail === '' ||
         detail.includes('not found') ||
         detail.includes('invalid code') ||
         detail.includes('invalid gift') ||
+        detail.includes('too short') ||
         detail.includes('unknown');
       if (looksUnknown) {
         return { ok: false, recognized: false, message: '' };
