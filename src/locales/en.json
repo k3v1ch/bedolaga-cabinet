@@ -282,7 +282,7 @@
     "trialOffer": {
       "freeTitle": "Free Trial Available",
       "paidTitle": "Trial Subscription",
-      "freeDesc": "Try our VPN for free — no commitment required",
+      "freeDesc": "Try our VPN for free, no commitment required",
       "paidDesc": "Get started with a trial subscription"
     },
     "stats": {
@@ -1475,7 +1475,7 @@
       "description": "Search and manage payments",
       "searchPlaceholder": "Search: invoice, TG ID, @username, email...",
       "searchHint": "Examples: SP-78291, @username, 123456789, user@mail.ru",
-      "searchResults": "Results for: {{query}} — found {{count}}",
+      "searchResults": "Results for: {{query}}. Found {{count}}",
       "resetSearch": "Reset",
       "statusAll": "All",
       "statusPending": "Pending",
@@ -1521,7 +1521,7 @@
       "methodEnabled": "Method enabled",
       "providerNotConfigured": "Provider not configured in env",
       "openUrlDirect": "Open payment page directly",
-      "openUrlDirectHint": "Skip the link panel — the provider opens inside the MiniApp/tab right after the click. After payment the user returns to /balance/top-up/result. Ignored for Stars/CryptoBot and other t.me/ links.",
+      "openUrlDirectHint": "Skip the link panel: the provider opens inside the MiniApp/tab right after the click. After payment the user returns to /balance/top-up/result. Ignored for Stars/CryptoBot and other t.me/ links.",
       "displayName": "Display name",
       "displayNameHint": "Leave empty for default name",
       "subOptions": "Payment options",
@@ -2151,7 +2151,7 @@
         "summaryErrors": "{{count}} errors"
       },
       "errors": {
-        "title": "{{count}} errors — show details"
+        "title": "{{count}} errors. Show details"
       },
       "filters": {
         "search": "Search by ID, username, email",
@@ -2398,7 +2398,7 @@
       "confirmDeleteText": "This action cannot be undone. The tariff will be permanently deleted.",
       "confirmDeleteWithSubscriptions": "This tariff has {{count}} active subscriptions. After deletion, users will need to select a new tariff when renewing.",
       "deleteSuccess": "Tariff deleted successfully",
-      "deleteSuccessWithSubscriptions": "Tariff deleted. {{count}} subscriptions reset — users will choose a new tariff on renewal.",
+      "deleteSuccessWithSubscriptions": "Tariff deleted. {{count}} subscriptions reset. Users will choose a new tariff on renewal.",
       "saveOrder": "Save order",
       "orderSaved": "Order saved",
       "dragToReorder": "Drag to reorder",
@@ -2459,7 +2459,7 @@
       "serversTabHint": "Select servers available on this tariff.",
       "noServersAvailable": "No servers available",
       "promoGroupsTitle": "Promo Groups",
-      "promoGroupsHint": "Select promo groups that have access to this tariff. If none selected — available to everyone.",
+      "promoGroupsHint": "Select promo groups that have access to this tariff. If none selected, available to everyone.",
       "noPromoGroups": "No promo groups",
       "extraDeviceTitle": "Additional devices",
       "devicePriceLabel": "Device price (30 days):",
@@ -2612,7 +2612,7 @@
         "notSelected": "Not selected",
         "tariffOption": "{{traffic}} GB, {{devices}} dev.",
         "durationDays": "Duration (days)",
-        "noBonusDescription": "Campaign without bonuses — only for tracking clicks and registrations.",
+        "noBonusDescription": "Campaign without bonuses: only for tracking clicks and registrations.",
         "active": "Active",
         "cancel": "Cancel",
         "save": "Save",
@@ -2662,7 +2662,7 @@
       },
       "users": {
         "title": "Campaign Users",
-        "campaignRegistrations": "{{name}} — {{count}} registrations",
+        "campaignRegistrations": "{{name}}: {{count}} registrations",
         "noUsers": "No registered users",
         "user": "User",
         "bonus": "Bonus",
@@ -4862,7 +4862,7 @@
     "activateButton": "Activate gift",
     "activating": "Activating...",
     "activateSuccess": "Gift activated!",
-    "activateSuccessDesc": "{{tariff}} — {{days}} days added to your subscription",
+    "activateSuccessDesc": "{{tariff}}: {{days}} days added to your subscription",
     "activateError": "Failed to activate gift",
     "activateSelfError": "You cannot activate your own gift",
     "myGiftsEmpty": "No gifts yet",

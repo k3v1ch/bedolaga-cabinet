@@ -1286,7 +1286,7 @@
       "methodEnabled": "方法已启用",
       "providerNotConfigured": "提供商未在env中配置",
       "openUrlDirect": "直接打开支付页面",
-      "openUrlDirectHint": "跳过链接面板 — 点击后提供商在 MiniApp/标签页内直接打开。支付完成后用户返回 /balance/top-up/result。Stars/CryptoBot 和其他 t.me/ 链接忽略此标志。",
+      "openUrlDirectHint": "跳过链接面板:点击后提供商在 MiniApp/标签页内直接打开。支付完成后用户返回 /balance/top-up/result。Stars/CryptoBot 和其他 t.me/ 链接忽略此标志。",
       "displayName": "显示名称",
       "displayNameHint": "留空以使用默认名称",
       "subOptions": "支付选项",
@@ -1338,7 +1338,7 @@
       "description": "搜索和管理支付",
       "searchPlaceholder": "搜索：发票、TG ID、@用户名、邮箱...",
       "searchHint": "示例：SP-78291、@username、123456789、user@mail.ru",
-      "searchResults": "搜索结果：{{query}} — 找到 {{count}} 条",
+      "searchResults": "搜索结果:{{query}}。找到 {{count}} 条",
       "resetSearch": "重置",
       "statusAll": "全部",
       "statusPending": "待处理",
@@ -1955,7 +1955,7 @@
       "confirmDeleteText": "此操作不可撤销。套餐将被永久删除。",
       "confirmDeleteWithSubscriptions": "此套餐有 {{count}} 个活跃订阅。删除后，用户续订时需要选择新套餐。",
       "deleteSuccess": "套餐删除成功",
-      "deleteSuccessWithSubscriptions": "套餐已删除。{{count}} 个订阅已重置 — 用户续订时将选择新套餐。",
+      "deleteSuccessWithSubscriptions": "套餐已删除。{{count}} 个订阅已重置。用户续订时将选择新套餐。",
       "saveOrder": "保存排序",
       "orderSaved": "排序已保存",
       "dragToReorder": "拖动以重新排序",
@@ -2162,7 +2162,7 @@
         "notSelected": "未选择",
         "tariffOption": "{{traffic}} GB，{{devices}} 台设备",
         "durationDays": "时长（天）",
-        "noBonusDescription": "无奖励活动——仅用于跟踪点击和注册。",
+        "noBonusDescription": "无奖励活动:仅用于跟踪点击和注册。",
         "active": "启用",
         "cancel": "取消",
         "save": "保存",
@@ -2210,7 +2210,7 @@
       },
       "users": {
         "title": "活动用户",
-        "campaignRegistrations": "{{name}} — {{count}} 次注册",
+        "campaignRegistrations": "{{name}}:{{count}} 次注册",
         "noUsers": "没有注册用户",
         "user": "用户",
         "bonus": "奖励",
@@ -3632,7 +3632,7 @@
         "summaryErrors": "{{count}} 错误"
       },
       "errors": {
-        "title": "{{count}} 个错误 — 显示详情"
+        "title": "{{count}} 个错误。显示详情"
       },
       "filters": {
         "search": "按ID、用户名、邮箱搜索",

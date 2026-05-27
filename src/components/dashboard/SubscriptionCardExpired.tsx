@@ -107,14 +107,14 @@ export default function SubscriptionCardExpired({
         r: 255,
         g: 184,
         b: 0,
-        hex: '#FFB800',
+        hex: 'rgb(var(--color-urgent-400))',
         gradient: 'linear-gradient(135deg, #FFB800, #FF8C00)',
       }
     : {
         r: 255,
         g: 59,
         b: 92,
-        hex: '#FF3B5C',
+        hex: 'rgb(var(--color-critical-500))',
         gradient: 'linear-gradient(135deg, #FF3B5C, #FF6B35)',
       };
 

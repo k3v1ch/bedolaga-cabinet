@@ -12,7 +12,7 @@ import type { PaginatedResponse, Transaction } from '../types';
 
 import { Card } from '@/components/data-display/Card';
 import { Button } from '@/components/primitives/Button';
-import { ChevronDownIcon, ChevronRightIcon } from '@/components/icons';
+import { ChevronDownIcon, ChevronRightIcon, CreditCardIcon } from '@/components/icons';
 import { staggerContainer, staggerItem } from '@/components/motion/transitions';
 import { isPaidStatus, isFailedStatus } from '../utils/paymentStatus';
 
@@ -210,9 +210,12 @@ export default function Balance() {
         <h1 className="text-2xl font-bold text-dark-50 sm:text-3xl">{t('balance.title')}</h1>
       </motion.div>
 
-      {/* Balance Card */}
+      {/* Balance Card — flat surface; the giant numeric carries the
+          weight. The previous accent gradient + glow leaked accent into
+          decoration (DESIGN.md Tunable-but-Scarce Rule) and read as the
+          SaaS hero-metric template. */}
       <motion.div variants={staggerItem}>
-        <Card className="bg-gradient-to-br from-accent-500/10 to-transparent" glow>
+        <Card>
           <div className="mb-2 text-sm text-dark-400">{t('balance.currentBalance')}</div>
           <div className="text-4xl font-bold text-dark-50 sm:text-5xl">
             {formatAmount(balanceData?.balance_rubles || 0)}
@@ -343,7 +346,7 @@ export default function Balance() {
                       </div>
                     )}
                     <div className="mt-3 text-xs text-dark-600">
-                      {formatAmount(method.min_amount_kopeks / 100, 0)} –{' '}
+                      {formatAmount(method.min_amount_kopeks / 100, 0)} {t('common.rangeTo', 'to')}{' '}
                       {formatAmount(method.max_amount_kopeks / 100, 0)} {currencySymbol}
                     </div>
                   </Card>
@@ -482,7 +485,7 @@ export default function Balance() {
           <Card interactive onClick={() => navigate('/balance/saved-cards')}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-xl">💳</span>
+                <CreditCardIcon className="h-5 w-5 text-dark-400" />
                 <span className="font-medium text-dark-100">{t('balance.savedCards.title')}</span>
               </div>
               <ChevronRightIcon className="h-5 w-5 text-dark-400" />

@@ -172,7 +172,7 @@
     "registerHint": "Для регистрации по email сначала авторизуйтесь через Telegram, затем привяжите email в настройках.",
     "telegramRequired": "Требуется авторизация через Telegram",
     "telegramRetryFailed": "Авторизация не удалась. Закройте приложение и откройте заново.",
-    "telegramReopenHint": "Если проблема повторяется — закройте и откройте приложение заново",
+    "telegramReopenHint": "Если проблема повторяется, закройте и откройте приложение заново",
     "telegramNotConfigured": "Telegram бот не настроен",
     "telegramUnavailable": "Вход через Telegram временно недоступен",
     "authenticating": "Авторизация...",
@@ -295,7 +295,7 @@
     "trialOffer": {
       "freeTitle": "Бесплатный пробный период",
       "paidTitle": "Пробная подписка",
-      "freeDesc": "Попробуйте наш VPN бесплатно — без обязательств",
+      "freeDesc": "Попробуйте наш VPN бесплатно: без обязательств",
       "paidDesc": "Начните с пробной подписки"
     },
     "stats": {
@@ -1497,7 +1497,7 @@
       "description": "Поиск и управление платежами",
       "searchPlaceholder": "Поиск: инвойс, TG ID, @username, email...",
       "searchHint": "Примеры: SP-78291, @username, 123456789, user@mail.ru",
-      "searchResults": "Результаты по запросу: {{query}} — найдено {{count}}",
+      "searchResults": "Результаты по запросу: {{query}}. Найдено {{count}}",
       "resetSearch": "Сбросить",
       "statusAll": "Все",
       "statusPending": "В ожидании",
@@ -1543,7 +1543,7 @@
       "methodEnabled": "Метод включён",
       "providerNotConfigured": "Провайдер не настроен в env",
       "openUrlDirect": "Открывать страницу оплаты сразу",
-      "openUrlDirectHint": "Без панели со ссылкой — провайдер открывается внутри MiniApp/вкладки сразу после клика. После оплаты юзер возвращается на /balance/top-up/result. Для Stars/CryptoBot и других t.me/-ссылок флаг игнорируется.",
+      "openUrlDirectHint": "Без панели со ссылкой: провайдер открывается внутри MiniApp/вкладки сразу после клика. После оплаты юзер возвращается на /balance/top-up/result. Для Stars/CryptoBot и других t.me/-ссылок флаг игнорируется.",
       "displayName": "Отображаемое имя",
       "displayNameHint": "Оставьте пустым для имени по умолчанию",
       "subOptions": "Варианты оплаты",
@@ -2796,7 +2796,7 @@
       "confirmDeleteText": "Это действие нельзя отменить. Тариф будет удалён навсегда.",
       "confirmDeleteWithSubscriptions": "У этого тарифа {{count}} активных подписок. При удалении пользователям потребуется выбрать новый тариф при продлении.",
       "deleteSuccess": "Тариф успешно удален",
-      "deleteSuccessWithSubscriptions": "Тариф удален. У {{count}} подписок сброшен тариф — при продлении пользователи выберут новый.",
+      "deleteSuccessWithSubscriptions": "Тариф удален. У {{count}} подписок сброшен тариф. При продлении пользователи выберут новый.",
       "saveOrder": "Сохранить порядок",
       "orderSaved": "Порядок сохранён",
       "dragToReorder": "Перетащите для изменения порядка",
@@ -2857,7 +2857,7 @@
       "serversTabHint": "Выберите серверы, доступные на этом тарифе.",
       "noServersAvailable": "Нет доступных серверов",
       "promoGroupsTitle": "Промо-группы",
-      "promoGroupsHint": "Выберите промо-группы, которым доступен этот тариф. Если не выбрано ничего — доступен всем.",
+      "promoGroupsHint": "Выберите промо-группы, которым доступен этот тариф. Если не выбрано ничего, доступен всем.",
       "noPromoGroups": "Нет промо-групп",
       "extraDeviceTitle": "Докупка устройств",
       "devicePriceLabel": "Цена за устройство (30 дней):",
@@ -3880,7 +3880,7 @@
       "deleteSubscription": {
         "warning": "Выбранные подписки будут безвозвратно удалены из бота и панели RemnaWave!",
         "hint": "Пользователи потеряют доступ к VPN по удалённым подпискам. Это действие нельзя отменить.",
-        "activePaidWarning": "{{count}} из {{total}} выбранных подписок — активные платные",
+        "activePaidWarning": "{{count}} из {{total}} выбранных подписок: активные платные",
         "forceDeleteConfirm": "Подтверждаю удаление активных платных подписок"
       },
       "deleteUser": {
@@ -3917,7 +3917,7 @@
         "summaryErrors": "{{count}} ошибок"
       },
       "errors": {
-        "title": "{{count}} ошибок — показать детали"
+        "title": "{{count}} ошибок. Показать детали"
       },
       "filters": {
         "search": "Поиск по ID, нику, email",
@@ -5418,7 +5418,7 @@
     "activateButton": "Активировать подарок",
     "activating": "Активация...",
     "activateSuccess": "Подарок активирован!",
-    "activateSuccessDesc": "{{tariff}} — {{days}} дн. добавлено к вашей подписке",
+    "activateSuccessDesc": "{{tariff}}: {{days}} дн. добавлено к вашей подписке",
     "activateError": "Не удалось активировать подарок",
     "activateSelfError": "Нельзя активировать свой собственный подарок",
     "myGiftsEmpty": "У вас пока нет подарков",

@@ -1511,7 +1511,7 @@
       "description": "جستجو و مدیریت پرداخت‌ها",
       "searchPlaceholder": "جستجو: فاکتور، شناسه تلگرام، @نام‌کاربری، ایمیل...",
       "searchHint": "مثال‌ها: SP-78291, @username, 123456789, user@mail.ru",
-      "searchResults": "نتایج برای: {{query}} — {{count}} یافت شد",
+      "searchResults": "نتایج برای: {{query}}. {{count}} یافت شد",
       "resetSearch": "بازنشانی",
       "statusAll": "همه",
       "statusPending": "در انتظار",
@@ -1915,7 +1915,7 @@
       "confirmDeleteText": "این عمل قابل بازگشت نیست. تعرفه برای همیشه حذف می‌شود.",
       "confirmDeleteWithSubscriptions": "این تعرفه {{count}} اشتراک فعال دارد. پس از حذف، کاربران هنگام تمدید باید تعرفه جدید انتخاب کنند.",
       "deleteSuccess": "تعرفه با موفقیت حذف شد",
-      "deleteSuccessWithSubscriptions": "تعرفه حذف شد. تعرفه {{count}} اشتراک بازنشانی شد — کاربران هنگام تمدید تعرفه جدید انتخاب می‌کنند.",
+      "deleteSuccessWithSubscriptions": "تعرفه حذف شد. تعرفه {{count}} اشتراک بازنشانی شد. کاربران هنگام تمدید تعرفه جدید انتخاب می‌کنند.",
       "saveOrder": "ذخیره ترتیب",
       "orderSaved": "ترتیب ذخیره شد",
       "dragToReorder": "برای تغییر ترتیب بکشید",
@@ -2088,7 +2088,7 @@
       "methodEnabled": "روش فعال است",
       "providerNotConfigured": "ارائه‌دهنده در env تنظیم نشده",
       "openUrlDirect": "صفحه پرداخت را مستقیماً باز کن",
-      "openUrlDirectHint": "بدون پنل لینک — ارائه‌دهنده داخل MiniApp/تب بلافاصله پس از کلیک باز می‌شود. پس از پرداخت کاربر به /balance/top-up/result بازمی‌گردد. برای Stars/CryptoBot و سایر لینک‌های t.me/ این پرچم نادیده گرفته می‌شود.",
+      "openUrlDirectHint": "بدون پنل لینک: ارائه‌دهنده داخل MiniApp/تب بلافاصله پس از کلیک باز می‌شود. پس از پرداخت کاربر به /balance/top-up/result بازمی‌گردد. برای Stars/CryptoBot و سایر لینک‌های t.me/ این پرچم نادیده گرفته می‌شود.",
       "displayName": "نام نمایشی",
       "displayNameHint": "برای نام پیش‌فرض خالی بگذارید",
       "subOptions": "گزینه‌های پرداخت",
@@ -2163,7 +2163,7 @@
         "notSelected": "انتخاب نشده",
         "tariffOption": "{{traffic}} GB، {{devices}} دستگاه",
         "durationDays": "مدت (روز)",
-        "noBonusDescription": "کمپین بدون پاداش — فقط برای ردیابی کلیک‌ها و ثبت‌نام‌ها.",
+        "noBonusDescription": "کمپین بدون پاداش: فقط برای ردیابی کلیک‌ها و ثبت‌نام‌ها.",
         "active": "فعال",
         "cancel": "لغو",
         "save": "ذخیره",
@@ -2211,7 +2211,7 @@
       },
       "users": {
         "title": "کاربران کمپین",
-        "campaignRegistrations": "{{name}} — {{count}} ثبت‌نام",
+        "campaignRegistrations": "{{name}}: {{count}} ثبت‌نام",
         "noUsers": "کاربر ثبت‌نام شده‌ای وجود ندارد",
         "user": "کاربر",
         "bonus": "پاداش",
@@ -3633,7 +3633,7 @@
         "summaryErrors": "{{count}} خطا"
       },
       "errors": {
-        "title": "{{count}} خطا — نمایش جزئیات"
+        "title": "{{count}} خطا. نمایش جزئیات"
       },
       "filters": {
         "search": "جستجو بر اساس شناسه، نام کاربری، ایمیل",
