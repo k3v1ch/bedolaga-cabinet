@@ -325,62 +325,75 @@ function NodeCard({ node, providerName, realtime, onAction, isLoading }: NodeCar
         )}
       </div>
 
-      {/* Live metrics: RAM · load · speeds · versions */}
+      {/* Live metrics in 3 fixed rows (processor · traffic · versions) so the
+          changing speed/value widths never reflow or jump between lines. */}
       {(ramPct !== null || loadAvg || rx > 0 || tx > 0 || node.versions) && (
-        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-dark-700/60 pt-2 font-mono text-[10.5px] text-dark-500">
-          {ramPct !== null && (
-            <span className="flex items-center gap-1.5" title="RAM">
-              <MemoryIcon className="h-3 w-3 text-dark-500" />
-              <span
-                className={
-                  ramPct > 85
-                    ? 'text-error-400'
-                    : ramPct > 65
-                      ? 'text-warning-400'
-                      : 'text-dark-400'
-                }
-              >
-                {ramPct}%
-              </span>
-              <span className="h-1 w-10 overflow-hidden rounded-full bg-dark-700">
-                <span
-                  className="block h-full rounded-full bg-dark-400"
-                  style={{ width: `${ramPct}%` }}
-                />
-              </span>
-            </span>
+        <div className="mt-2 space-y-1 border-t border-dark-700/60 pt-2 font-mono text-[10.5px] tabular-nums text-dark-500">
+          {/* Row 1 — Processor: CPU load + RAM */}
+          {(loadAvg || ramPct !== null) && (
+            <div className="flex items-center gap-3">
+              {loadAvg && (
+                <span className="flex items-center gap-1" title="load average 1 / 5 / 15 min">
+                  <CpuIcon className="h-3 w-3 shrink-0 text-dark-500" />
+                  {loadAvg}
+                </span>
+              )}
+              {ramPct !== null && (
+                <span className="flex items-center gap-1.5" title="RAM">
+                  <MemoryIcon className="h-3 w-3 shrink-0 text-dark-500" />
+                  <span
+                    className={
+                      ramPct > 85
+                        ? 'text-error-400'
+                        : ramPct > 65
+                          ? 'text-warning-400'
+                          : 'text-dark-400'
+                    }
+                  >
+                    {ramPct}%
+                  </span>
+                  <span className="h-1 w-10 overflow-hidden rounded-full bg-dark-700">
+                    <span
+                      className="block h-full rounded-full bg-dark-400"
+                      style={{ width: `${ramPct}%` }}
+                    />
+                  </span>
+                </span>
+              )}
+            </div>
           )}
-          {loadAvg && (
-            <span className="flex items-center gap-1" title="load average 1 / 5 / 15 min">
-              <CpuIcon className="h-3 w-3 text-dark-500" />
-              {loadAvg}
-            </span>
+
+          {/* Row 2 — Traffic: down / up speeds (2 fixed columns so a wide value
+              never pushes the other) */}
+          {(rx > 0 || tx > 0) && (
+            <div className="grid grid-cols-2 gap-3">
+              <span className="flex items-center gap-1">
+                <DownloadIcon className="h-3 w-3 shrink-0 text-success-400/70" />
+                {formatSpeed(rx)}
+              </span>
+              <span className="flex items-center gap-1">
+                <UploadIcon className="h-3 w-3 shrink-0 text-accent-400/70" />
+                {formatSpeed(tx)}
+              </span>
+            </div>
           )}
-          <span className="flex items-center gap-2">
-            <span className="flex items-center gap-0.5">
-              <DownloadIcon className="h-3 w-3 text-success-400/70" />
-              {formatSpeed(rx)}
-            </span>
-            <span className="flex items-center gap-0.5">
-              <UploadIcon className="h-3 w-3 text-accent-400/70" />
-              {formatSpeed(tx)}
-            </span>
-          </span>
+
+          {/* Row 3 — Versions: remnanode + xray core */}
           {(node.versions?.node || node.versions?.xray) && (
-            <span className="flex w-full items-center gap-2.5 text-dark-600 sm:ml-auto sm:w-auto">
+            <div className="flex items-center gap-3 text-dark-600">
               {node.versions?.node && (
                 <span className="flex items-center gap-1" title="remnanode">
-                  <RemnawaveIcon className="h-3 w-3" />
+                  <RemnawaveIcon className="h-3 w-3 shrink-0" />
                   {node.versions.node}
                 </span>
               )}
               {node.versions?.xray && (
                 <span className="flex items-center gap-1" title="xray core">
-                  <XrayIcon className="h-3 w-3" />
+                  <XrayIcon className="h-3 w-3 shrink-0" />
                   {node.versions.xray}
                 </span>
               )}
-            </span>
+            </div>
           )}
         </div>
       )}
