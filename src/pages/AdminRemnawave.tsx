@@ -47,6 +47,7 @@ import {
   StopIcon,
   ArrowPathIcon,
   RemnawaveIcon,
+  XrayIcon,
   DownloadIcon,
   UploadIcon,
   SubscriptionIcon,
@@ -366,9 +367,19 @@ function NodeCard({ node, providerName, realtime, onAction, isLoading }: NodeCar
             </span>
           </span>
           {(node.versions?.node || node.versions?.xray) && (
-            <span className="flex w-full items-center gap-2 text-dark-600 sm:ml-auto sm:w-auto">
-              {node.versions?.node && <span>{node.versions.node}</span>}
-              {node.versions?.xray && <span>xray {node.versions.xray}</span>}
+            <span className="flex w-full items-center gap-2.5 text-dark-600 sm:ml-auto sm:w-auto">
+              {node.versions?.node && (
+                <span className="flex items-center gap-1" title="remnanode">
+                  <RemnawaveIcon className="h-3 w-3" />
+                  {node.versions.node}
+                </span>
+              )}
+              {node.versions?.xray && (
+                <span className="flex items-center gap-1" title="xray core">
+                  <XrayIcon className="h-3 w-3" />
+                  {node.versions.xray}
+                </span>
+              )}
             </span>
           )}
         </div>
