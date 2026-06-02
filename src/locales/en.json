@@ -1306,7 +1306,9 @@
         "conversion": "Conversion",
         "renewals": "Renewals",
         "addonRevenue": "Add-on Revenue",
-        "manualTopup": "Manual Top-ups"
+        "manualTopup": "Manual Top-ups",
+        "refundsCount": "Refunds",
+        "refundsAmount": "Refunded amount"
       },
       "trials": {
         "total": "Total Trials",

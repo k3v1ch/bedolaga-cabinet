@@ -26,6 +26,9 @@ interface StatCardProps {
   valueClassName?: string;
   /** Optional period-over-period change shown under the value. */
   delta?: StatCardDelta | null;
+  /** For "lower is better" metrics (e.g. refunds): keep the real arrow but flip
+   *  the colour, so a rise reads as bad (red) and a drop as good (green). */
+  invertDelta?: boolean;
 }
 
 export function StatCard({
@@ -35,10 +38,18 @@ export function StatCard({
   tone = 'neutral',
   valueClassName,
   delta,
+  invertDelta = false,
 }: StatCardProps) {
   const toneStyle = TONE[tone];
   const valueClass = valueClassName ?? toneStyle.value;
-  const trendStyle = delta ? (TREND_STYLES[delta.trend] ?? TREND_STYLES.stable) : null;
+  const baseTrend = delta ? (TREND_STYLES[delta.trend] ?? TREND_STYLES.stable) : null;
+  const trendStyle =
+    baseTrend && invertDelta && delta && delta.trend !== 'stable'
+      ? {
+          arrow: baseTrend.arrow,
+          className: TREND_STYLES[delta.trend === 'up' ? 'down' : 'up'].className,
+        }
+      : baseTrend;
 
   return (
     <div className="rounded-xl bg-dark-800/30 p-3 transition-colors hover:bg-dark-800/50">

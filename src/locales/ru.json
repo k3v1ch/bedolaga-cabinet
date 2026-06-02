@@ -1328,7 +1328,9 @@
         "conversion": "Конверсия",
         "renewals": "Продления",
         "addonRevenue": "Доп. услуги",
-        "manualTopup": "Ручные пополнения"
+        "manualTopup": "Ручные пополнения",
+        "refundsCount": "Возвраты",
+        "refundsAmount": "Сумма возвратов"
       },
       "trials": {
         "total": "Всего триалов",

@@ -13,6 +13,7 @@ import {
   GiftIcon,
   PercentIcon,
   RepeatIcon,
+  ResetIcon,
   RocketIcon,
   SparklesIcon,
   TicketIcon,
@@ -115,6 +116,7 @@ export default function AdminSalesStats() {
       renewals: computeDelta(summary.renewals_count, prevSummary.renewals_count),
       addonRevenue: computeDelta(summary.addon_revenue_kopeks, prevSummary.addon_revenue_kopeks),
       manualTopup: computeDelta(summary.manual_topup_kopeks, prevSummary.manual_topup_kopeks),
+      refunds: computeDelta(summary.refunds_kopeks, prevSummary.refunds_kopeks),
     };
   }, [summary, prevSummary]);
 
@@ -148,7 +150,7 @@ export default function AdminSalesStats() {
           {t('admin.salesStats.loadError')}
         </div>
       )}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         <StatCard
           label={t('admin.salesStats.summary.revenue')}
           value={
@@ -222,6 +224,24 @@ export default function AdminSalesStats() {
           icon={<WalletIcon className="h-5 w-5" />}
           tone="warning"
           delta={deltas?.manualTopup}
+        />
+        <StatCard
+          label={t('admin.salesStats.summary.refundsCount')}
+          value={summaryLoading ? '...' : (summary?.refunds_count ?? 0)}
+          icon={<ResetIcon className="h-5 w-5" />}
+          tone="error"
+        />
+        <StatCard
+          label={t('admin.salesStats.summary.refundsAmount')}
+          value={
+            summaryLoading
+              ? '...'
+              : formatWithCurrency((summary?.refunds_kopeks ?? 0) / SALES_STATS.KOPEKS_DIVISOR, 0)
+          }
+          icon={<BanknotesIcon className="h-5 w-5" />}
+          tone="error"
+          delta={deltas?.refunds}
+          invertDelta
         />
       </div>
 

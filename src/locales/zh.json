@@ -1179,7 +1179,9 @@
         "conversion": "转化率",
         "renewals": "续订",
         "addonRevenue": "附加服务收入",
-        "manualTopup": "手动充值"
+        "manualTopup": "手动充值",
+        "refundsCount": "退款",
+        "refundsAmount": "退款金额"
       },
       "trials": {
         "total": "试用总数",
