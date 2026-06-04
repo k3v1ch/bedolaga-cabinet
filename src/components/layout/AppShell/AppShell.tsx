@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 
 import { useAuthStore } from '@/store/auth';
 import { useHaptic } from '@/platform';
@@ -109,11 +110,13 @@ export function AppShell({ children }: AppShellProps) {
     };
   }, []);
 
-  // Desktop navigation items
-  const desktopNavItems = [
+  // Desktop navigation — labels always visible (no hover-reveal gimmick)
+  const desktopNav = [
     { path: '/', label: t('nav.dashboard'), icon: HomeIcon },
     { path: '/subscriptions', label: t('nav.subscription'), icon: SubscriptionIcon },
     { path: '/balance', label: t('nav.balance'), icon: CreditCardIcon },
+    ...(referralEnabled ? [{ path: '/referral', label: t('nav.referral'), icon: UsersIcon }] : []),
+    ...(giftEnabled ? [{ path: '/gift', label: t('nav.gift'), icon: GiftIcon }] : []),
     { path: '/support', label: t('nav.support'), icon: ChatIcon },
     { path: '/info', label: t('nav.info'), icon: InfoIcon },
     { path: '/profile', label: t('nav.profile'), icon: UserIcon },
@@ -126,6 +129,48 @@ export function AppShell({ children }: AppShellProps) {
 
   const handleNavClick = () => {
     haptic.impact('light');
+  };
+
+  // A single elegant nav link: icon + label always visible, with a shared
+  // framer-motion pill that slides to the active item on navigation.
+  const renderNavLink = (
+    path: string,
+    label: string,
+    Icon: React.ComponentType<{ className?: string }>,
+    admin = false,
+  ) => {
+    const active = admin ? location.pathname.startsWith('/admin') : isActive(path);
+    return (
+      <Link
+        key={path}
+        to={path}
+        onClick={handleNavClick}
+        aria-label={label}
+        className={cn(
+          'relative flex items-center gap-2 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors duration-200',
+          active
+            ? admin
+              ? 'text-warning-400'
+              : 'text-dark-50'
+            : admin
+              ? 'text-warning-500/70 hover:bg-warning-500/10 hover:text-warning-400'
+              : 'text-dark-400 hover:bg-dark-800/50 hover:text-dark-100',
+        )}
+      >
+        {active && (
+          <motion.span
+            layoutId="desktop-nav-active"
+            className={cn(
+              'absolute inset-0 rounded-lg',
+              admin ? 'bg-warning-500/10' : 'bg-dark-800',
+            )}
+            transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+          />
+        )}
+        <Icon className="relative h-[17px] w-[17px] shrink-0" />
+        <span className="relative whitespace-nowrap">{label}</span>
+      </Link>
+    );
   };
 
   // headerHeight comes from useHeaderHeight() — accounts for TG safe area in fullscreen
@@ -170,81 +215,12 @@ export function AppShell({ children }: AppShellProps) {
           </Link>
 
           {/* Center Navigation */}
-          <nav className="flex min-w-0 items-center gap-1">
-            {desktopNavItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={handleNavClick}
-                aria-label={item.label}
-                className={cn(
-                  'group flex items-center rounded-xl px-2.5 py-2 transition-all duration-200',
-                  isActive(item.path)
-                    ? 'bg-dark-800 text-dark-50'
-                    : 'text-dark-400 hover:bg-dark-800/50 hover:text-dark-200',
-                )}
-              >
-                <item.icon className="h-[18px] w-[18px] shrink-0" />
-                <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs font-medium opacity-0 transition-all duration-200 group-focus-within:ml-2 group-focus-within:max-w-40 group-focus-within:opacity-100 group-hover:ml-2 group-hover:max-w-40 group-hover:opacity-100">
-                  {item.label}
-                </span>
-              </Link>
-            ))}
-            {referralEnabled && (
-              <Link
-                to="/referral"
-                onClick={handleNavClick}
-                aria-label={t('nav.referral')}
-                className={cn(
-                  'group flex items-center rounded-xl px-2.5 py-2 transition-all duration-200',
-                  isActive('/referral')
-                    ? 'bg-dark-800 text-dark-50'
-                    : 'text-dark-400 hover:bg-dark-800/50 hover:text-dark-200',
-                )}
-              >
-                <UsersIcon className="h-[18px] w-[18px] shrink-0" />
-                <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs font-medium opacity-0 transition-all duration-200 group-focus-within:ml-2 group-focus-within:max-w-40 group-focus-within:opacity-100 group-hover:ml-2 group-hover:max-w-40 group-hover:opacity-100">
-                  {t('nav.referral')}
-                </span>
-              </Link>
-            )}
-            {giftEnabled && (
-              <Link
-                to="/gift"
-                onClick={handleNavClick}
-                aria-label={t('nav.gift')}
-                className={cn(
-                  'group flex items-center rounded-xl px-2.5 py-2 transition-all duration-200',
-                  isActive('/gift')
-                    ? 'bg-dark-800 text-dark-50'
-                    : 'text-dark-400 hover:bg-dark-800/50 hover:text-dark-200',
-                )}
-              >
-                <GiftIcon className="h-[18px] w-[18px] shrink-0" />
-                <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs font-medium opacity-0 transition-all duration-200 group-focus-within:ml-2 group-focus-within:max-w-40 group-focus-within:opacity-100 group-hover:ml-2 group-hover:max-w-40 group-hover:opacity-100">
-                  {t('nav.gift')}
-                </span>
-              </Link>
-            )}
+          <nav className="flex min-w-0 items-center justify-center gap-0.5">
+            {desktopNav.map((item) => renderNavLink(item.path, item.label, item.icon))}
             {isAdmin && (
               <>
-                <div className="mx-1 h-5 w-px shrink-0 bg-dark-700" />
-                <Link
-                  to="/admin"
-                  onClick={handleNavClick}
-                  aria-label={t('admin.nav.title')}
-                  className={cn(
-                    'group flex items-center rounded-xl px-2.5 py-2 transition-all duration-200',
-                    location.pathname.startsWith('/admin')
-                      ? 'bg-warning-500/10 text-warning-400'
-                      : 'text-warning-500/70 hover:bg-warning-500/10 hover:text-warning-400',
-                  )}
-                >
-                  <ShieldIcon className="h-[18px] w-[18px] shrink-0" />
-                  <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs font-medium opacity-0 transition-all duration-200 group-focus-within:ml-2 group-focus-within:max-w-40 group-focus-within:opacity-100 group-hover:ml-2 group-hover:max-w-40 group-hover:opacity-100">
-                    {t('admin.nav.title')}
-                  </span>
-                </Link>
+                <div className="mx-1.5 h-5 w-px shrink-0 bg-dark-700/70" />
+                {renderNavLink('/admin', t('admin.nav.title'), ShieldIcon, true)}
               </>
             )}
           </nav>
