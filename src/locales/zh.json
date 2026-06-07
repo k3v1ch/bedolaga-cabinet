@@ -674,6 +674,13 @@
         "not_yet_valid": "优惠码尚未生效",
         "used": "优惠码已被使用",
         "already_used_by_user": "您已使用过此优惠码",
+        "active_discount_exists": "您已有一个生效中的折扣，请先停用它。",
+        "no_subscription_for_days": "此优惠码需要有效或已过期的订阅",
+        "subscription_not_found": "未找到订阅",
+        "not_first_purchase": "此优惠码仅限首次购买使用",
+        "daily_limit": "今日优惠码激活次数过多",
+        "trial_subscription_exists": "您已有订阅，因此无法使用此试用优惠码",
+        "trial_provisioning_failed": "暂时无法开通试用，请稍后再试",
         "user_not_found": "用户不存在",
         "server_error": "服务器错误"
       },
