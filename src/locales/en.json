@@ -4158,6 +4158,7 @@
       "save": "Save",
       "saving": "Saving...",
       "saveError": "Failed to save. Please try again.",
+      "unsavedWarning": "Unsaved changes will be lost. Continue?",
       "faqPages": "Questions and answers",
       "addQuestion": "Add question",
       "newQuestion": "New question",

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
@@ -99,7 +99,13 @@ function LanguageTabs({
   );
 }
 
-function DocumentEditor({ kind }: { kind: 'privacy-policy' | 'public-offer' }) {
+function DocumentEditor({
+  kind,
+  onDirtyChange,
+}: {
+  kind: 'privacy-policy' | 'public-offer';
+  onDirtyChange: (dirty: boolean) => void;
+}) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const haptic = useHapticFeedback();
@@ -110,17 +116,18 @@ function DocumentEditor({ kind }: { kind: 'privacy-policy' | 'public-offer' }) {
   const [populated, setPopulated] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: ['admin', 'legal-pages', kind],
     queryFn: () =>
       kind === 'privacy-policy'
         ? adminLegalPagesApi.getPrivacyPolicy()
         : adminLegalPagesApi.getPublicOffer(),
     staleTime: 0,
+    gcTime: 0,
   });
 
   useEffect(() => {
-    if (!data || populated) return;
+    if (!data || isFetching || populated) return;
     setDisplayMode(data.display_mode);
     const nextContents: Record<string, string> = {};
     const nextEnabled: Record<string, boolean> = {};
@@ -134,7 +141,21 @@ function DocumentEditor({ kind }: { kind: 'privacy-policy' | 'public-offer' }) {
       setActiveLang(data.items[0].language);
     }
     setPopulated(true);
-  }, [data, populated]);
+  }, [data, isFetching, populated]);
+
+  const isDirty =
+    populated &&
+    !!data &&
+    (displayMode !== data.display_mode ||
+      data.items.some(
+        (item) =>
+          (contents[item.language] ?? '') !== item.content ||
+          (enabled[item.language] ?? false) !== item.is_enabled,
+      ));
+
+  useEffect(() => {
+    onDirtyChange(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   const saveMutation = useMutation({
     mutationFn: () => {
@@ -187,7 +208,10 @@ function DocumentEditor({ kind }: { kind: 'privacy-policy' | 'public-offer' }) {
         <label className="label">{t('admin.legalPages.content')}</label>
         <textarea
           value={contents[activeLang] ?? ''}
-          onChange={(e) => setContents((prev) => ({ ...prev, [activeLang]: e.target.value }))}
+          onChange={(e) => {
+            setSaveError(null);
+            setContents((prev) => ({ ...prev, [activeLang]: e.target.value }));
+          }}
           rows={16}
           className="input min-h-[320px] w-full font-mono text-sm"
           placeholder={t('admin.legalPages.contentPlaceholder')}
@@ -205,7 +229,7 @@ function DocumentEditor({ kind }: { kind: 'privacy-policy' | 'public-offer' }) {
   );
 }
 
-function RulesEditor() {
+function RulesEditor({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const haptic = useHapticFeedback();
@@ -215,14 +239,15 @@ function RulesEditor() {
   const [populated, setPopulated] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: ['admin', 'legal-pages', 'rules'],
     queryFn: adminLegalPagesApi.getRules,
     staleTime: 0,
+    gcTime: 0,
   });
 
   useEffect(() => {
-    if (!data || populated) return;
+    if (!data || isFetching || populated) return;
     setDisplayMode(data.display_mode);
     const nextContents: Record<string, string> = {};
     for (const item of data.items) {
@@ -233,7 +258,17 @@ function RulesEditor() {
       setActiveLang(data.items[0].language);
     }
     setPopulated(true);
-  }, [data, populated]);
+  }, [data, isFetching, populated]);
+
+  const isDirty =
+    populated &&
+    !!data &&
+    (displayMode !== data.display_mode ||
+      data.items.some((item) => (contents[item.language] ?? '') !== item.content));
+
+  useEffect(() => {
+    onDirtyChange(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   const saveMutation = useMutation({
     mutationFn: () =>
@@ -273,7 +308,10 @@ function RulesEditor() {
         <label className="label">{t('admin.legalPages.content')}</label>
         <textarea
           value={contents[activeLang] ?? ''}
-          onChange={(e) => setContents((prev) => ({ ...prev, [activeLang]: e.target.value }))}
+          onChange={(e) => {
+            setSaveError(null);
+            setContents((prev) => ({ ...prev, [activeLang]: e.target.value }));
+          }}
           rows={16}
           className="input min-h-[320px] w-full font-mono text-sm"
           placeholder={t('admin.legalPages.contentPlaceholder')}
@@ -299,6 +337,7 @@ function FaqQuestionRow({
   onMoveDown,
   onDelete,
   onSaved,
+  onDirtyChange,
 }: {
   page: FaqPageItem;
   canMoveUp: boolean;
@@ -307,19 +346,33 @@ function FaqQuestionRow({
   onMoveDown: () => void;
   onDelete: () => void;
   onSaved: () => void;
+  onDirtyChange: (id: number, dirty: boolean) => void;
 }) {
   const { t } = useTranslation();
   const haptic = useHapticFeedback();
   const [title, setTitle] = useState(page.title);
   const [content, setContent] = useState(page.content);
   const [isActive, setIsActive] = useState(page.is_active);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  const isDirty = title !== page.title || content !== page.content || isActive !== page.is_active;
+
+  useEffect(() => {
+    onDirtyChange(page.id, isDirty);
+    return () => onDirtyChange(page.id, false);
+  }, [page.id, isDirty, onDirtyChange]);
 
   const saveMutation = useMutation({
     mutationFn: () =>
       adminLegalPagesApi.updateFaqPage(page.id, { title, content, is_active: isActive }),
     onSuccess: () => {
       haptic.success();
+      setSaveError(null);
       onSaved();
+    },
+    onError: (err) => {
+      haptic.error();
+      setSaveError(extractErrorDetail(err) ?? t('admin.legalPages.saveError'));
     },
   });
 
@@ -328,7 +381,10 @@ function FaqQuestionRow({
       <div className="flex items-center gap-2">
         <input
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => {
+            setSaveError(null);
+            setTitle(e.target.value);
+          }}
           className="input flex-1"
           placeholder={t('admin.legalPages.questionTitle')}
         />
@@ -366,11 +422,15 @@ function FaqQuestionRow({
       </div>
       <textarea
         value={content}
-        onChange={(e) => setContent(e.target.value)}
+        onChange={(e) => {
+          setSaveError(null);
+          setContent(e.target.value);
+        }}
         rows={4}
         className="input w-full font-mono text-sm"
         placeholder={t('admin.legalPages.questionContent')}
       />
+      {saveError && <p className="text-sm text-error-400">{saveError}</p>}
       <button
         onClick={() => saveMutation.mutate()}
         disabled={saveMutation.isPending}
@@ -382,7 +442,7 @@ function FaqQuestionRow({
   );
 }
 
-function FaqEditor() {
+function FaqEditor({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const haptic = useHapticFeedback();
@@ -391,21 +451,36 @@ function FaqEditor() {
   const [activeLang, setActiveLang] = useState('ru');
   const [populated, setPopulated] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [dirtyRows, setDirtyRows] = useState<number[]>([]);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: ['admin', 'legal-pages', 'faq'],
     queryFn: adminLegalPagesApi.getFaq,
     staleTime: 0,
+    gcTime: 0,
   });
 
   useEffect(() => {
-    if (!data || populated) return;
+    if (!data || isFetching || populated) return;
     setDisplayMode(data.display_mode);
     if (data.settings.length > 0 && !data.settings.some((s) => s.language === 'ru')) {
       setActiveLang(data.settings[0].language);
     }
     setPopulated(true);
-  }, [data, populated]);
+  }, [data, isFetching, populated]);
+
+  const handleRowDirtyChange = useCallback((id: number, dirty: boolean) => {
+    setDirtyRows((prev) => {
+      if (dirty) return prev.includes(id) ? prev : [...prev, id];
+      return prev.includes(id) ? prev.filter((rowId) => rowId !== id) : prev;
+    });
+  }, []);
+
+  const hasDirtyRows = dirtyRows.length > 0;
+
+  useEffect(() => {
+    onDirtyChange(hasDirtyRows);
+  }, [hasDirtyRows, onDirtyChange]);
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: ['admin', 'legal-pages', 'faq'] });
@@ -413,10 +488,10 @@ function FaqEditor() {
   const settingsMutation = useMutation({
     mutationFn: (payload: { display_mode?: LegalDisplayMode; settings?: FaqSettingItem[] }) =>
       adminLegalPagesApi.updateFaq(payload),
-    onSuccess: () => {
+    onSuccess: (resp) => {
       haptic.success();
       setSaveError(null);
-      invalidate();
+      queryClient.setQueryData(['admin', 'legal-pages', 'faq'], resp);
     },
     onError: (err) => {
       haptic.error();
@@ -434,7 +509,12 @@ function FaqEditor() {
       }),
     onSuccess: () => {
       haptic.success();
+      setSaveError(null);
       invalidate();
+    },
+    onError: (err) => {
+      haptic.error();
+      setSaveError(extractErrorDetail(err) ?? t('admin.legalPages.saveError'));
     },
   });
 
@@ -445,6 +525,13 @@ function FaqEditor() {
     },
     onSuccess: () => {
       haptic.success();
+      setSaveError(null);
+    },
+    onError: (err) => {
+      haptic.error();
+      setSaveError(extractErrorDetail(err) ?? t('admin.legalPages.saveError'));
+    },
+    onSettled: () => {
       invalidate();
     },
   });
@@ -453,7 +540,12 @@ function FaqEditor() {
     mutationFn: (id: number) => adminLegalPagesApi.deleteFaqPage(id),
     onSuccess: () => {
       haptic.success();
+      setSaveError(null);
       invalidate();
+    },
+    onError: (err) => {
+      haptic.error();
+      setSaveError(extractErrorDetail(err) ?? t('admin.legalPages.saveError'));
     },
   });
 
@@ -475,7 +567,15 @@ function FaqEditor() {
         }}
         disabled={data.display_mode_env_locked}
       />
-      <LanguageTabs languages={languages} active={activeLang} onChange={setActiveLang} />
+      <LanguageTabs
+        languages={languages}
+        active={activeLang}
+        onChange={async (lang) => {
+          if (lang === activeLang) return;
+          if (hasDirtyRows && !(await confirm(t('admin.legalPages.unsavedWarning')))) return;
+          setActiveLang(lang);
+        }}
+      />
       <div className="flex items-center gap-3">
         <Toggle
           checked={langEnabled}
@@ -484,6 +584,7 @@ function FaqEditor() {
               settings: [{ language: activeLang, is_enabled: !langEnabled }],
             })
           }
+          disabled={settingsMutation.isPending}
           aria-label={t('admin.legalPages.enabled')}
         />
         <span className="text-sm text-dark-300">{t('admin.legalPages.enabled')}</span>
@@ -511,8 +612,8 @@ function FaqEditor() {
             <FaqQuestionRow
               key={page.id}
               page={page}
-              canMoveUp={index > 0}
-              canMoveDown={index < pages.length - 1}
+              canMoveUp={index > 0 && !reorderMutation.isPending}
+              canMoveDown={index < pages.length - 1 && !reorderMutation.isPending}
               onMoveUp={() => reorderMutation.mutate({ a: page, b: pages[index - 1] })}
               onMoveDown={() => reorderMutation.mutate({ a: page, b: pages[index + 1] })}
               onDelete={async () => {
@@ -520,6 +621,7 @@ function FaqEditor() {
                 if (confirmed) deleteMutation.mutate(page.id);
               }}
               onSaved={invalidate}
+              onDirtyChange={handleRowDirtyChange}
             />
           ))
         )}
@@ -530,7 +632,16 @@ function FaqEditor() {
 
 export default function AdminLegalPages() {
   const { t } = useTranslation();
+  const confirm = useDestructiveConfirm();
   const [activeTab, setActiveTab] = useState<LegalTab>('privacy');
+  const [dirty, setDirty] = useState(false);
+
+  const handleTabChange = async (tab: LegalTab) => {
+    if (tab === activeTab) return;
+    if (dirty && !(await confirm(t('admin.legalPages.unsavedWarning')))) return;
+    setDirty(false);
+    setActiveTab(tab);
+  };
 
   return (
     <div className="space-y-6">
@@ -547,7 +658,7 @@ export default function AdminLegalPages() {
           <button
             key={tab}
             type="button"
-            onClick={() => setActiveTab(tab)}
+            onClick={() => handleTabChange(tab)}
             className={cn(
               'min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
               activeTab === tab
@@ -560,10 +671,14 @@ export default function AdminLegalPages() {
         ))}
       </div>
 
-      {activeTab === 'privacy' && <DocumentEditor key="privacy" kind="privacy-policy" />}
-      {activeTab === 'offer' && <DocumentEditor key="offer" kind="public-offer" />}
-      {activeTab === 'rules' && <RulesEditor />}
-      {activeTab === 'faq' && <FaqEditor />}
+      {activeTab === 'privacy' && (
+        <DocumentEditor key="privacy" kind="privacy-policy" onDirtyChange={setDirty} />
+      )}
+      {activeTab === 'offer' && (
+        <DocumentEditor key="offer" kind="public-offer" onDirtyChange={setDirty} />
+      )}
+      {activeTab === 'rules' && <RulesEditor onDirtyChange={setDirty} />}
+      {activeTab === 'faq' && <FaqEditor onDirtyChange={setDirty} />}
     </div>
   );
 }

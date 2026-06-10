@@ -1,6 +1,7 @@
 import apiClient from './client';
+import type { InfoPageDisplayMode } from './infoPages';
 
-export type LegalDisplayMode = 'bot' | 'web' | 'both';
+export type LegalDisplayMode = InfoPageDisplayMode;
 
 export interface LegalDocumentItem {
   language: string;
@@ -26,7 +27,7 @@ export interface RulesItem {
   updated_at: string | null;
 }
 
-export interface RulesResponse {
+export interface AdminRulesResponse {
   display_mode: LegalDisplayMode;
   display_mode_env_locked: boolean;
   items: RulesItem[];
@@ -110,13 +111,16 @@ export const adminLegalPagesApi = {
     return response.data;
   },
 
-  getRules: async (): Promise<RulesResponse> => {
-    const response = await apiClient.get<RulesResponse>('/cabinet/admin/legal-pages/rules');
+  getRules: async (): Promise<AdminRulesResponse> => {
+    const response = await apiClient.get<AdminRulesResponse>('/cabinet/admin/legal-pages/rules');
     return response.data;
   },
 
-  updateRules: async (data: RulesUpdateRequest): Promise<RulesResponse> => {
-    const response = await apiClient.put<RulesResponse>('/cabinet/admin/legal-pages/rules', data);
+  updateRules: async (data: RulesUpdateRequest): Promise<AdminRulesResponse> => {
+    const response = await apiClient.put<AdminRulesResponse>(
+      '/cabinet/admin/legal-pages/rules',
+      data,
+    );
     return response.data;
   },
 
