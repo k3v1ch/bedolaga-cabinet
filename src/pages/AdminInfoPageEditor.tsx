@@ -37,7 +37,7 @@ import {
   TrashSmallIcon,
   PlusSmallIcon,
 } from '@/components/icons';
-import type { InfoPageType, FaqItem, ReplacesTab } from '../api/infoPages';
+import type { InfoPageType, FaqItem, ReplacesTab, InfoPageDisplayMode } from '../api/infoPages';
 
 const AVAILABLE_LOCALES = ['ru', 'en', 'zh', 'fa'] as const;
 type LocaleCode = (typeof AVAILABLE_LOCALES)[number];
@@ -643,6 +643,7 @@ export default function AdminInfoPageEditor() {
   const [sortOrder, setSortOrder] = useState(0);
   const [pageType, setPageType] = useState<InfoPageType>(initialPageType);
   const [replacesTab, setReplacesTab] = useState<ReplacesTab | null>(null);
+  const [displayMode, setDisplayMode] = useState<InfoPageDisplayMode>('both');
   const [saveError, setSaveError] = useState<string | null>(null);
 
   // FAQ Q&A state per locale
@@ -857,6 +858,7 @@ export default function AdminInfoPageEditor() {
     setSortOrder(pageData.sort_order);
     setPageType(pageData.page_type ?? 'page');
     setReplacesTab(pageData.replaces_tab ?? null);
+    setDisplayMode(pageData.display_mode ?? 'both');
     setTitles(pageData.title);
 
     if (pageData.page_type === 'faq') {
@@ -927,6 +929,7 @@ export default function AdminInfoPageEditor() {
       sort_order: number;
       icon: string | null;
       replaces_tab: ReplacesTab | null;
+      display_mode: InfoPageDisplayMode;
     }) => {
       if (isEdit && pageId != null) {
         return infoPagesApi.updatePage(pageId, data);
@@ -976,6 +979,7 @@ export default function AdminInfoPageEditor() {
       sort_order: sortOrder,
       icon: icon.trim() || null,
       replaces_tab: replacesTab,
+      display_mode: displayMode,
     };
 
     haptic.buttonPress();
@@ -1087,6 +1091,31 @@ export default function AdminInfoPageEditor() {
             aria-label={t('admin.infoPages.fields.isActive')}
           />
           <span className="text-sm text-dark-300">{t('admin.infoPages.fields.isActive')}</span>
+        </div>
+
+        <div>
+          <label id="ip-displaymode-label" className="label">
+            {t('admin.infoPages.fields.displayMode')}
+          </label>
+          <div className="flex gap-1" role="radiogroup" aria-labelledby="ip-displaymode-label">
+            {(['bot', 'web', 'both'] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                role="radio"
+                aria-checked={displayMode === mode}
+                onClick={() => setDisplayMode(mode)}
+                className={cn(
+                  'min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
+                  displayMode === mode
+                    ? 'bg-accent-500 text-white'
+                    : 'bg-dark-700 text-dark-300 hover:bg-dark-600 hover:text-dark-100',
+                )}
+              >
+                {t(`admin.infoPages.displayModes.${mode}`)}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Page type selector */}

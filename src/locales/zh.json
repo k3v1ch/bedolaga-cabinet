@@ -1035,6 +1035,18 @@
       "noiseDesc": "带运动的噪声渐变",
       "ripple": "涟漪",
       "rippleDesc": "涟漪波纹效果",
+      "fireflies": "萤火虫",
+      "firefliesDesc": "漂浮闪烁的发光点",
+      "snowfall": "降雪",
+      "snowfallDesc": "随风飘落的雪花",
+      "starfield": "星空",
+      "starfieldDesc": "向观察者飞来的星星",
+      "matrixRain": "黑客帝国雨",
+      "matrixRainDesc": "下落的字符列",
+      "liquidGradient": "流体渐变",
+      "liquidGradientDesc": "模糊的网格渐变色块",
+      "constellation": "星座",
+      "constellationDesc": "由线条连接的粒子",
       "geminiEffect": "Gemini效果",
       "geminiEffectDesc": "类似Google Gemini的SVG效果",
       "speed": "速度",
@@ -1050,6 +1062,15 @@
       "particleColor": "粒子颜色",
       "starColor": "星星颜色",
       "trailColor": "尾迹颜色",
+      "bgStarColor": "背景星星颜色",
+      "pointerColor": "指针颜色",
+      "beamColor": "光束颜色",
+      "explosionColor": "爆炸颜色",
+      "multicolor": "多彩模式",
+      "lineColor": "线条颜色",
+      "wind": "风力",
+      "charset": "字符集",
+      "linkDistance": "连接距离",
       "bgColor": "背景颜色",
       "fillColor": "填充颜色",
       "color1": "颜色1",
@@ -1109,7 +1130,8 @@
       "landings": "落地页",
       "referralNetwork": "推荐网络",
       "news": "新闻",
-      "infoPages": "信息页面"
+      "infoPages": "信息页面",
+      "legalPages": "系统页面"
     },
     "panel": {
       "title": "管理面板",
@@ -1435,7 +1457,14 @@
       "noPromoGroups": "没有促销组",
       "cancelButton": "取消",
       "saveButton": "保存",
-      "notFound": "未找到支付方式"
+      "notFound": "未找到支付方式",
+      "quickAmounts": "快捷金额（₽）",
+      "quickAmountsHint": "快捷充值金额按钮。留空 — 使用默认值：{{defaults}} ₽",
+      "quickAmountsPlaceholder": "金额（卢布）",
+      "quickAmountsAdd": "添加",
+      "quickAmountsInvalid": "请输入正的卢布金额",
+      "quickAmountsLimit": "最多 10 个金额",
+      "quickAmountsRemove": "删除金额 {{value}} ₽"
     },
     "emailTemplates": {
       "title": "邮件模板",
@@ -3791,7 +3820,8 @@
         "sortOrder": "排序",
         "icon": "图标（表情）",
         "pageType": "页面类型",
-        "replacesTab": "替换标签"
+        "replacesTab": "替换标签",
+        "displayMode": "显示"
       },
       "replacesTabNone": "不替换",
       "replacesTabOptions": {
@@ -3833,6 +3863,11 @@
         "en": "英语",
         "zh": "中文",
         "fa": "波斯语"
+      },
+      "displayModes": {
+        "bot": "仅机器人",
+        "web": "仅网页",
+        "both": "机器人和网页"
       }
     },
     "bulkActions": {
@@ -3943,6 +3978,43 @@
       "trafficGbUnit": "GB",
       "selectAllSubs": "选择所有订阅",
       "deselectAllSubs": "取消选择所有订阅"
+    },
+    "legalPages": {
+      "title": "系统页面",
+      "subtitle": "规则、隐私政策、公开要约和 FAQ",
+      "open": "系统页面",
+      "tabs": {
+        "privacy": "隐私",
+        "offer": "条款",
+        "rules": "规则",
+        "faq": "FAQ"
+      },
+      "displayMode": "显示",
+      "displayModes": {
+        "bot": "仅机器人",
+        "web": "仅网页",
+        "both": "机器人和网页"
+      },
+      "displayModeLocked": "通过环境变量设置",
+      "enabled": "对用户可见",
+      "language": "内容语言",
+      "content": "内容",
+      "contentPlaceholder": "HTML 页面内容...",
+      "save": "保存",
+      "saving": "保存中...",
+      "saveError": "保存失败，请重试。",
+      "unsavedWarning": "未保存的更改将丢失。是否继续？",
+      "faqPages": "问答",
+      "addQuestion": "添加问题",
+      "newQuestion": "新问题",
+      "questionTitle": "问题",
+      "questionContent": "答案（支持 HTML）",
+      "confirmDeleteQuestion": "确定删除此问题？",
+      "noQuestions": "暂无问题",
+      "active": "已激活",
+      "moveUp": "上移",
+      "moveDown": "下移",
+      "delete": "删除"
     }
   },
   "adminUpdates": {

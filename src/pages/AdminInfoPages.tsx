@@ -216,6 +216,17 @@ export default function AdminInfoPages() {
         </div>
         <div className="flex gap-2">
           <button
+            onClick={() => {
+              haptic.buttonPress();
+              navigate('/admin/legal-pages');
+            }}
+            className="flex min-h-[44px] items-center gap-2 rounded-lg bg-dark-800 px-4 py-2.5 text-dark-200 transition-colors hover:bg-dark-700"
+            aria-label={t('admin.legalPages.open')}
+          >
+            <FileTextIcon className="h-4 w-4" />
+            <span className="hidden sm:inline">{t('admin.legalPages.open')}</span>
+          </button>
+          <button
             onClick={() => refetch()}
             className="min-h-[44px] min-w-[44px] rounded-lg bg-dark-800 p-2.5 text-dark-400 transition-colors hover:text-dark-100"
             aria-label={t('common.refresh')}

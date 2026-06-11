@@ -1153,6 +1153,18 @@
       "noiseDesc": "Noise gradients with motion",
       "ripple": "Ripple",
       "rippleDesc": "Ripple wave effect",
+      "fireflies": "Fireflies",
+      "firefliesDesc": "Drifting glowing dots with pulsation",
+      "snowfall": "Snowfall",
+      "snowfallDesc": "Falling snow with wind drift",
+      "starfield": "Starfield",
+      "starfieldDesc": "Stars flying toward the viewer",
+      "matrixRain": "Matrix Rain",
+      "matrixRainDesc": "Falling columns of glyphs",
+      "liquidGradient": "Liquid Gradient",
+      "liquidGradientDesc": "Blurred mesh gradient blobs",
+      "constellation": "Constellation",
+      "constellationDesc": "Particles linked by lines",
       "geminiEffect": "Gemini Effect",
       "geminiEffectDesc": "SVG effect like Google Gemini",
       "speed": "Speed",
@@ -1168,6 +1180,15 @@
       "particleColor": "Particle Color",
       "starColor": "Star Color",
       "trailColor": "Trail Color",
+      "bgStarColor": "Background Stars Color",
+      "pointerColor": "Pointer Color",
+      "beamColor": "Beam Color",
+      "explosionColor": "Explosion Color",
+      "multicolor": "Multicolor",
+      "lineColor": "Line Color",
+      "wind": "Wind",
+      "charset": "Charset",
+      "linkDistance": "Link Distance",
       "bgColor": "Background Color",
       "fillColor": "Fill Color",
       "color1": "Color 1",
@@ -1236,7 +1257,8 @@
       "referralNetwork": "Referral Network",
       "news": "News",
       "bulkActions": "Bulk Actions",
-      "infoPages": "Info Pages"
+      "infoPages": "Info Pages",
+      "legalPages": "System pages"
     },
     "panel": {
       "title": "Admin Panel",
@@ -1607,6 +1629,13 @@
       "subOptions": "Payment options",
       "minAmount": "Min amount (kopeks)",
       "maxAmount": "Max amount (kopeks)",
+      "quickAmounts": "Quick amounts (₽)",
+      "quickAmountsHint": "Quick top-up amount buttons. Empty — defaults are used: {{defaults}} ₽",
+      "quickAmountsPlaceholder": "Amount in rubles",
+      "quickAmountsAdd": "Add",
+      "quickAmountsInvalid": "Enter a positive amount in rubles",
+      "quickAmountsLimit": "No more than 10 amounts",
+      "quickAmountsRemove": "Remove amount {{value}} ₽",
       "conditions": "Display conditions",
       "userTypeFilter": "User type",
       "userTypeAll": "All",
@@ -4076,7 +4105,8 @@
         "sortOrder": "Sort Order",
         "icon": "Icon (emoji)",
         "pageType": "Page Type",
-        "replacesTab": "Replaces Tab"
+        "replacesTab": "Replaces Tab",
+        "displayMode": "Visibility"
       },
       "replacesTabNone": "None",
       "replacesTabOptions": {
@@ -4084,6 +4114,11 @@
         "rules": "Rules",
         "privacy": "Privacy",
         "offer": "Offer"
+      },
+      "displayModes": {
+        "bot": "Bot only",
+        "web": "Web only",
+        "both": "Bot and web"
       },
       "replacesTabConflict": "already assigned",
       "replacesTabWarning": "Another page already replaces this tab. It will be unassigned on save.",
@@ -4119,6 +4154,43 @@
         "zh": "Chinese",
         "fa": "Persian"
       }
+    },
+    "legalPages": {
+      "title": "System pages",
+      "subtitle": "Rules, privacy policy, public offer and FAQ",
+      "open": "System pages",
+      "tabs": {
+        "privacy": "Privacy",
+        "offer": "Offer",
+        "rules": "Rules",
+        "faq": "FAQ"
+      },
+      "displayMode": "Visibility",
+      "displayModes": {
+        "bot": "Bot only",
+        "web": "Web only",
+        "both": "Bot and web"
+      },
+      "displayModeLocked": "Set via environment variable",
+      "enabled": "Visible to users",
+      "language": "Content language",
+      "content": "Content",
+      "contentPlaceholder": "HTML page content...",
+      "save": "Save",
+      "saving": "Saving...",
+      "saveError": "Failed to save. Please try again.",
+      "unsavedWarning": "Unsaved changes will be lost. Continue?",
+      "faqPages": "Questions and answers",
+      "addQuestion": "Add question",
+      "newQuestion": "New question",
+      "questionTitle": "Question",
+      "questionContent": "Answer (HTML supported)",
+      "confirmDeleteQuestion": "Delete this question?",
+      "noQuestions": "No questions yet",
+      "active": "Active",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "delete": "Delete"
     }
   },
   "adminUpdates": {

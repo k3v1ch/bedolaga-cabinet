@@ -1183,6 +1183,18 @@
       "noiseDesc": "Шумовые градиенты с движением",
       "ripple": "Ripple",
       "rippleDesc": "Волновой эффект при клике",
+      "fireflies": "Fireflies",
+      "firefliesDesc": "Дрейфующие светящиеся точки с пульсацией",
+      "snowfall": "Snowfall",
+      "snowfallDesc": "Падающий снег с ветром",
+      "starfield": "Starfield",
+      "starfieldDesc": "Полёт сквозь звёздное небо",
+      "matrixRain": "Matrix Rain",
+      "matrixRainDesc": "Падающие колонки символов",
+      "liquidGradient": "Liquid Gradient",
+      "liquidGradientDesc": "Жидкий mesh-градиент из размытых блобов",
+      "constellation": "Constellation",
+      "constellationDesc": "Частицы, связанные линиями",
       "geminiEffect": "Gemini Effect",
       "geminiEffectDesc": "SVG-эффект как на Google Gemini",
       "speed": "Скорость",
@@ -1198,6 +1210,15 @@
       "particleColor": "Цвет частиц",
       "starColor": "Цвет звёзд",
       "trailColor": "Цвет следа",
+      "bgStarColor": "Цвет фоновых звёзд",
+      "pointerColor": "Цвет курсорного блоба",
+      "beamColor": "Цвет лучей",
+      "explosionColor": "Цвет взрыва",
+      "multicolor": "Разноцветный режим",
+      "lineColor": "Цвет линий",
+      "wind": "Ветер",
+      "charset": "Набор символов",
+      "linkDistance": "Дистанция связи",
       "bgColor": "Цвет фона",
       "fillColor": "Цвет заливки",
       "color1": "Цвет 1",
@@ -1258,7 +1279,8 @@
       "referralNetwork": "Реферальная сеть",
       "news": "Новости",
       "bulkActions": "Массовые действия",
-      "infoPages": "Инфо-страницы"
+      "infoPages": "Инфо-страницы",
+      "legalPages": "Системные страницы"
     },
     "panel": {
       "title": "Панель администратора",
@@ -1629,6 +1651,13 @@
       "subOptions": "Варианты оплаты",
       "minAmount": "Мин. сумма (коп.)",
       "maxAmount": "Макс. сумма (коп.)",
+      "quickAmounts": "Быстрые суммы (₽)",
+      "quickAmountsHint": "Кнопки быстрого выбора суммы пополнения. Пусто — используются значения по умолчанию: {{defaults}} ₽",
+      "quickAmountsPlaceholder": "Сумма в рублях",
+      "quickAmountsAdd": "Добавить",
+      "quickAmountsInvalid": "Введите положительную сумму в рублях",
+      "quickAmountsLimit": "Не более 10 сумм",
+      "quickAmountsRemove": "Удалить сумму {{value}} ₽",
       "conditions": "Условия отображения",
       "userTypeFilter": "Тип пользователя",
       "userTypeAll": "Все",
@@ -4621,7 +4650,8 @@
         "sortOrder": "Порядок сортировки",
         "icon": "Иконка (эмодзи)",
         "pageType": "Тип страницы",
-        "replacesTab": "Заменяет таб"
+        "replacesTab": "Заменяет таб",
+        "displayMode": "Отображение"
       },
       "replacesTabNone": "Не заменяет",
       "replacesTabOptions": {
@@ -4629,6 +4659,11 @@
         "rules": "Правила",
         "privacy": "Конфиденциальность",
         "offer": "Оферта"
+      },
+      "displayModes": {
+        "bot": "Только бот",
+        "web": "Только веб",
+        "both": "Бот и веб"
       },
       "replacesTabConflict": "уже занят",
       "replacesTabWarning": "Другая страница уже заменяет этот таб. При сохранении она будет снята.",
@@ -4664,6 +4699,43 @@
         "zh": "Китайский",
         "fa": "Персидский"
       }
+    },
+    "legalPages": {
+      "title": "Системные страницы",
+      "subtitle": "Правила, политика конфиденциальности, оферта и FAQ",
+      "open": "Системные страницы",
+      "tabs": {
+        "privacy": "Политика конф.",
+        "offer": "Оферта",
+        "rules": "Правила",
+        "faq": "FAQ"
+      },
+      "displayMode": "Отображение",
+      "displayModes": {
+        "bot": "Только бот",
+        "web": "Только веб",
+        "both": "Бот и веб"
+      },
+      "displayModeLocked": "Задано через переменную окружения",
+      "enabled": "Показывать пользователям",
+      "language": "Язык контента",
+      "content": "Текст",
+      "contentPlaceholder": "HTML-текст страницы...",
+      "save": "Сохранить",
+      "saving": "Сохранение...",
+      "saveError": "Не удалось сохранить. Попробуйте ещё раз.",
+      "unsavedWarning": "Несохранённые изменения будут потеряны. Продолжить?",
+      "faqPages": "Вопросы и ответы",
+      "addQuestion": "Добавить вопрос",
+      "newQuestion": "Новый вопрос",
+      "questionTitle": "Вопрос",
+      "questionContent": "Ответ (поддерживается HTML)",
+      "confirmDeleteQuestion": "Удалить этот вопрос?",
+      "noQuestions": "Вопросов пока нет",
+      "active": "Активен",
+      "moveUp": "Переместить вверх",
+      "moveDown": "Переместить вниз",
+      "delete": "Удалить"
     }
   },
   "adminUpdates": {

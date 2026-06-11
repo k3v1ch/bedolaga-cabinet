@@ -41,6 +41,9 @@ export default function AdminPaymentMethodEdit() {
   const [promoGroupFilterMode, setPromoGroupFilterMode] = useState<'all' | 'selected'>('all');
   const [selectedPromoGroupIds, setSelectedPromoGroupIds] = useState<number[]>([]);
   const [openUrlDirect, setOpenUrlDirect] = useState(false);
+  const [quickAmounts, setQuickAmounts] = useState<number[]>([]);
+  const [quickAmountInput, setQuickAmountInput] = useState('');
+  const [quickAmountsError, setQuickAmountsError] = useState<string | null>(null);
 
   // Initialize state when config loads
   useEffect(() => {
@@ -56,6 +59,7 @@ export default function AdminPaymentMethodEdit() {
       setSelectedPromoGroupIds(config.allowed_promo_group_ids);
       // ?? false — защита от stale-config (backend ещё не пришёл с миграцией)
       setOpenUrlDirect(config.open_url_direct ?? false);
+      setQuickAmounts((config.quick_amounts ?? []).map((kopeks) => kopeks / 100));
     }
   }, [config]);
 
@@ -104,6 +108,14 @@ export default function AdminPaymentMethodEdit() {
       data.reset_max_amount = true;
     }
 
+    if (quickAmounts.length > 0) {
+      data.quick_amounts = [...quickAmounts]
+        .sort((a, b) => a - b)
+        .map((rubles) => Math.round(rubles * 100));
+    } else {
+      data.reset_quick_amounts = true;
+    }
+
     updateMethodMutation.mutate(data);
   };
 
@@ -111,6 +123,30 @@ export default function AdminPaymentMethodEdit() {
     setSelectedPromoGroupIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
+  };
+
+  const addQuickAmount = () => {
+    setQuickAmountsError(null);
+    const parsed = parseFloat(quickAmountInput.replace(',', '.'));
+    const value = Math.round(parsed);
+    if (isNaN(value) || value <= 0) {
+      setQuickAmountsError(t('admin.paymentMethods.quickAmountsInvalid'));
+      return;
+    }
+    if (quickAmounts.includes(value)) {
+      setQuickAmountInput('');
+      return;
+    }
+    if (quickAmounts.length >= 10) {
+      setQuickAmountsError(t('admin.paymentMethods.quickAmountsLimit'));
+      return;
+    }
+    setQuickAmounts((prev) => [...prev, value].sort((a, b) => a - b));
+    setQuickAmountInput('');
+  };
+
+  const removeQuickAmount = (value: number) => {
+    setQuickAmounts((prev) => prev.filter((amount) => amount !== value));
   };
 
   if (isLoading) {
@@ -303,6 +339,55 @@ export default function AdminPaymentMethodEdit() {
               className="input"
             />
           </div>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-dark-300">
+            {t('admin.paymentMethods.quickAmounts')}
+          </label>
+          {quickAmounts.length > 0 && (
+            <div className="mb-2 flex flex-wrap gap-2">
+              {quickAmounts.map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => removeQuickAmount(value)}
+                  aria-label={t('admin.paymentMethods.quickAmountsRemove', { value })}
+                  className="flex items-center gap-1.5 rounded-xl border border-accent-500/30 bg-accent-500/10 px-3 py-1.5 text-sm font-medium text-accent-300 transition-colors hover:border-error-500/40 hover:bg-error-500/10 hover:text-error-400"
+                >
+                  <span>{value} ₽</span>
+                  <span className="text-base leading-none">×</span>
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="flex gap-2">
+            <input
+              type="number"
+              min="1"
+              value={quickAmountInput}
+              onChange={(e) => setQuickAmountInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addQuickAmount();
+                }
+              }}
+              placeholder={t('admin.paymentMethods.quickAmountsPlaceholder')}
+              className="input flex-1"
+            />
+            <button type="button" onClick={addQuickAmount} className="btn-secondary shrink-0">
+              {t('admin.paymentMethods.quickAmountsAdd')}
+            </button>
+          </div>
+          {quickAmountsError && <p className="mt-1 text-xs text-error-400">{quickAmountsError}</p>}
+          <p className="mt-1 text-xs text-dark-500">
+            {t('admin.paymentMethods.quickAmountsHint', {
+              defaults: (config.default_quick_amounts ?? [])
+                .map((kopeks) => kopeks / 100)
+                .join(', '),
+            })}
+          </p>
         </div>
 
         {/* Display conditions */}

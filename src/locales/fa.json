@@ -1035,6 +1035,18 @@
       "noiseDesc": "گرادیان‌های نویزی با حرکت",
       "ripple": "موج",
       "rippleDesc": "اثر موج دایره‌ای",
+      "fireflies": "کرم‌های شب‌تاب",
+      "firefliesDesc": "نقاط درخشان شناور با تپش",
+      "snowfall": "بارش برف",
+      "snowfallDesc": "برف در حال بارش با وزش باد",
+      "starfield": "میدان ستارگان",
+      "starfieldDesc": "پرواز در میان ستاره‌ها",
+      "matrixRain": "باران ماتریکس",
+      "matrixRainDesc": "ستون‌های نمادهای در حال سقوط",
+      "liquidGradient": "گرادیان مایع",
+      "liquidGradientDesc": "حباب‌های گرادیان مات و روان",
+      "constellation": "صورت فلکی",
+      "constellationDesc": "ذرات متصل با خطوط",
       "geminiEffect": "افکت Gemini",
       "geminiEffectDesc": "افکت SVG مشابه Google Gemini",
       "speed": "سرعت",
@@ -1050,6 +1062,15 @@
       "particleColor": "رنگ ذرات",
       "starColor": "رنگ ستاره",
       "trailColor": "رنگ دنباله",
+      "bgStarColor": "رنگ ستاره‌های پس‌زمینه",
+      "pointerColor": "رنگ اشاره‌گر",
+      "beamColor": "رنگ پرتو",
+      "explosionColor": "رنگ انفجار",
+      "multicolor": "حالت چندرنگ",
+      "lineColor": "رنگ خطوط",
+      "wind": "باد",
+      "charset": "مجموعه نویسه‌ها",
+      "linkDistance": "فاصله اتصال",
       "bgColor": "رنگ پس‌زمینه",
       "fillColor": "رنگ پر کردن",
       "color1": "رنگ ۱",
@@ -1109,7 +1130,8 @@
       "landings": "صفحات فرود",
       "referralNetwork": "شبکه ارجاع",
       "news": "اخبار",
-      "infoPages": "صفحات اطلاعات"
+      "infoPages": "صفحات اطلاعات",
+      "legalPages": "صفحات سیستمی"
     },
     "panel": {
       "title": "پنل مدیریت",
@@ -2283,7 +2305,14 @@
       "noPromoGroups": "هیچ گروه تبلیغاتی نیست",
       "cancelButton": "لغو",
       "saveButton": "ذخیره",
-      "notFound": "روش پرداخت یافت نشد"
+      "notFound": "روش پرداخت یافت نشد",
+      "quickAmounts": "مبالغ سریع (₽)",
+      "quickAmountsHint": "دکمه‌های مبلغ شارژ سریع. خالی — مقادیر پیش‌فرض استفاده می‌شوند: {{defaults}} ₽",
+      "quickAmountsPlaceholder": "مبلغ به روبل",
+      "quickAmountsAdd": "افزودن",
+      "quickAmountsInvalid": "یک مبلغ مثبت به روبل وارد کنید",
+      "quickAmountsLimit": "حداکثر ۱۰ مبلغ مجاز است",
+      "quickAmountsRemove": "حذف مبلغ {{value}} ₽"
     },
     "campaigns": {
       "title": "کمپین‌های تبلیغاتی",
@@ -3792,7 +3821,8 @@
         "sortOrder": "ترتیب",
         "icon": "آیکون (ایموجی)",
         "pageType": "نوع صفحه",
-        "replacesTab": "جایگزینی تب"
+        "replacesTab": "جایگزینی تب",
+        "displayMode": "نمایش"
       },
       "replacesTabNone": "بدون جایگزینی",
       "replacesTabOptions": {
@@ -3834,6 +3864,11 @@
         "en": "انگلیسی",
         "zh": "چینی",
         "fa": "فارسی"
+      },
+      "displayModes": {
+        "bot": "فقط ربات",
+        "web": "فقط وب",
+        "both": "ربات و وب"
       }
     },
     "bulkActions": {
@@ -3944,6 +3979,43 @@
       "trafficGbUnit": "GB",
       "selectAllSubs": "انتخاب همه اشتراک‌ها",
       "deselectAllSubs": "لغو انتخاب همه اشتراک‌ها"
+    },
+    "legalPages": {
+      "title": "صفحات سیستمی",
+      "subtitle": "قوانین، سیاست حریم خصوصی، پیشنهاد عمومی و FAQ",
+      "open": "صفحات سیستمی",
+      "tabs": {
+        "privacy": "حریم خصوصی",
+        "offer": "پیشنهاد",
+        "rules": "قوانین",
+        "faq": "FAQ"
+      },
+      "displayMode": "نمایش",
+      "displayModes": {
+        "bot": "فقط ربات",
+        "web": "فقط وب",
+        "both": "ربات و وب"
+      },
+      "displayModeLocked": "از طریق متغیر محیطی تنظیم شده",
+      "enabled": "نمایش به کاربران",
+      "language": "زبان محتوا",
+      "content": "متن",
+      "contentPlaceholder": "متن HTML صفحه...",
+      "save": "ذخیره",
+      "saving": "در حال ذخیره...",
+      "saveError": "ذخیره ناموفق بود. لطفاً دوباره تلاش کنید.",
+      "unsavedWarning": "تغییرات ذخیره‌نشده از بین می‌رود. ادامه می‌دهید؟",
+      "faqPages": "سوالات و پاسخ‌ها",
+      "addQuestion": "افزودن سوال",
+      "newQuestion": "سوال جدید",
+      "questionTitle": "سوال",
+      "questionContent": "پاسخ (HTML پشتیبانی می‌شود)",
+      "confirmDeleteQuestion": "این سوال حذف شود؟",
+      "noQuestions": "هنوز سوالی وجود ندارد",
+      "active": "فعال",
+      "moveUp": "انتقال به بالا",
+      "moveDown": "انتقال به پایین",
+      "delete": "حذف"
     }
   },
   "adminUpdates": {
