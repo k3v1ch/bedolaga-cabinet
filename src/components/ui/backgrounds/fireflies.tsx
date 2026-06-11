@@ -53,9 +53,9 @@ export default function FirefliesBackground({ settings }: Props) {
     const fireflies: Firefly[] = Array.from({ length: Math.floor(count) }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
-      vx: (Math.random() - 0.5) * speed * 0.6,
-      vy: (Math.random() - 0.5) * speed * 0.6,
-      radius: size * (0.5 + Math.random() * 0.5),
+      vx: (Math.random() - 0.5) * 0.6,
+      vy: (Math.random() - 0.5) * 0.6,
+      radius: 0.5 + Math.random() * 0.5,
       phase: Math.random() * Math.PI * 2,
       pulseSpeed: 0.5 + Math.random() * 1.5,
     }));
@@ -78,7 +78,7 @@ export default function FirefliesBackground({ settings }: Props) {
 
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
-  }, [count, speed, size]);
+  }, [count]);
 
   useAnimationLoop(
     (time) => {
@@ -88,28 +88,28 @@ export default function FirefliesBackground({ settings }: Props) {
       const { ctx, fireflies, w, h } = state;
 
       ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = color;
 
       for (const f of fireflies) {
-        f.x += f.vx + Math.sin(time / 2000 + f.phase) * 0.3 * speed;
-        f.y += f.vy + Math.cos(time / 2400 + f.phase) * 0.2 * speed;
+        f.x += f.vx * speed + Math.sin(time / 2000 + f.phase) * 0.3 * speed;
+        f.y += f.vy * speed + Math.cos(time / 2400 + f.phase) * 0.2 * speed;
 
-        if (f.x < -10) f.x = w + 10;
-        if (f.x > w + 10) f.x = -10;
-        if (f.y < -10) f.y = h + 10;
-        if (f.y > h + 10) f.y = -10;
+        if (f.x < -20) f.x = w + 20;
+        if (f.x > w + 20) f.x = -20;
+        if (f.y < -20) f.y = h + 20;
+        if (f.y > h + 20) f.y = -20;
 
         const pulse = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin((time / 1000) * f.pulseSpeed + f.phase));
+        const radius = f.radius * size;
 
         ctx.globalAlpha = pulse * 0.25;
         ctx.beginPath();
-        ctx.arc(f.x, f.y, f.radius * 3, 0, Math.PI * 2);
-        ctx.fillStyle = color;
+        ctx.arc(f.x, f.y, radius * 3, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.globalAlpha = pulse;
         ctx.beginPath();
-        ctx.arc(f.x, f.y, f.radius, 0, Math.PI * 2);
-        ctx.fillStyle = color;
+        ctx.arc(f.x, f.y, radius, 0, Math.PI * 2);
         ctx.fill();
       }
 
