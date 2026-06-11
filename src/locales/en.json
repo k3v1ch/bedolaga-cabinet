@@ -940,7 +940,7 @@
       "totalEarnings": "Total Earnings",
       "commissionRate": "Commission Rate",
       "daysShort": "+{{days}} d.",
-      "daysPerTopup": "For every friend top-up"
+      "daysPerTopup": "Per friend top-up of {{amount}}+"
     },
     "terms": {
       "title": "Program Terms",
@@ -1109,7 +1109,8 @@
       "newUserBonus": "Friend gets a {{amount}} bonus on first top-up",
       "inviterBonus": "You get a one-time {{amount}} bonus for an invitee",
       "maxPayments": "Commission is paid for the first {{count}} top-ups",
-      "inviterDays": "You get +{{days}} days of subscription for every friend top-up"
+      "inviterDays": "You get +{{days}} days of subscription for every friend top-up of {{amount}} or more",
+      "partnerCommission": "Your approved partner rate is {{percent}}% — you earn it on every referral top-up"
     }
   },
   "support": {

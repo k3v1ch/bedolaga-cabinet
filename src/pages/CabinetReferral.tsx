@@ -219,8 +219,11 @@ export default function CabinetReferral() {
         {t('referral.title', { defaultValue: 'Реферальная программа' })}
       </h1>
 
-      {/* KPI cards */}
-      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      {/* KPI cards. «Общий заработок» — только партнёрам: обычные пользователи
+          зарабатывают днями, рублёвый ноль их только путает. */}
+      <div
+        className={`mb-6 grid grid-cols-1 gap-3 ${isPartner ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}
+      >
         <GlassCard className="p-5 text-center">
           <Users size={18} className="mx-auto mb-2 text-white/20" />
           <p className="text-white" style={{ fontSize: '1.5rem', fontWeight: 600 }}>
@@ -230,15 +233,17 @@ export default function CabinetReferral() {
             {t('referral.stats.totalReferrals', { defaultValue: 'Всего рефералов' })}
           </p>
         </GlassCard>
-        <GlassCard className="p-5 text-center">
-          <TrendingUp size={18} className="mx-auto mb-2 text-white/20" />
-          <p className="text-white" style={{ fontSize: '1.5rem', fontWeight: 600 }}>
-            {formatWithCurrency(info?.total_earnings_rubles ?? 0)}
-          </p>
-          <p className="mt-1 text-[13px] text-white/30">
-            {t('referral.stats.totalEarnings', { defaultValue: 'Общий заработок' })}
-          </p>
-        </GlassCard>
+        {isPartner && (
+          <GlassCard className="p-5 text-center">
+            <TrendingUp size={18} className="mx-auto mb-2 text-white/20" />
+            <p className="text-white" style={{ fontSize: '1.5rem', fontWeight: 600 }}>
+              {formatWithCurrency(info?.total_earnings_rubles ?? 0)}
+            </p>
+            <p className="mt-1 text-[13px] text-white/30">
+              {t('referral.stats.totalEarnings', { defaultValue: 'Общий заработок' })}
+            </p>
+          </GlassCard>
+        )}
         <GlassCard className="p-5 text-center">
           <Gift size={18} className="mx-auto mb-2 text-white/20" />
           <p className="text-white" style={{ fontSize: '1.5rem', fontWeight: 600 }}>
@@ -252,7 +257,12 @@ export default function CabinetReferral() {
           <p className="mt-1 text-[13px] text-white/30">
             {info?.commission_percent
               ? t('referral.stats.commissionRate', { defaultValue: 'Комиссия' })
-              : t('referral.stats.daysPerTopup', { defaultValue: 'За каждое пополнение друга' })}
+              : t('referral.stats.daysPerTopup', {
+                  amount: `${formatAmount(terms?.minimum_topup_rubles ?? 0)} ${currencySymbol}`,
+                  defaultValue: `За пополнение друга от ${formatAmount(
+                    terms?.minimum_topup_rubles ?? 0,
+                  )} ${currencySymbol}`,
+                })}
           </p>
         </GlassCard>
       </div>
@@ -316,12 +326,24 @@ export default function CabinetReferral() {
                 )} ${currencySymbol})`,
               })}
             </p>
-            {terms.inviter_topup_bonus_days > 0 && (
+            {!isPartner && terms.inviter_topup_bonus_days > 0 && (
               <p>
                 •{' '}
                 {t('referral.condition.inviterDays', {
                   days: terms.inviter_topup_bonus_days,
-                  defaultValue: `Вы получаете +${terms.inviter_topup_bonus_days} дн. к подписке за каждое его пополнение`,
+                  amount: `${formatAmount(terms.minimum_topup_rubles)} ${currencySymbol}`,
+                  defaultValue: `Вы получаете +${terms.inviter_topup_bonus_days} дн. к подписке за каждое пополнение друга на сумму от ${formatAmount(
+                    terms.minimum_topup_rubles,
+                  )} ${currencySymbol}`,
+                })}
+              </p>
+            )}
+            {isPartner && (info?.commission_percent ?? 0) > 0 && (
+              <p>
+                •{' '}
+                {t('referral.condition.partnerCommission', {
+                  percent: info?.commission_percent,
+                  defaultValue: `Вам одобрена партнёрская ставка ${info?.commission_percent}% — вы получаете её с каждого пополнения реферала`,
                 })}
               </p>
             )}

@@ -825,7 +825,7 @@
       "totalEarnings": "总收益",
       "commissionRate": "佣金比例",
       "daysShort": "+{{days}} 天",
-      "daysPerTopup": "好友每次充值"
+      "daysPerTopup": "好友每次充值 {{amount}} 以上"
     },
     "terms": {
       "title": "计划条款",
@@ -994,7 +994,8 @@
       "newUserBonus": "朋友首次充值获得 {{amount}} 奖励",
       "inviterBonus": "您获得一次性奖励 {{amount}}",
       "maxPayments": "佣金按前 {{count}} 笔充值计算",
-      "inviterDays": "好友每次充值，您都将获得 +{{days}} 天订阅时长"
+      "inviterDays": "好友每次充值 {{amount}} 以上，您将获得 +{{days}} 天订阅时长",
+      "partnerCommission": "您的合作伙伴费率为 {{percent}}%——推荐用户每次充值您都将获得该比例收益"
     }
   },
   "support": {

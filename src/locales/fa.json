@@ -825,7 +825,7 @@
       "totalEarnings": "کل درآمد",
       "commissionRate": "نرخ کمیسیون",
       "daysShort": "+{{days}} روز",
-      "daysPerTopup": "برای هر شارژ دوست"
+      "daysPerTopup": "برای هر شارژ دوست از {{amount}}"
     },
     "terms": {
       "title": "شرایط برنامه",
@@ -994,7 +994,8 @@
       "newUserBonus": "دوست در اولین شارژ {{amount}} پاداش می‌گیرد",
       "inviterBonus": "شما پاداش یک‌بارهٔ {{amount}} می‌گیرید",
       "maxPayments": "کمیسیون برای {{count}} شارژ اول محاسبه می‌شود",
-      "inviterDays": "برای هر شارژ دوستتان +{{days}} روز اشتراک دریافت می‌کنید"
+      "inviterDays": "برای هر شارژ دوستتان از {{amount}} به بالا، +{{days}} روز اشتراک دریافت می‌کنید",
+      "partnerCommission": "نرخ همکاری تأییدشده شما {{percent}}% است — از هر شارژ معرفی‌شده آن را دریافت می‌کنید"
     }
   },
   "support": {
