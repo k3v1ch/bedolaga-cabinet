@@ -22,6 +22,8 @@ function reduceMobileSettings(settings: Record<string, unknown>): Record<string,
     reduced.particleDensity = Math.max(50, Math.floor(reduced.particleDensity / 4));
   if (typeof reduced.density === 'number')
     reduced.density = Math.max(10, Math.floor(reduced.density / 2));
+  if (typeof reduced.starCount === 'number')
+    reduced.starCount = Math.max(50, Math.floor(reduced.starCount / 4));
   if (typeof reduced.number === 'number')
     reduced.number = Math.max(5, Math.floor(reduced.number / 4));
   if ('interactive' in reduced) reduced.interactive = false;

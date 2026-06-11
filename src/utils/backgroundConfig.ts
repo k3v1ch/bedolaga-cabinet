@@ -21,6 +21,7 @@ const VALID_TYPES: ReadonlySet<string> = new Set<BackgroundType>([
   'ripple',
   'fireflies',
   'snowfall',
+  'starfield',
   'none',
 ]);
 

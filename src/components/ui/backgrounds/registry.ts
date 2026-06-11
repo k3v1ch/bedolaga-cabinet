@@ -20,6 +20,7 @@ const backgroundImports: Record<Exclude<BackgroundType, 'none'>, () => Promise<u
   ripple: () => import('./background-ripple'),
   fireflies: () => import('./fireflies'),
   snowfall: () => import('./snowfall'),
+  starfield: () => import('./starfield'),
 };
 
 /** Prefetch the JS chunk for a background type (call early to avoid lazy-load delay) */
@@ -51,6 +52,7 @@ export const backgroundComponents: Record<
   ripple: lazy(() => import('./background-ripple')),
   fireflies: lazy(() => import('./fireflies')),
   snowfall: lazy(() => import('./snowfall')),
+  starfield: lazy(() => import('./starfield')),
 };
 
 // Registry of all background definitions with settings for the editor
@@ -651,6 +653,33 @@ export const backgroundRegistry: BackgroundDefinition[] = [
         max: 3,
         step: 0.5,
         default: 0.5,
+      },
+    ],
+  },
+  {
+    type: 'starfield',
+    labelKey: 'admin.backgrounds.starfield',
+    descriptionKey: 'admin.backgrounds.starfieldDesc',
+    category: 'canvas',
+    settings: [
+      { key: 'color', label: 'admin.backgrounds.starColor', type: 'color', default: '#ffffff' },
+      {
+        key: 'starCount',
+        label: 'admin.backgrounds.particles',
+        type: 'number',
+        min: 50,
+        max: 800,
+        step: 25,
+        default: 200,
+      },
+      {
+        key: 'speed',
+        label: 'admin.backgrounds.speed',
+        type: 'number',
+        min: 0.1,
+        max: 5,
+        step: 0.1,
+        default: 1,
       },
     ],
   },

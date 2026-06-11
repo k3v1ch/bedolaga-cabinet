@@ -1157,6 +1157,8 @@
       "firefliesDesc": "Drifting glowing dots with pulsation",
       "snowfall": "Snowfall",
       "snowfallDesc": "Falling snow with wind drift",
+      "starfield": "Starfield",
+      "starfieldDesc": "Stars flying toward the viewer",
       "geminiEffect": "Gemini Effect",
       "geminiEffectDesc": "SVG effect like Google Gemini",
       "speed": "Speed",
