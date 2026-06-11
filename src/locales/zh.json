@@ -28,10 +28,9 @@
     "understand": "明白了",
     "collapse": "收起",
     "units": {
+      "tb": "TB",
       "gb": "GB",
-      "perGb": "/GB",
-      "days": "天",
-      "mo": "月"
+      "mb": "MB"
     },
     "balance": "余额",
     "copied": "已复制",
@@ -1001,7 +1000,7 @@
       "globalOpacity": "透明度",
       "globalBlur": "模糊",
       "categoryCSS": "CSS",
-      "categoryCanvas": "Canvas",
+      "categoryCANVAS": "Canvas",
       "categorySVG": "SVG",
       "aurora": "极光",
       "auroraDesc": "柔和渐变的北极光",

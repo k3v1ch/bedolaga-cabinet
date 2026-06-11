@@ -301,7 +301,9 @@ export default function AdminPaymentMethodEdit() {
                     <span className="text-sm">{opt.name}</span>
                     <div
                       className={`flex h-5 w-5 items-center justify-center rounded ${
-                        enabled ? 'bg-accent-500 text-white' : 'border border-dark-600 bg-dark-700'
+                        enabled
+                          ? 'bg-accent-500 text-on-accent'
+                          : 'border border-dark-600 bg-dark-700'
                       }`}
                     >
                       {enabled && <CheckIcon />}
@@ -493,7 +495,7 @@ export default function AdminPaymentMethodEdit() {
                         <span>{group.name}</span>
                         <div
                           className={`flex h-4 w-4 items-center justify-center rounded ${
-                            selected ? 'bg-accent-500 text-white' : 'border border-dark-600'
+                            selected ? 'bg-accent-500 text-on-accent' : 'border border-dark-600'
                           }`}
                         >
                           {selected && <CheckIcon />}

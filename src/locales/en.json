@@ -25,10 +25,9 @@
     "copy": "Copy",
     "all": "All",
     "units": {
+      "tb": "TB",
       "gb": "GB",
-      "perGb": "/GB",
-      "days": "days",
-      "mo": "mo"
+      "mb": "MB"
     },
     "retry": "Retry",
     "saving": "Saving...",
@@ -1119,7 +1118,7 @@
       "globalOpacity": "Opacity",
       "globalBlur": "Blur",
       "categoryCSS": "CSS",
-      "categoryCanvas": "Canvas",
+      "categoryCANVAS": "Canvas",
       "categorySVG": "SVG",
       "aurora": "Aurora",
       "auroraDesc": "Northern lights with smooth gradients",

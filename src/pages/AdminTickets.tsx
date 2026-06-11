@@ -272,9 +272,7 @@ export default function AdminTickets() {
               <BackIcon />
             </button>
           )}
-          <h1 className="text-2xl font-bold text-dark-50 sm:text-3xl">
-            {t('admin.tickets.title')}
-          </h1>
+          <h1 className="text-xl font-bold text-dark-100">{t('admin.tickets.title')}</h1>
         </div>
         <button
           onClick={() => navigate('/admin/tickets/settings')}

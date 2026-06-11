@@ -28,10 +28,9 @@
     "saving": "Сохранение...",
     "understand": "Понятно",
     "units": {
+      "tb": "ТБ",
       "gb": "ГБ",
-      "perGb": "/ГБ",
-      "days": "дн",
-      "mo": "мес"
+      "mb": "МБ"
     },
     "balance": "Баланс",
     "copied": "Скопировано",
@@ -613,8 +612,8 @@
       "unlimited": "Безлимит",
       "buyTrafficGb": "Купить {{gb}} ГБ",
       "buyUnlimited": "Купить Безлимит",
-      "manageServers": "Управление сквадами",
-      "manageServersTitle": "Управление сквадами",
+      "manageServers": "Управление локациями",
+      "manageServersTitle": "Управление локациями",
       "connectedDevices": "Подключённые устройства",
       "currentDeviceLimit": "Текущий лимит устройств",
       "decrementDevices": "Уменьшить кол-во устройств",
@@ -1149,7 +1148,7 @@
       "globalOpacity": "Прозрачность",
       "globalBlur": "Размытие",
       "categoryCSS": "CSS",
-      "categoryCanvas": "Canvas",
+      "categoryCANVAS": "Canvas",
       "categorySVG": "SVG",
       "aurora": "Aurora",
       "auroraDesc": "Северное сияние с плавными переливами",

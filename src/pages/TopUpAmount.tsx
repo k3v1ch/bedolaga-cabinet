@@ -507,7 +507,7 @@ export default function TopUpAmount() {
                 ? 'cursor-not-allowed bg-dark-700 text-dark-500'
                 : isStarsMethod
                   ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg shadow-yellow-500/25 hover:from-yellow-400 hover:to-orange-400 active:from-yellow-600 active:to-orange-600'
-                  : 'bg-accent-500 text-white shadow-lg shadow-accent-500/25 transition-colors hover:bg-accent-400 active:bg-accent-600'
+                  : 'bg-accent-500 text-on-accent shadow-lg shadow-accent-500/25 transition-colors hover:bg-accent-400 active:bg-accent-600'
             }`}
           >
             {isPending ? (

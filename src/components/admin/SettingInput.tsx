@@ -122,7 +122,7 @@ export function SettingInput({ setting, onUpdate, disabled }: SettingInputProps)
             </button>
             <button
               onClick={handleSave}
-              className="flex items-center gap-1.5 rounded-lg bg-accent-500 px-3 py-1.5 text-sm text-white transition-colors hover:bg-accent-600"
+              className="flex items-center gap-1.5 rounded-lg bg-accent-500 px-3 py-1.5 text-sm text-on-accent transition-colors hover:bg-accent-600"
             >
               <CheckIcon />
               {t('admin.settings.saveButton')}
@@ -159,7 +159,7 @@ export function SettingInput({ setting, onUpdate, disabled }: SettingInputProps)
         />
         <button
           onClick={handleSave}
-          className="rounded-lg bg-accent-500 p-2 text-white transition-colors hover:bg-accent-600"
+          className="rounded-lg bg-accent-500 p-2 text-on-accent transition-colors hover:bg-accent-600"
           title={t('admin.settings.saveHint')}
         >
           <CheckIcon />

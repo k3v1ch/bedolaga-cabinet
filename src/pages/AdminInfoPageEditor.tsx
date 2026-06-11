@@ -1027,7 +1027,7 @@ export default function AdminInfoPageEditor() {
         <button
           onClick={handleSave}
           disabled={saveMutation.isPending || !slug.trim()}
-          className="min-h-[44px] rounded-lg bg-accent-500 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-50"
+          className="min-h-[44px] rounded-lg bg-accent-500 px-6 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saveMutation.isPending ? t('admin.infoPages.saving') : t('admin.infoPages.save')}
         </button>
@@ -1108,7 +1108,7 @@ export default function AdminInfoPageEditor() {
                 className={cn(
                   'min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
                   displayMode === mode
-                    ? 'bg-accent-500 text-white'
+                    ? 'bg-accent-500 text-on-accent'
                     : 'bg-dark-700 text-dark-300 hover:bg-dark-600 hover:text-dark-100',
                 )}
               >
@@ -1136,7 +1136,7 @@ export default function AdminInfoPageEditor() {
                   pageType === pt
                     ? pt === 'faq'
                       ? 'bg-warning-500 text-white'
-                      : 'bg-accent-500 text-white'
+                      : 'bg-accent-500 text-on-accent'
                     : 'bg-dark-700 text-dark-300 hover:bg-dark-600 hover:text-dark-100',
                 )}
               >
@@ -1194,7 +1194,7 @@ export default function AdminInfoPageEditor() {
                 className={cn(
                   'min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
                   activeLocale === loc
-                    ? 'bg-accent-500 text-white'
+                    ? 'bg-accent-500 text-on-accent'
                     : 'bg-dark-700 text-dark-300 hover:bg-dark-600 hover:text-dark-100',
                 )}
               >
@@ -1415,7 +1415,7 @@ export default function AdminInfoPageEditor() {
         <button
           onClick={handleSave}
           disabled={saveMutation.isPending || !slug.trim()}
-          className="min-h-[44px] w-full rounded-lg bg-accent-500 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-50"
+          className="min-h-[44px] w-full rounded-lg bg-accent-500 py-3 text-sm font-medium text-on-accent transition-colors hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saveMutation.isPending ? t('admin.infoPages.saving') : t('admin.infoPages.save')}
         </button>

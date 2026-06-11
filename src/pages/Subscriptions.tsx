@@ -35,7 +35,7 @@ function EmptyState({ onBuy }: { onBuy: () => void }) {
       </p>
       <button
         onClick={onBuy}
-        className="rounded-xl bg-accent-500 px-8 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-600"
+        className="rounded-xl bg-accent-500 px-8 py-3 text-sm font-medium text-on-accent transition-colors hover:bg-accent-600"
       >
         {t('subscriptions.buy', 'Купить подписку')}
       </button>
@@ -135,7 +135,7 @@ export default function Subscriptions() {
       {!isLoading && subscriptions.length > 0 && !hasActivePaid && (
         <button
           onClick={() => navigate('/subscription/purchase')}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent-500 p-3.5 text-sm font-semibold text-white transition-colors hover:bg-accent-600"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent-500 p-3.5 text-sm font-semibold text-on-accent transition-colors hover:bg-accent-600"
         >
           <PlusIcon className="h-5 w-5" />
           {t('subscriptions.browsePlans', 'Посмотреть тарифы и купить подписку')}
@@ -171,7 +171,7 @@ export default function Subscriptions() {
               (Telegram-баг #605056/#605063). */}
           <button
             onClick={() => navigate('/subscription/purchase')}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent-600"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-6 py-3 text-sm font-semibold text-on-accent transition-colors hover:bg-accent-600"
           >
             <PlusIcon className="h-5 w-5" />
             {t('subscriptions.browsePlans', 'Посмотреть тарифы и купить подписку')}

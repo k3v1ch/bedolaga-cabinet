@@ -22,10 +22,9 @@
     "currency": "تومان",
     "copy": "کپی",
     "units": {
+      "tb": "TB",
       "gb": "GB",
-      "perGb": "/GB",
-      "days": "روز",
-      "mo": "ماه"
+      "mb": "MB"
     },
     "add": "افزودن",
     "refresh": "بازخوانی",
@@ -1001,7 +1000,7 @@
       "globalOpacity": "شفافیت",
       "globalBlur": "تاری",
       "categoryCSS": "CSS",
-      "categoryCanvas": "Canvas",
+      "categoryCANVAS": "Canvas",
       "categorySVG": "SVG",
       "aurora": "شفق قطبی",
       "auroraDesc": "شفق شمالی با گرادیان‌های نرم",

@@ -49,7 +49,7 @@ function DisplayModeSelector({
             className={cn(
               'min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
               value === mode
-                ? 'bg-accent-500 text-white'
+                ? 'bg-accent-500 text-on-accent'
                 : 'bg-dark-700 text-dark-300 hover:bg-dark-600 hover:text-dark-100',
               disabled && 'cursor-not-allowed opacity-50',
             )}
@@ -87,7 +87,7 @@ function LanguageTabs({
             className={cn(
               'min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-medium uppercase transition-colors',
               active === lang
-                ? 'bg-accent-500 text-white'
+                ? 'bg-accent-500 text-on-accent'
                 : 'bg-dark-700 text-dark-300 hover:bg-dark-600 hover:text-dark-100',
             )}
           >
@@ -221,7 +221,7 @@ function DocumentEditor({
       <button
         onClick={() => saveMutation.mutate()}
         disabled={saveMutation.isPending}
-        className="min-h-[44px] rounded-lg bg-accent-500 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-600 disabled:opacity-50"
+        className="min-h-[44px] rounded-lg bg-accent-500 px-6 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent-600 disabled:opacity-50"
       >
         {saveMutation.isPending ? t('admin.legalPages.saving') : t('admin.legalPages.save')}
       </button>
@@ -321,7 +321,7 @@ function RulesEditor({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => voi
       <button
         onClick={() => saveMutation.mutate()}
         disabled={saveMutation.isPending}
-        className="min-h-[44px] rounded-lg bg-accent-500 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-600 disabled:opacity-50"
+        className="min-h-[44px] rounded-lg bg-accent-500 px-6 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent-600 disabled:opacity-50"
       >
         {saveMutation.isPending ? t('admin.legalPages.saving') : t('admin.legalPages.save')}
       </button>
@@ -604,7 +604,7 @@ function FaqEditor({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void 
           <button
             onClick={() => createMutation.mutate()}
             disabled={createMutation.isPending}
-            className="flex min-h-[44px] items-center gap-2 rounded-lg bg-accent-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-600 disabled:opacity-50"
+            className="flex min-h-[44px] items-center gap-2 rounded-lg bg-accent-500 px-4 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent-600 disabled:opacity-50"
           >
             <PlusIcon />
             <span className="hidden sm:inline">{t('admin.legalPages.addQuestion')}</span>
@@ -669,7 +669,7 @@ export default function AdminLegalPages() {
             className={cn(
               'min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
               activeTab === tab
-                ? 'bg-accent-500 text-white'
+                ? 'bg-accent-500 text-on-accent'
                 : 'bg-dark-700 text-dark-300 hover:bg-dark-600 hover:text-dark-100',
             )}
           >
