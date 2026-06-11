@@ -8,9 +8,14 @@ import { Devices } from '@/components/landing/Devices';
 import { QuickConnect } from '@/components/landing/QuickConnect';
 import { FAQ } from '@/components/landing/FAQ';
 import { Footer } from '@/components/landing/Footer';
+import { useBranding } from '@/hooks/useBranding';
 
 export default function CabinetLanding() {
   const { t } = useTranslation();
+  // Синхронизирует фавикон и заголовок вкладки с брендингом — иначе лендинг
+  // остаётся со статичной заглушкой из index.html, а кабинет показывает
+  // логотип бренда, и иконки вкладок различаются.
+  useBranding();
   return (
     <div className="min-h-screen bg-black" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
