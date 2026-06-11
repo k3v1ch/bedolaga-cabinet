@@ -58,7 +58,9 @@ function MessageMedia({ message }: { message: TicketMessage }) {
   const [full, setFull] = useState(false);
 
   if (!message.has_media || !message.media_file_id) return null;
-  const url = ticketsApi.getMediaUrl(message.media_file_id);
+  // Подписанный токен обязателен: бэкенд отдаёт 404 на голый file_id
+  // (защита вложений тикетов, апстрим v3.60).
+  const url = ticketsApi.getMediaUrl(message.media_file_id, message.media_token);
 
   if (message.media_type === 'photo') {
     return (
