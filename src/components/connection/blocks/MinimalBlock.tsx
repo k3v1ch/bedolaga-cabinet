@@ -13,7 +13,11 @@ export function MinimalBlock({
 }: BlockRendererProps) {
   const isVerno = variant === 'verno';
   const visibleBlocks = blocks.filter(
-    (b) => getLocalizedText(b.title) || getLocalizedText(b.description) || b.buttons?.length,
+    (b) =>
+      getLocalizedText(b.title) ||
+      getLocalizedText(b.description) ||
+      b.buttons?.length ||
+      b.customNode,
   );
 
   if (!visibleBlocks.length) return null;
@@ -63,6 +67,7 @@ export function MinimalBlock({
               {getLocalizedText(block.description)}
             </p>
             {renderBlockButtons(block.buttons, 'subtle')}
+            {block.customNode}
           </div>
         );
       })}

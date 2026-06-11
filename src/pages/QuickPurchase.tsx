@@ -7,6 +7,13 @@ import { fireAnalyticsEvent, getYandexCid } from '../hooks/useAnalyticsCounters'
 import { motion, AnimatePresence } from 'framer-motion';
 import DOMPurify from 'dompurify';
 import { landingApi } from '../api/landings';
+import {
+  brandingApi,
+  getCachedBranding,
+  setCachedBranding,
+  preloadLogo,
+  getLogoBlobUrl,
+} from '../api/branding';
 import type {
   LandingConfig,
   LandingTariff,
@@ -14,11 +21,16 @@ import type {
   LandingPaymentMethod,
   PurchaseRequest,
 } from '../api/landings';
-import { StaticBackgroundRenderer } from '../components/backgrounds/BackgroundRenderer';
+import {
+  BackgroundRenderer,
+  StaticBackgroundRenderer,
+} from '../components/backgrounds/BackgroundRenderer';
+import { CheckCircleIcon, CheckIcon, DevicesIcon, DownloadIcon } from '@/components/icons';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { cn } from '../lib/utils';
 import { getApiErrorMessage } from '../utils/api-error';
 import { formatPrice } from '../utils/format';
+import { setFavicon, letterFaviconDataUri, roundedFaviconDataUri } from '../utils/favicon';
 import { useCurrency } from '../hooks/useCurrency';
 
 function detectContactType(value: string): 'email' | 'telegram' {
@@ -285,52 +297,18 @@ function TariffCard({
             isSelected ? 'border-accent-500 bg-accent-500' : 'border-dark-600',
           )}
         >
-          {isSelected && (
-            <svg
-              className="h-3 w-3 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={3}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          )}
+          {isSelected && <CheckIcon className="h-3 w-3 text-white" />}
         </div>
       </div>
 
       {/* Info row */}
       <div className="flex items-center gap-3 text-xs text-dark-400">
         <span className="flex items-center gap-1">
-          <svg
-            className="h-3.5 w-3.5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-            />
-          </svg>
+          <DownloadIcon className="h-3.5 w-3.5" />
           {tariff.traffic_limit_gb === 0 ? '∞' : tariff.traffic_limit_gb} {t('landing.gb', 'GB')}
         </span>
         <span className="flex items-center gap-1">
-          <svg
-            className="h-3.5 w-3.5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"
-            />
-          </svg>
+          <DevicesIcon className="h-3.5 w-3.5" />
           {tariff.device_limit} {t('landing.devices', 'devices')}
         </span>
       </div>
@@ -550,15 +528,7 @@ function SummaryCard({
           {config.features.map((feature, idx) => (
             <div key={idx} className="flex gap-3">
               <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success-500/10">
-                <svg
-                  className="h-3 w-3 text-success-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={3}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
+                <CheckCircleIcon className="h-3 w-3 text-success-500" />
               </div>
               <div>
                 <p className="text-sm font-medium text-dark-100">{feature.title}</p>
@@ -600,9 +570,9 @@ function SummaryCard({
                   const el = document.getElementById('contact-input');
                   if (el) {
                     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    el.classList.add('!border-red-500', '!ring-2', '!ring-red-500/50');
+                    el.classList.add('!border-error-500', '!ring-2', '!ring-error-500/50');
                     setTimeout(() => {
-                      el.classList.remove('!border-red-500', '!ring-2', '!ring-red-500/50');
+                      el.classList.remove('!border-error-500', '!ring-2', '!ring-error-500/50');
                     }, 2000);
                   }
                   return;
@@ -643,12 +613,12 @@ function SummaryCard({
               const el = document.getElementById('contact-input');
               if (el) {
                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                el.classList.add('!border-red-500', '!ring-2', '!ring-red-500/50');
+                el.classList.add('!border-error-500', '!ring-2', '!ring-error-500/50');
                 setTimeout(() => {
                   el.focus();
                 }, 300);
                 setTimeout(() => {
-                  el.classList.remove('!border-red-500', '!ring-2', '!ring-red-500/50');
+                  el.classList.remove('!border-error-500', '!ring-2', '!ring-error-500/50');
                 }, 2000);
               }
               return;
@@ -813,6 +783,42 @@ export default function QuickPurchase() {
     retry: 1,
   });
 
+  // Public branding — drives the favicon on this standalone landing page.
+  // The cabinet's useBranding hook is auth-gated and AppShell-only, so a public
+  // landing would otherwise keep the empty index.html favicon. The branding
+  // endpoint is public; logo is preloaded as a blob to keep the backend URL out
+  // of the DOM (same pattern as the authenticated app).
+  const { data: branding } = useQuery({
+    queryKey: ['branding'],
+    queryFn: async () => {
+      const data = await brandingApi.getBranding();
+      setCachedBranding(data);
+      await preloadLogo(data);
+      return data;
+    },
+    initialData: getCachedBranding() ?? undefined,
+    initialDataUpdatedAt: 0,
+    staleTime: 60_000,
+    retry: 1,
+  });
+
+  useEffect(() => {
+    if (!branding) return;
+    const logoUrl = branding.has_custom_logo ? getLogoBlobUrl() : null;
+    if (!logoUrl) {
+      setFavicon(letterFaviconDataUri(branding.logo_letter));
+      return;
+    }
+    let cancelled = false;
+    // Round the custom logo like the header tile instead of a hard square.
+    roundedFaviconDataUri(logoUrl).then((rounded) => {
+      if (!cancelled) setFavicon(rounded || logoUrl);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [branding]);
+
   const [discountExpired, setDiscountExpired] = useState(false);
 
   const handleDiscountExpired = useCallback(() => {
@@ -941,15 +947,18 @@ export default function QuickPurchase() {
     }
   }, [visibleTariffs, selectedTariffId]);
 
-  // SEO: set document title
+  // SEO: set document title. Fall back to the landing's own title when no
+  // dedicated meta_title is set — otherwise the tab keeps the static
+  // index.html "VPN" placeholder and never reflects the landing.
   useEffect(() => {
-    if (!config?.meta_title) return;
+    const pageTitle = config?.meta_title || config?.title;
+    if (!pageTitle) return;
     const prev = document.title;
-    document.title = config.meta_title;
+    document.title = pageTitle;
     return () => {
       document.title = prev;
     };
-  }, [config?.meta_title]);
+  }, [config?.meta_title, config?.title]);
 
   // SEO: set meta description
   useEffect(() => {
@@ -1110,8 +1119,16 @@ export default function QuickPurchase() {
   const showTariffCards = visibleTariffs.length > 1;
 
   return (
-    <div className={cn('min-h-dvh overflow-x-hidden', !config.background_config && 'bg-dark-950')}>
-      {config.background_config && <StaticBackgroundRenderer config={config.background_config} />}
+    <div className="min-h-dvh overflow-x-hidden">
+      {/* Background: the landing's own per-landing theme when configured, else
+          fall back to the cabinet's global animated theme (instead of a bare
+          dark canvas). Both render via a portal behind the content, so the
+          wrapper stays transparent over the body's #0a0f1a. */}
+      {config.background_config ? (
+        <StaticBackgroundRenderer config={config.background_config} />
+      ) : (
+        <BackgroundRenderer />
+      )}
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Language switcher */}
         <div className="mb-4 flex justify-end">

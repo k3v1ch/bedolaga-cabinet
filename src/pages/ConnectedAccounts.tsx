@@ -394,6 +394,10 @@ export default function ConnectedAccounts() {
   const [emailConfirmPassword, setEmailConfirmPassword] = useState('');
   const [emailError, setEmailError] = useState<string | null>(null);
   const [emailSuccess, setEmailSuccess] = useState<string | null>(null);
+  // Email-merge confirmation: the target email belongs to another account, so a
+  // one-time code was mailed to it; verifying the code yields the merge token.
+  const [emailMergeCodePending, setEmailMergeCodePending] = useState(false);
+  const [emailMergeCode, setEmailMergeCode] = useState('');
   const setUser = useAuthStore((state) => state.setUser);
 
   const { data: emailAuthConfig } = useQuery<EmailAuthEnabled>({
@@ -472,6 +476,15 @@ export default function ConnectedAccounts() {
         navigate(`/merge/${response.merge_token}`, { replace: true });
         return;
       }
+      // The email belongs to another account: a one-time code was mailed to it.
+      // Switch to the code step; verifying it yields the merge token.
+      if (response.merge_required && response.merge_verification === 'email_code') {
+        setEmailMergeCodePending(true);
+        setEmailMergeCode('');
+        setEmailSuccess(t('profile.emailMergeCodeSent'));
+        setEmailError(null);
+        return;
+      }
       setEmailSuccess(t('profile.emailSent'));
       setEmailError(null);
       setEmailValue('');
@@ -480,11 +493,17 @@ export default function ConnectedAccounts() {
       const updatedUser = await authApi.getMe();
       setUser(updatedUser);
       queryClient.invalidateQueries({ queryKey: ['linked-providers'] });
-      queryClient.invalidateQueries({ queryKey: ['user'] });
+      // Note: auth user lives in the zustand store, not in React Query —
+      // the explicit setUser above IS the refresh. No ['user'] query exists.
     },
     onError: (err: { response?: { data?: { detail?: string } } }) => {
       const detail = err.response?.data?.detail;
-      if (detail?.includes('already registered')) {
+      // The email belongs to another account and merging it requires proving
+      // ownership: the backend asks for THAT account's password (account-takeover
+      // fix). Guide the user to enter it rather than showing a dead-end error.
+      if (detail?.includes('merge')) {
+        setEmailError(t('profile.emailMergePasswordRequired'));
+      } else if (detail?.includes('already registered')) {
         setEmailError(t('profile.emailAlreadyRegistered'));
       } else if (detail?.includes('already have a verified email')) {
         setEmailError(t('profile.alreadyHaveEmail'));
@@ -495,7 +514,37 @@ export default function ConnectedAccounts() {
     },
   });
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const verifyEmailMergeMutation = useMutation({
+    mutationFn: (code: string) => authApi.verifyEmailMerge(code),
+    onSuccess: (response) => {
+      if (response.merge_token) {
+        navigate(`/merge/${response.merge_token}`, { replace: true });
+      }
+    },
+    onError: (err: { response?: { data?: { detail?: string } } }) => {
+      setEmailError(err.response?.data?.detail || t('profile.emailMergeCodeInvalid'));
+    },
+  });
+
+  const handleVerifyMergeCode = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    setEmailError(null);
+    const code = emailMergeCode.trim();
+    if (!/^\d{6}$/.test(code)) {
+      setEmailError(t('profile.emailMergeCodeInvalid'));
+      return;
+    }
+    verifyEmailMergeMutation.mutate(code);
+  };
+
+  const cancelEmailMerge = () => {
+    setEmailMergeCodePending(false);
+    setEmailMergeCode('');
+    setEmailError(null);
+    setEmailSuccess(null);
+  };
+
+  const handleEmailSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
     setEmailError(null);
     setEmailSuccess(null);
@@ -770,88 +819,144 @@ export default function ConnectedAccounts() {
                     className="overflow-hidden"
                   >
                     <div className="mt-5 border-t border-white/[0.06] pt-5">
-                      <p className="mb-4 text-[13px] text-white/40">
-                        {t('profile.linkEmailDescription')}
-                      </p>
-                      <form onSubmit={handleEmailSubmit} className="space-y-3">
-                        <div>
-                          <label
-                            htmlFor="email-link-input"
-                            className="mb-1.5 block text-[13px] text-white/30"
-                          >
-                            Email
-                          </label>
-                          <input
-                            id="email-link-input"
-                            type="email"
-                            value={emailValue}
-                            onChange={(e) => setEmailValue(e.target.value)}
-                            placeholder="email@example.com"
-                            className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 font-mono text-[15px] text-white/85 placeholder-white/25 outline-none transition-colors focus:border-white/20 focus:bg-white/[0.06]"
-                            autoComplete="email"
-                          />
-                        </div>
-                        <div>
-                          <label
-                            htmlFor="email-link-password"
-                            className="mb-1.5 block text-[13px] text-white/30"
-                          >
-                            {t('auth.password')}
-                          </label>
-                          <input
-                            id="email-link-password"
-                            type="password"
-                            value={emailPassword}
-                            onChange={(e) => setEmailPassword(e.target.value)}
-                            placeholder={t('profile.passwordPlaceholder')}
-                            className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-[15px] text-white/85 placeholder-white/25 outline-none transition-colors focus:border-white/20 focus:bg-white/[0.06]"
-                            autoComplete="new-password"
-                          />
-                          <p className="mt-1.5 text-[12px] text-white/30">
-                            {t('profile.passwordHint')}
-                          </p>
-                        </div>
-                        <div>
-                          <label
-                            htmlFor="email-link-confirm"
-                            className="mb-1.5 block text-[13px] text-white/30"
-                          >
-                            {t('auth.confirmPassword')}
-                          </label>
-                          <input
-                            id="email-link-confirm"
-                            type="password"
-                            value={emailConfirmPassword}
-                            onChange={(e) => setEmailConfirmPassword(e.target.value)}
-                            placeholder={t('profile.confirmPasswordPlaceholder')}
-                            className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-[15px] text-white/85 placeholder-white/25 outline-none transition-colors focus:border-white/20 focus:bg-white/[0.06]"
-                            autoComplete="new-password"
-                          />
-                        </div>
-
-                        {emailError && (
-                          <div className="rounded-xl border border-red-400/25 bg-red-400/[0.06] p-3 text-[13px] text-red-400/85">
-                            {emailError}
+                      {emailMergeCodePending ? (
+                        /* Email принадлежит другому аккаунту: на него отправлен
+                           одноразовый код, подтверждение даёт merge-токен. */
+                        <form onSubmit={handleVerifyMergeCode} className="space-y-3">
+                          <div>
+                            <label
+                              htmlFor="email-merge-code"
+                              className="mb-1.5 block text-[13px] text-white/30"
+                            >
+                              {t('profile.emailMergeCodeLabel')}
+                            </label>
+                            <input
+                              id="email-merge-code"
+                              type="text"
+                              inputMode="numeric"
+                              maxLength={6}
+                              value={emailMergeCode}
+                              onChange={(e) => setEmailMergeCode(e.target.value.replace(/\D/g, ''))}
+                              placeholder="000000"
+                              className="verno-input w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-[15px] tracking-[0.5em] text-white/85 placeholder-white/25 outline-none transition-colors focus:border-white/20 focus:bg-white/[0.06]"
+                              autoComplete="one-time-code"
+                            />
                           </div>
-                        )}
-                        {emailSuccess && (
-                          <div className="rounded-xl border border-green-400/25 bg-green-400/[0.06] p-3 text-[13px] text-green-400/85">
-                            {emailSuccess}
-                          </div>
-                        )}
-
-                        <button
-                          type="submit"
-                          disabled={registerEmailMutation.isPending}
-                          className="mt-1 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
-                          style={{ fontWeight: 500 }}
-                        >
-                          {registerEmailMutation.isPending && (
-                            <Loader2 size={14} className="animate-spin" />
+                          {emailError && (
+                            <div className="rounded-xl border border-red-400/25 bg-red-400/[0.06] p-3 text-[13px] text-red-400/85">
+                              {emailError}
+                            </div>
                           )}
-                          {t('profile.linkEmail')}
-                        </button>
-                      </form>
+                          {emailSuccess && (
+                            <div className="rounded-xl border border-green-400/25 bg-green-400/[0.06] p-3 text-[13px] text-green-400/85">
+                              {emailSuccess}
+                            </div>
+                          )}
+                          <button
+                            type="submit"
+                            disabled={verifyEmailMergeMutation.isPending}
+                            className="mt-1 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
+                            style={{ fontWeight: 500 }}
+                          >
+                            {verifyEmailMergeMutation.isPending && (
+                              <Loader2 size={14} className="animate-spin" />
+                            )}
+                            {t('profile.emailMergeConfirm')}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={cancelEmailMerge}
+                            className="w-full text-[13px] text-white/35 transition-colors hover:text-white/60"
+                          >
+                            {t('common.cancel')}
+                          </button>
+                        </form>
+                      ) : (
+                        <>
+                          <p className="mb-4 text-[13px] text-white/40">
+                            {t('profile.linkEmailDescription')}
+                          </p>
+                          <form onSubmit={handleEmailSubmit} className="space-y-3">
+                            <div>
+                              <label
+                                htmlFor="email-link-input"
+                                className="mb-1.5 block text-[13px] text-white/30"
+                              >
+                                Email
+                              </label>
+                              <input
+                                id="email-link-input"
+                                type="email"
+                                value={emailValue}
+                                onChange={(e) => setEmailValue(e.target.value)}
+                                placeholder="email@example.com"
+                                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 font-mono text-[15px] text-white/85 placeholder-white/25 outline-none transition-colors focus:border-white/20 focus:bg-white/[0.06]"
+                                autoComplete="email"
+                              />
+                            </div>
+                            <div>
+                              <label
+                                htmlFor="email-link-password"
+                                className="mb-1.5 block text-[13px] text-white/30"
+                              >
+                                {t('auth.password')}
+                              </label>
+                              <input
+                                id="email-link-password"
+                                type="password"
+                                value={emailPassword}
+                                onChange={(e) => setEmailPassword(e.target.value)}
+                                placeholder={t('profile.passwordPlaceholder')}
+                                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-[15px] text-white/85 placeholder-white/25 outline-none transition-colors focus:border-white/20 focus:bg-white/[0.06]"
+                                autoComplete="new-password"
+                              />
+                              <p className="mt-1.5 text-[12px] text-white/30">
+                                {t('profile.passwordHint')}
+                              </p>
+                            </div>
+                            <div>
+                              <label
+                                htmlFor="email-link-confirm"
+                                className="mb-1.5 block text-[13px] text-white/30"
+                              >
+                                {t('auth.confirmPassword')}
+                              </label>
+                              <input
+                                id="email-link-confirm"
+                                type="password"
+                                value={emailConfirmPassword}
+                                onChange={(e) => setEmailConfirmPassword(e.target.value)}
+                                placeholder={t('profile.confirmPasswordPlaceholder')}
+                                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-[15px] text-white/85 placeholder-white/25 outline-none transition-colors focus:border-white/20 focus:bg-white/[0.06]"
+                                autoComplete="new-password"
+                              />
+                            </div>
+
+                            {emailError && (
+                              <div className="rounded-xl border border-red-400/25 bg-red-400/[0.06] p-3 text-[13px] text-red-400/85">
+                                {emailError}
+                              </div>
+                            )}
+                            {emailSuccess && (
+                              <div className="rounded-xl border border-green-400/25 bg-green-400/[0.06] p-3 text-[13px] text-green-400/85">
+                                {emailSuccess}
+                              </div>
+                            )}
+
+                            <button
+                              type="submit"
+                              disabled={registerEmailMutation.isPending}
+                              className="mt-1 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
+                              style={{ fontWeight: 500 }}
+                            >
+                              {registerEmailMutation.isPending && (
+                                <Loader2 size={14} className="animate-spin" />
+                              )}
+                              {t('profile.linkEmail')}
+                            </button>
+                          </form>
+                        </>
+                      )}
                     </div>
                   </motion.div>
                 )}

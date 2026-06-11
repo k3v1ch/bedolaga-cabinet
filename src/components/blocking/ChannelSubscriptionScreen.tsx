@@ -1,22 +1,13 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useBlockingStore } from '../../store/blocking';
 import { apiClient, isChannelSubscriptionError } from '../../api/client';
+import { usePlatform } from '../../platform';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { TelegramIcon, ClockIcon, CheckIcon, RestartIcon } from '@/components/icons';
 
 const CHECK_COOLDOWN_SECONDS = 5;
-
-function safeOpenUrl(url: string | undefined | null): void {
-  if (!url) return;
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
-      window.open(url, '_blank', 'noopener');
-    }
-  } catch {
-    // invalid URL, do nothing
-  }
-}
 
 export default function ChannelSubscriptionScreen() {
   const { t } = useTranslation();
@@ -26,6 +17,28 @@ export default function ChannelSubscriptionScreen() {
   const [cooldown, setCooldown] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const isCheckingRef = useRef(false);
+  const { openLink, openTelegramLink } = usePlatform();
+
+  // Route channel links through the platform adapter: inside the Telegram
+  // WebView a raw window.open is intercepted by the client and the link
+  // silently fails to open. t.me links use openTelegramLink; others openLink.
+  const openChannel = useCallback(
+    (url: string | undefined | null) => {
+      if (!url) return;
+      try {
+        const parsed = new URL(url);
+        if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return;
+        if (parsed.hostname === 't.me' || parsed.hostname.endsWith('.t.me')) {
+          openTelegramLink(url);
+        } else {
+          openLink(url);
+        }
+      } catch {
+        // invalid URL, do nothing
+      }
+    },
+    [openLink, openTelegramLink],
+  );
 
   // Cooldown timer
   useEffect(() => {
@@ -70,8 +83,25 @@ export default function ChannelSubscriptionScreen() {
     }
   }, [clearBlocking, t]);
 
+  const screenRef = useFocusTrap<HTMLDivElement>(true, { lockScroll: false });
+
+  // Check-subscription button — 3 states (checking / cooldown / idle).
+  let checkIcon: ReactNode;
+  let checkLabel: string;
+  if (isChecking) {
+    checkIcon = <RestartIcon className="h-5 w-5 animate-spin" />;
+    checkLabel = t('blocking.channel.checking');
+  } else if (cooldown > 0) {
+    checkIcon = <ClockIcon className="h-5 w-5" />;
+    checkLabel = t('blocking.channel.waitSeconds', { seconds: cooldown });
+  } else {
+    checkIcon = <CheckIcon className="h-5 w-5" />;
+    checkLabel = t('blocking.channel.checkSubscription');
+  }
+
   return (
     <div
+      ref={screenRef}
       className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black px-6 py-10"
       style={{ fontFamily: 'Inter, sans-serif' }}
     >
@@ -97,9 +127,7 @@ export default function ChannelSubscriptionScreen() {
           {/* Telegram glyph */}
           <div className="mb-5 flex justify-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/[0.04]">
-              <svg className="h-7 w-7 text-white/70" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
-              </svg>
+              <TelegramIcon className="h-7 w-7 text-white/70" />
             </div>
           </div>
 
@@ -129,7 +157,7 @@ export default function ChannelSubscriptionScreen() {
                   </span>
                   {ch.channel_link && (
                     <button
-                      onClick={() => safeOpenUrl(ch.channel_link)}
+                      onClick={() => openChannel(ch.channel_link)}
                       className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/60 transition-colors hover:bg-white/[0.08] hover:text-white/80"
                     >
                       {t('blocking.channel.openChannel')}
@@ -143,7 +171,7 @@ export default function ChannelSubscriptionScreen() {
           {/* Fallback: single legacy channel */}
           {channels.length === 0 && channelInfo?.channel_link && (
             <button
-              onClick={() => safeOpenUrl(channelInfo.channel_link)}
+              onClick={() => openChannel(channelInfo.channel_link)}
               className="mb-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#2AABEE] py-3.5 text-white transition-all duration-300 hover:bg-[#229ED9] active:scale-[0.97]"
               style={{ fontSize: '0.9rem', fontWeight: 500 }}
             >
@@ -167,35 +195,8 @@ export default function ChannelSubscriptionScreen() {
             className="flex w-full items-center justify-center gap-2 rounded-full bg-white py-3 text-sm text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:shadow-none disabled:active:scale-100"
             style={{ fontWeight: 500 }}
           >
-            {isChecking ? (
-              <>
-                <svg
-                  className="h-4 w-4 animate-spin"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                {t('blocking.channel.checking')}
-              </>
-            ) : cooldown > 0 ? (
-              t('blocking.channel.waitSeconds', { seconds: cooldown })
-            ) : (
-              t('blocking.channel.checkSubscription')
-            )}
+            {checkIcon}
+            {checkLabel}
           </button>
 
           {/* Hint */}

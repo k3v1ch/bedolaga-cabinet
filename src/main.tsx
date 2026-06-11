@@ -20,11 +20,13 @@ import {
   isFullscreen,
 } from '@telegram-apps/sdk-react';
 import { clearStaleSessionIfNeeded } from './utils/token';
+import { useAuthStore } from './store/auth';
 import { AppWithNavigator } from './AppWithNavigator';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { initLogoPreload } from './api/branding';
+import { checkBackendOnStartup } from './api/health';
 import { getCachedFullscreenEnabled, isTelegramMobile } from './hooks/useTelegramSDK';
-import './i18n';
+import { applyTelegramLanguage } from './i18n';
 import './styles/globals.css';
 
 // Polyfill Object.hasOwn for older iOS/Android WebViews (Safari < 15.4, old Chrome).
@@ -54,6 +56,9 @@ if (isTelegramEnv && !alreadyInitialized) {
     restoreInitData();
 
     clearStaleSessionIfNeeded(retrieveRawInitData() || null);
+
+    // Adopt the user's Telegram client language on first run (no explicit choice yet).
+    applyTelegramLanguage();
 
     // Each mount in its own try/catch so one failure doesn't block others.
     // mountMiniApp() internally mounts themeParams in SDK v3,
@@ -96,6 +101,16 @@ if (isTelegramEnv && !alreadyInitialized) {
   // Outside Telegram — still clear stale session tokens if any
   clearStaleSessionIfNeeded(null);
 }
+
+// Bootstrap auth after the Telegram SDK is initialised so CloudStorage-backed
+// refresh-token recovery can run inside initialize() (launch params + CloudStorage
+// are only available post-init()).
+void useAuthStore.getState().initialize();
+
+// In parallel with auth bootstrap, eagerly check backend liveness so a dead
+// backend paints the ServiceUnavailableScreen immediately instead of flashing
+// the /login page first.
+void checkBackendOnStartup();
 
 if ('requestIdleCallback' in window) {
   requestIdleCallback(() => initLogoPreload());

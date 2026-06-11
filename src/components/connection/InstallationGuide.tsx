@@ -10,8 +10,9 @@ import type {
 } from '@/types';
 import { useTheme } from '@/hooks/useTheme';
 import { CardsBlock, TimelineBlock, AccordionBlock, MinimalBlock, BlockButtons } from './blocks';
-import type { BlockRendererProps } from './blocks';
+import type { BlockRendererProps, RenderBlock } from './blocks';
 import TvQuickConnect from './TvQuickConnect';
+import { BackIcon, BookOpenIcon } from '@/components/icons';
 
 const platformOrder = ['ios', 'android', 'windows', 'macos', 'linux', 'androidTV', 'appleTV'];
 
@@ -33,11 +34,13 @@ const RENDERERS: Record<string, React.ComponentType<BlockRendererProps>> = {
   minimal: MinimalBlock,
 };
 
-const BackIcon = () => (
-  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-  </svg>
-);
+/** TV quick-connect is a Happ-only feature (check.happ.su/sendtv) — show it only
+ *  for the Happ app, detected by its happ:// deep-link scheme (name as fallback). */
+function isHappApp(app: RemnawaveAppClient | null): boolean {
+  if (!app) return false;
+  if ((app.deepLink ?? '').toLowerCase().startsWith('happ://')) return true;
+  return app.name.toLowerCase().includes('happ');
+}
 
 interface Props {
   appConfig: AppConfig;
@@ -151,11 +154,12 @@ export default function InstallationGuide({
     ],
   );
 
-  const selectedIsTv =
-    (activePlatformKey || availablePlatforms[0]) === 'androidTV' ||
-    (activePlatformKey || availablePlatforms[0]) === 'appleTV';
   const userIsOnTv = detectedPlatform === 'androidTV' || detectedPlatform === 'appleTV';
-  const isTvPlatform = selectedIsTv && !userIsOnTv;
+  // Happ's TV quick-connect (check.happ.su/sendtv) is ONE API serving BOTH
+  // Android TV and Apple TV — show the widget on either.
+  const selectedPlatform = activePlatformKey || availablePlatforms[0];
+  const isTvLayout =
+    (selectedPlatform === 'androidTV' || selectedPlatform === 'appleTV') && !userIsOnTv;
 
   const currentPlatformKey = activePlatformKey || availablePlatforms[0];
   const currentPlatformData = currentPlatformKey
@@ -194,6 +198,21 @@ export default function InstallationGuide({
   // Block renderer
   const blockType = appConfig.uiConfig?.installationGuidesBlockType || 'cards';
   const Renderer = RENDERERS[blockType] || CardsBlock;
+
+  // For the Happ TV app (Android TV / Apple TV), inject the TV connect widget as
+  // customNode so it renders THROUGH the active block style (cards/timeline/
+  // accordion/minimal) instead of as separate clashing cards that break it.
+  const showTvConnect = Boolean(
+    selectedApp && isTvLayout && isHappApp(selectedApp) && appConfig.subscriptionUrl,
+  );
+  let renderBlocks: RenderBlock[] = selectedApp?.blocks ?? [];
+  if (selectedApp && showTvConnect && appConfig.subscriptionUrl) {
+    // install → add-subscription → connect: attach to the add step (index 1);
+    // fall back to the last block for shorter configs.
+    const idx = selectedApp.blocks.length >= 3 ? 1 : Math.max(0, selectedApp.blocks.length - 1);
+    const widget = <TvQuickConnect subscriptionUrl={appConfig.subscriptionUrl} isLight={isLight} />;
+    renderBlocks = selectedApp.blocks.map((b, i) => (i === idx ? { ...b, customNode: widget } : b));
+  }
 
   return (
     <div
@@ -452,51 +471,17 @@ export default function InstallationGuide({
               : 'btn-secondary w-full justify-center'
           }
         >
-          <svg
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"
-            />
-          </svg>
+          <BookOpenIcon className="h-5 w-5" />
           {getBaseTranslation('tutorial', 'subscription.connection.tutorial')}
         </a>
       )}
 
-      {/* Blocks — for TV: first block, Quick Connect, last block */}
-      {selectedApp && isTvPlatform && appConfig.subscriptionUrl ? (
-        <>
-          {selectedApp.blocks.length > 0 && (
-            <Renderer
-              blocks={selectedApp.blocks.slice(0, 1)}
-              isMobile={isMobile}
-              isLight={isLight}
-              getLocalizedText={getLocalizedText}
-              getSvgHtml={getSvgHtml}
-              renderBlockButtons={renderBlockButtons}
-            />
-          )}
-          <TvQuickConnect subscriptionUrl={appConfig.subscriptionUrl} isLight={isLight} />
-          {selectedApp.blocks.length > 1 && (
-            <Renderer
-              blocks={selectedApp.blocks.slice(-1)}
-              isMobile={isMobile}
-              isLight={isLight}
-              getLocalizedText={getLocalizedText}
-              getSvgHtml={getSvgHtml}
-              renderBlockButtons={renderBlockButtons}
-            />
-          )}
-        </>
-      ) : selectedApp ? (
+      {/* Blocks rendered in the panel's active style. For the Happ Android TV
+          app the TV connect widget is injected into a step (customNode), so it
+          adapts to that style instead of breaking it. */}
+      {selectedApp && (
         <Renderer
-          blocks={selectedApp.blocks}
+          blocks={renderBlocks}
           isMobile={isMobile}
           isLight={isLight}
           variant={variant}
@@ -504,7 +489,7 @@ export default function InstallationGuide({
           getSvgHtml={getSvgHtml}
           renderBlockButtons={renderBlockButtons}
         />
-      ) : null}
+      )}
     </div>
   );
 }
