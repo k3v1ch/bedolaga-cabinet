@@ -824,7 +824,8 @@
       "activeReferrals": "فعال",
       "totalEarnings": "کل درآمد",
       "commissionRate": "نرخ کمیسیون",
-      "welcomeBonus": "روزهای پاداش"
+      "daysShort": "+{{days}} روز",
+      "daysPerTopup": "برای هر شارژ دوست"
     },
     "terms": {
       "title": "شرایط برنامه",
@@ -989,12 +990,11 @@
     "condition": {
       "invite": "دوست را با لینک خود دعوت می‌کنید",
       "minTopup": "دوست ثبت‌نام و حساب را شارژ می‌کند (از {{amount}})",
-      "welcomeDays": "شما و دوستتان هرکدام +{{percent}}% روز اشتراک هدیه می‌گیرید",
-      "welcomeMoney": "شما و دوستتان هرکدام +{{percent}}% از شارژ به موجودی دریافت می‌کنید",
       "commission": "{{percent}}٪ از هر شارژ او دریافت می‌کنید",
       "newUserBonus": "دوست در اولین شارژ {{amount}} پاداش می‌گیرد",
       "inviterBonus": "شما پاداش یک‌بارهٔ {{amount}} می‌گیرید",
-      "maxPayments": "کمیسیون برای {{count}} شارژ اول محاسبه می‌شود"
+      "maxPayments": "کمیسیون برای {{count}} شارژ اول محاسبه می‌شود",
+      "inviterDays": "برای هر شارژ دوستتان +{{days}} روز اشتراک دریافت می‌کنید"
     }
   },
   "support": {

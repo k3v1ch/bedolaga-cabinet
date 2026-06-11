@@ -939,7 +939,8 @@
       "activeReferrals": "Active",
       "totalEarnings": "Total Earnings",
       "commissionRate": "Commission Rate",
-      "welcomeBonus": "Bonus days"
+      "daysShort": "+{{days}} d.",
+      "daysPerTopup": "For every friend top-up"
     },
     "terms": {
       "title": "Program Terms",
@@ -1104,12 +1105,11 @@
     "condition": {
       "invite": "You invite a friend with your link",
       "minTopup": "Friend signs up and tops up the balance (from {{amount}})",
-      "welcomeDays": "You and your friend each get +{{percent}}% bonus days to subscription",
-      "welcomeMoney": "You and your friend each get +{{percent}}% of the top-up to balance",
       "commission": "You earn {{percent}}% from each of their top-ups",
       "newUserBonus": "Friend gets a {{amount}} bonus on first top-up",
       "inviterBonus": "You get a one-time {{amount}} bonus for an invitee",
-      "maxPayments": "Commission is paid for the first {{count}} top-ups"
+      "maxPayments": "Commission is paid for the first {{count}} top-ups",
+      "inviterDays": "You get +{{days}} days of subscription for every friend top-up"
     }
   },
   "support": {

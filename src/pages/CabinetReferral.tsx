@@ -244,12 +244,15 @@ export default function CabinetReferral() {
           <p className="text-white" style={{ fontSize: '1.5rem', fontWeight: 600 }}>
             {info?.commission_percent
               ? `${info.commission_percent}%`
-              : `+${terms?.welcome_days_percent ?? 0}%`}
+              : t('referral.stats.daysShort', {
+                  days: terms?.inviter_topup_bonus_days ?? 0,
+                  defaultValue: `+${terms?.inviter_topup_bonus_days ?? 0} дн.`,
+                })}
           </p>
           <p className="mt-1 text-[13px] text-white/30">
             {info?.commission_percent
               ? t('referral.stats.commissionRate', { defaultValue: 'Комиссия' })
-              : t('referral.stats.welcomeBonus', { defaultValue: 'Бонус дней' })}
+              : t('referral.stats.daysPerTopup', { defaultValue: 'За каждое пополнение друга' })}
           </p>
         </GlassCard>
       </div>
@@ -313,21 +316,12 @@ export default function CabinetReferral() {
                 )} ${currencySymbol})`,
               })}
             </p>
-            {terms.welcome_days_percent > 0 && (
+            {terms.inviter_topup_bonus_days > 0 && (
               <p>
                 •{' '}
-                {t('referral.condition.welcomeDays', {
-                  percent: terms.welcome_days_percent,
-                  defaultValue: `Вы и друг получаете +${terms.welcome_days_percent}% дней к подписке`,
-                })}
-              </p>
-            )}
-            {terms.welcome_money_percent > 0 && (
-              <p>
-                •{' '}
-                {t('referral.condition.welcomeMoney', {
-                  percent: terms.welcome_money_percent,
-                  defaultValue: `Вы и друг получаете +${terms.welcome_money_percent}% от пополнения на баланс`,
+                {t('referral.condition.inviterDays', {
+                  days: terms.inviter_topup_bonus_days,
+                  defaultValue: `Вы получаете +${terms.inviter_topup_bonus_days} дн. к подписке за каждое его пополнение`,
                 })}
               </p>
             )}
