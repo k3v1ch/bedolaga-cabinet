@@ -17,15 +17,27 @@ function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
 }
 
+// KELDARI-UI: стиль выровнен под кабинет — тёмный фон, стеклянная карточка,
+// шрифт Inter, белые pill-кнопки (как в CabinetSubscription).
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-dark-950 px-4 py-10">
-      <div className="w-full max-w-md rounded-2xl border border-dark-800/50 bg-dark-900/50 p-6 sm:p-8">
+    <div
+      className="flex min-h-dvh items-center justify-center bg-[#0A0A0A] px-4 py-10"
+      style={{ fontFamily: 'Inter, sans-serif' }}
+    >
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl sm:p-8">
         {children}
       </div>
     </div>
   );
 }
+
+// Белая «основная» кнопка (как «Продлить» в кабинете)
+const PRIMARY_BTN =
+  'flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.98]';
+// Вторичная pill-кнопка
+const SECONDARY_BTN =
+  'flex w-full items-center justify-center gap-2 rounded-full border border-white/15 px-6 py-3 text-[15px] text-white/70 transition-colors hover:bg-white/[0.05]';
 
 export default function GiftClaim() {
   const { token } = useParams<{ token: string }>();
@@ -100,7 +112,7 @@ export default function GiftClaim() {
       <Shell>
         <div className="flex flex-col items-center gap-4 py-6 text-center">
           <Spinner className="h-12 w-12 border-[3px]" />
-          <p className="text-sm text-dark-400">{t('common.loading', 'Loading...')}</p>
+          <p className="text-[14px] text-white/40">{t('common.loading', 'Loading...')}</p>
         </div>
       </Shell>
     );
@@ -111,10 +123,10 @@ export default function GiftClaim() {
     return (
       <Shell>
         <div className="flex flex-col items-center gap-3 py-6 text-center">
-          <h1 className="text-lg font-semibold text-dark-50">
+          <h1 className="text-lg text-white" style={{ fontWeight: 600 }}>
             {t('landing.giftClaim.notFoundTitle', 'Gift not found')}
           </h1>
-          <p className="text-sm text-dark-400">
+          <p className="text-[14px] text-white/40">
             {t(
               'landing.giftClaim.notFoundDesc',
               'This gift link is invalid or no longer available.',
@@ -130,11 +142,11 @@ export default function GiftClaim() {
     return (
       <Shell>
         <div className="flex flex-col items-center gap-4 py-4 text-center">
-          <CheckCircleIcon className="h-14 w-14 text-success-400" />
-          <h1 className="text-xl font-bold text-dark-50">
+          <CheckCircleIcon className="h-14 w-14 text-green-400" />
+          <h1 className="text-xl text-white" style={{ fontWeight: 700 }}>
             {t('landing.giftClaim.alreadyTitle', 'Gift already activated')}
           </h1>
-          <p className="text-sm text-dark-400">
+          <p className="text-[14px] text-white/40">
             {t('landing.giftClaim.alreadyDesc', 'This gift has already been claimed.')}
           </p>
         </div>
@@ -147,10 +159,10 @@ export default function GiftClaim() {
     return (
       <Shell>
         <div className="flex flex-col items-center gap-3 py-6 text-center">
-          <h1 className="text-lg font-semibold text-dark-50">
+          <h1 className="text-lg text-white" style={{ fontWeight: 600 }}>
             {t('landing.giftClaim.failedTitle', 'Gift unavailable')}
           </h1>
-          <p className="text-sm text-dark-400">
+          <p className="text-[14px] text-white/40">
             {t(
               'landing.giftClaim.failedDesc',
               'The payment for this gift did not go through, so it cannot be activated.',
@@ -171,26 +183,25 @@ export default function GiftClaim() {
           className="flex flex-col items-center gap-5 text-center"
         >
           <AnimatedCheckmark />
-          <h1 className="text-xl font-bold text-dark-50">
+          <h1 className="text-xl text-white" style={{ fontWeight: 700 }}>
             {t('landing.giftClaim.successTitle', 'Gift activated!')}
           </h1>
           {result.subscription_url && (
             <>
-              <p className="text-sm text-dark-300">
+              <p className="text-[14px] text-white/55">
                 {t('landing.giftClaim.connectDesc', 'Use this link to connect:')}
               </p>
-              <p className="w-full select-all truncate rounded-lg bg-dark-900/60 px-3 py-2 text-sm text-accent-400">
+              <p className="w-full select-all truncate rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-[14px] text-white/70">
                 {result.subscription_url}
               </p>
               <button
                 type="button"
                 onClick={handleCopyLink}
                 className={cn(
-                  'flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all active:scale-[0.98]',
-                  copied
-                    ? 'bg-success-500/20 text-success-400'
-                    : 'bg-accent-500 text-white hover:bg-accent-400',
+                  PRIMARY_BTN,
+                  copied && 'bg-green-500/20 text-green-400 hover:shadow-none',
                 )}
+                style={{ fontWeight: 500 }}
               >
                 {copied ? <CheckIcon className="h-4 w-4" /> : <CopyIcon className="h-4 w-4" />}
                 {copied
@@ -210,10 +221,10 @@ export default function GiftClaim() {
       <Shell>
         <div className="flex flex-col items-center gap-4 py-6 text-center">
           <Spinner className="h-12 w-12 border-[3px]" />
-          <h1 className="text-lg font-semibold text-dark-50">
+          <h1 className="text-lg text-white" style={{ fontWeight: 600 }}>
             {t('landing.giftClaim.pendingTitle', 'Almost ready...')}
           </h1>
-          <p className="text-sm text-dark-400">
+          <p className="text-[14px] text-white/40">
             {t(
               'landing.giftClaim.pendingDesc',
               'The payment is still being confirmed. This page will update automatically.',
@@ -232,13 +243,15 @@ export default function GiftClaim() {
         animate={{ opacity: 1, scale: 1 }}
         className="flex flex-col items-center gap-5 text-center"
       >
-        <div className="text-4xl">🎁</div>
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/[0.06] text-3xl">
+          🎁
+        </div>
         <div>
-          <h1 className="text-xl font-bold text-dark-50">
+          <h1 className="text-xl text-white" style={{ fontWeight: 700 }}>
             {t('landing.giftClaim.title', 'You have a gift!')}
           </h1>
           {gift.tariff_name && (
-            <p className="mt-1 text-sm text-dark-300">
+            <p className="mt-1 text-[14px] text-white/55">
               {gift.tariff_name}
               {periodLabel ? ` — ${periodLabel}` : ''}
             </p>
@@ -246,13 +259,13 @@ export default function GiftClaim() {
         </div>
 
         {gift.gift_message && (
-          <div className="w-full rounded-xl border border-dark-700/30 bg-dark-800/40 p-4 text-left">
-            <p className="text-sm italic text-dark-200">&ldquo;{gift.gift_message}&rdquo;</p>
+          <div className="w-full rounded-xl border border-white/10 bg-white/[0.04] p-4 text-left">
+            <p className="text-[14px] italic text-white/70">&ldquo;{gift.gift_message}&rdquo;</p>
           </div>
         )}
 
         {willReplace && (
-          <p className="w-full rounded-lg border border-warning-500/20 bg-warning-500/5 p-3 text-xs text-warning-400">
+          <p className="w-full rounded-lg border border-amber-400/20 bg-amber-400/5 p-3 text-[12px] text-amber-300/80">
             {t(
               'landing.giftClaim.replaceWarning',
               'You already have a subscription — activating this gift will replace it.',
@@ -262,26 +275,19 @@ export default function GiftClaim() {
 
         {/* Telegram arm */}
         {gift.bot_claim_link && (
-          <a
-            href={gift.bot_claim_link}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-accent-500/25 transition-all hover:bg-accent-400 active:scale-[0.98]"
-          >
+          <a href={gift.bot_claim_link} className={PRIMARY_BTN} style={{ fontWeight: 500 }}>
             {t('landing.giftClaim.activateTelegram', 'Activate in Telegram')}
           </a>
         )}
 
         {/* Web/email arm */}
         {!showEmail ? (
-          <button
-            type="button"
-            onClick={() => setShowEmail(true)}
-            className="w-full rounded-xl border border-dark-700/50 px-6 py-3 text-sm font-medium text-dark-200 transition-colors hover:bg-dark-800/50"
-          >
+          <button type="button" onClick={() => setShowEmail(true)} className={SECONDARY_BTN}>
             {t('landing.giftClaim.activateWeb', 'Activate by email')}
           </button>
         ) : (
           <div className="w-full space-y-3 text-left">
-            <label htmlFor="claim-email" className="block text-sm font-medium text-dark-200">
+            <label htmlFor="claim-email" className="block text-[13px] text-white/50">
               {t('landing.giftClaim.emailLabel', 'Your email')}
             </label>
             <input
@@ -293,19 +299,19 @@ export default function GiftClaim() {
                 setClaimError(null);
               }}
               placeholder="email@example.com"
-              className="w-full rounded-xl border border-dark-700/50 bg-dark-800/50 px-4 py-3 text-sm text-dark-50 placeholder-dark-500 outline-none focus:border-accent-500/50 focus:ring-1 focus:ring-accent-500/25"
+              className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-[15px] text-white placeholder-white/30 outline-none transition-colors focus:border-white/25"
             />
-            {claimError && <p className="text-sm text-error-400">{claimError}</p>}
+            {claimError && <p className="text-[13px] text-red-400">{claimError}</p>}
             <button
               type="button"
               disabled={!isValidEmail(email) || claimMutation.isPending}
               onClick={() => claimMutation.mutate()}
               className={cn(
-                'flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-bold transition-all',
-                isValidEmail(email) && !claimMutation.isPending
-                  ? 'bg-accent-500 text-white hover:bg-accent-400 active:scale-[0.98]'
-                  : 'cursor-not-allowed bg-dark-800 text-dark-500',
+                PRIMARY_BTN,
+                (!isValidEmail(email) || claimMutation.isPending) &&
+                  'cursor-not-allowed bg-white/10 text-white/40 hover:shadow-none',
               )}
+              style={{ fontWeight: 500 }}
             >
               {claimMutation.isPending ? (
                 <Spinner className="h-5 w-5 border-2" />
