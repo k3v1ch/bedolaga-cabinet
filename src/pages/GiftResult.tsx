@@ -4,13 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { giftApi } from '../api/gift';
-import { brandingApi, type TelegramWidgetConfig } from '../api/branding';
 import { Spinner } from '@/components/ui/Spinner';
 import { AnimatedCheckmark } from '@/components/ui/AnimatedCheckmark';
 import { AnimatedCrossmark } from '@/components/ui/AnimatedCrossmark';
 import { cn } from '@/lib/utils';
 import { copyToClipboard } from '@/utils/clipboard';
-import { buildGiftLinks } from '@/utils/giftLinks';
+import { giftSiteLink } from '@/utils/giftLinks';
 import { CheckIcon, CopyIcon, InfoIcon, ExclamationIcon, ClockIcon } from '@/components/icons';
 
 const MAX_POLL_MS = 10 * 60 * 1000; // 10 minutes
@@ -54,44 +53,19 @@ function CodeOnlySuccessState({
 }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [copiedTg, setCopiedTg] = useState(false);
-  const [copiedSite, setCopiedSite] = useState(false);
-
-  // Bot username comes from the runtime branding config; the build-time env var
-  // is only a fallback. Otherwise the "activate via bot" line silently vanishes
-  // on deployments that don't set VITE_TELEGRAM_BOT_USERNAME at build time.
-  const { data: widgetConfig } = useQuery<TelegramWidgetConfig>({
-    queryKey: ['telegram-widget-config'],
-    queryFn: brandingApi.getTelegramWidgetConfig,
-    staleTime: 60000,
-  });
-  const botUsername =
-    widgetConfig?.bot_username || import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '';
+  const [copied, setCopied] = useState(false);
 
   const shortCode = purchaseToken.slice(0, 12);
   const giftCode = `GIFT-${shortCode}`;
-  // KELDARI-UI: purchaseToken — это 32-символьный share-префикс токена (см.
-  // cabinet/routes/gift.py::_GIFT_SHARE_TOKEN_LEN). Обе ссылки активируют подарок
-  // по префиксу токена (Telegram deep-link / страница /buy/gift/:token). Telegram
-  // передаёт start-параметр боту дословно, "_" — валидный символ, поэтому префикс
-  // "GIFT_" не кодируем (см. utils/giftLinks.ts).
-  const { telegram: tgLink, site: siteLink } = buildGiftLinks(purchaseToken, botUsername);
+  // KELDARI-UI: одна ссылка на подарок → страница /buy/gift/<token>, где получатель
+  // сам выбирает активацию в Telegram или по почте (см. utils/giftLinks.ts).
+  const siteLink = giftSiteLink(purchaseToken);
 
-  const handleCopyTg = async () => {
-    if (!tgLink) return;
-    try {
-      await copyToClipboard(tgLink);
-      setCopiedTg(true);
-      setTimeout(() => setCopiedTg(false), 2000);
-    } catch {
-      // fallback
-    }
-  };
-  const handleCopySite = async () => {
+  const handleCopy = async () => {
     try {
       await copyToClipboard(siteLink);
-      setCopiedSite(true);
-      setTimeout(() => setCopiedSite(false), 2000);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch {
       // fallback
     }
@@ -124,76 +98,42 @@ function CodeOnlySuccessState({
         <p className="select-all font-mono text-lg font-bold text-accent-400">{giftCode}</p>
       </div>
 
-      {/* Share links — выбор: Telegram или сайт, у каждой своя кнопка копирования */}
-      <div className="w-full space-y-3">
-        {tgLink && (
-          <div className="rounded-xl border border-dark-700/30 bg-dark-800/40 p-3 text-left">
-            <p className="mb-1 text-xs font-medium text-dark-400">
-              {t('gift.shareModalActivateVia', 'Activate via bot:')}
-            </p>
-            <p className="mb-2 truncate rounded-lg bg-dark-900/60 px-3 py-2 text-sm text-accent-400">
-              {tgLink}
-            </p>
-            <button
-              type="button"
-              onClick={handleCopyTg}
-              className={cn(
-                'flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 active:scale-[0.98]',
-                copiedTg
-                  ? 'bg-success-500/20 text-success-400'
-                  : 'bg-accent-500 text-white hover:bg-accent-400',
-              )}
-            >
-              {copiedTg ? (
-                <>
-                  <CheckIcon className="h-4 w-4" />
-                  {t('common.copied', 'Copied!')}
-                </>
-              ) : (
-                <>
-                  <CopyIcon className="h-4 w-4" />
-                  {t('gift.copyTelegramLink', 'Скопировать ссылку (Telegram)')}
-                </>
-              )}
-            </button>
-          </div>
-        )}
-
-        <div className="rounded-xl border border-dark-700/30 bg-dark-800/40 p-3 text-left">
-          <p className="mb-1 text-xs font-medium text-dark-400">
-            {t('gift.shareModalActivateViaCabinet', 'Or via website:')}
-          </p>
-          <p className="mb-2 truncate rounded-lg bg-dark-900/60 px-3 py-2 text-sm text-accent-400">
-            {siteLink}
-          </p>
-          <button
-            type="button"
-            onClick={handleCopySite}
-            className={cn(
-              'flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 active:scale-[0.98]',
-              copiedSite
-                ? 'bg-success-500/20 text-success-400'
-                : 'bg-accent-500 text-white hover:bg-accent-400',
-            )}
-          >
-            {copiedSite ? (
-              <>
-                <CheckIcon className="h-4 w-4" />
-                {t('common.copied', 'Copied!')}
-              </>
-            ) : (
-              <>
-                <CopyIcon className="h-4 w-4" />
-                {t('gift.copySiteLink', 'Скопировать ссылку (сайт)')}
-              </>
-            )}
-          </button>
-        </div>
+      {/* Одна ссылка на подарок — ведёт на страницу, где получатель сам выбирает
+          активацию в Telegram или по почте. */}
+      <div className="w-full rounded-xl border border-dark-700/30 bg-dark-800/40 p-3 text-left">
+        <p className="mb-1 text-xs font-medium text-dark-400">
+          {t('gift.shareLinkLabel', 'Ссылка на подарок:')}
+        </p>
+        <p className="mb-3 truncate rounded-lg bg-dark-900/60 px-3 py-2 text-sm text-accent-400">
+          {siteLink}
+        </p>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className={cn(
+            'flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 active:scale-[0.98]',
+            copied
+              ? 'bg-success-500/20 text-success-400'
+              : 'bg-accent-500 text-white hover:bg-accent-400',
+          )}
+        >
+          {copied ? (
+            <>
+              <CheckIcon className="h-4 w-4" />
+              {t('common.copied', 'Copied!')}
+            </>
+          ) : (
+            <>
+              <CopyIcon className="h-4 w-4" />
+              {t('gift.copyGiftLink', 'Скопировать ссылку на подарок')}
+            </>
+          )}
+        </button>
       </div>
 
       <button
         type="button"
-        onClick={() => navigate('/gift?tab=myGifts')}
+        onClick={() => navigate('/subscriptions')}
         className="w-full rounded-xl border border-dark-700/50 px-6 py-3 text-sm font-medium text-dark-300 transition-colors hover:bg-dark-800/50"
       >
         {t('gift.tabMyGifts', 'My Gifts')}

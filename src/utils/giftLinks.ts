@@ -17,6 +17,11 @@ export function buildGiftLinks(shareToken: string, botUsername: string): GiftLin
   const telegram = botUsername
     ? `https://t.me/${botUsername}?start=GIFT_${shareToken}`
     : null;
-  const site = `${window.location.origin}/buy/gift/${shareToken}`;
-  return { telegram, site };
+  return { telegram, site: giftSiteLink(shareToken) };
+}
+
+// Единственная ссылка, которой делятся с получателем: ведёт на страницу /buy/gift/<token>
+// (GiftClaim), где получатель САМ выбирает — активировать в Telegram или по почте.
+export function giftSiteLink(shareToken: string): string {
+  return `${window.location.origin}/buy/gift/${shareToken}`;
 }

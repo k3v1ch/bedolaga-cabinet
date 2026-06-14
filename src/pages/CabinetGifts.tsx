@@ -15,10 +15,10 @@ import type {
   SentGift,
   ReceivedGift,
 } from '@/api/gift';
-import { brandingApi, type TelegramWidgetConfig } from '@/api/branding';
 import { copyToClipboard } from '@/utils/clipboard';
-import { buildGiftLinks } from '@/utils/giftLinks';
+import { giftSiteLink } from '@/utils/giftLinks';
 import { GiftDetailsModal } from '@/components/GiftDetailsModal';
+import { useToast } from '@/components/Toast';
 import { getApiErrorMessage } from '@/utils/api-error';
 import { formatPrice } from '@/utils/format';
 import { usePlatform, useHaptic } from '@/platform';
@@ -73,6 +73,7 @@ export default function CabinetGifts() {
   const haptic = useHaptic();
 
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialView: View = searchParams.get('action') === 'new' ? 'select' : 'main';
   const [view, setView] = useState<View>(initialView);
@@ -183,6 +184,11 @@ export default function CabinetGifts() {
               queryClient.invalidateQueries({ queryKey: ['gift-config'] });
               queryClient.invalidateQueries({ queryKey: ['gift-sent'] });
               queryClient.invalidateQueries({ queryKey: ['sent-gifts'] });
+              showToast({
+                type: 'success',
+                title: t('gift.createdToastTitle', 'Подарок создан 🎁'),
+                message: t('gift.createdToastMsg', 'Ищите его в разделе «Подарки» ниже — там ссылка для друга.'),
+              });
               setView('main');
             } else if (status === 'failed') {
               haptic.notification('error');
@@ -201,6 +207,11 @@ export default function CabinetGifts() {
         queryClient.invalidateQueries({ queryKey: ['gift-config'] });
         queryClient.invalidateQueries({ queryKey: ['gift-sent'] });
         queryClient.invalidateQueries({ queryKey: ['sent-gifts'] });
+        showToast({
+          type: 'success',
+          title: t('gift.createdToastTitle', 'Подарок создан 🎁'),
+          message: t('gift.createdToastMsg', 'Ищите его в разделе «Подарки» ниже — там ссылка для друга.'),
+        });
         setView('main');
       }
     },
@@ -783,22 +794,12 @@ export default function CabinetGifts() {
 
 function SentGiftRow({ gift }: { gift: SentGift }) {
   const { t } = useTranslation();
-  const [copiedTg, setCopiedTg] = useState(false);
-  const [copiedSite, setCopiedSite] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-
-  // Один общий запрос на всё дерево (react-query дедуплицирует по ключу).
-  const { data: widgetConfig } = useQuery<TelegramWidgetConfig>({
-    queryKey: ['telegram-widget-config'],
-    queryFn: brandingApi.getTelegramWidgetConfig,
-    staleTime: 60000,
-  });
-  const botUsername =
-    widgetConfig?.bot_username || import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '';
 
   const shortCode = gift.token.slice(0, 12);
   const giftCode = `GIFT-${shortCode}`;
-  const { telegram: tgLink, site: siteLink } = buildGiftLinks(gift.token, botUsername);
+  const siteLink = giftSiteLink(gift.token);
   const activated = isGiftActivated(gift);
   const available = !activated && isGiftAvailable(gift.status);
 
@@ -814,16 +815,10 @@ function SentGiftRow({ gift }: { gift: SentGift }) {
             ? t('giftsPage.status.expired')
             : gift.status;
 
-  const handleCopyTg = async () => {
-    if (!tgLink) return;
-    await copyToClipboard(tgLink);
-    setCopiedTg(true);
-    setTimeout(() => setCopiedTg(false), 2000);
-  };
-  const handleCopySite = async () => {
+  const handleCopy = async () => {
     await copyToClipboard(siteLink);
-    setCopiedSite(true);
-    setTimeout(() => setCopiedSite(false), 2000);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -873,34 +868,19 @@ function SentGiftRow({ gift }: { gift: SentGift }) {
         )}
       </div>
       {!activated && (
-        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-          {tgLink && (
-            <button
-              onClick={handleCopyTg}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2 text-[13px] text-white/50 transition-colors hover:bg-white/[0.04]"
-            >
-              {copiedTg ? (
-                <>
-                  <Check size={12} className="text-green-400" /> {t('giftsPage.row.copied')}
-                </>
-              ) : (
-                <>
-                  <Copy size={12} /> {t('giftsPage.row.copyTelegram', 'Ссылка Telegram')}
-                </>
-              )}
-            </button>
-          )}
+        <div onClick={(e) => e.stopPropagation()}>
           <button
-            onClick={handleCopySite}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2 text-[13px] text-white/50 transition-colors hover:bg-white/[0.04]"
+            onClick={handleCopy}
+            className="flex w-full items-center justify-center gap-2 rounded-full border border-white/15 py-2.5 text-[14px] text-white/70 transition-colors hover:bg-white/[0.05]"
+            style={{ fontWeight: 500 }}
           >
-            {copiedSite ? (
+            {copied ? (
               <>
-                <Check size={12} className="text-green-400" /> {t('giftsPage.row.copied')}
+                <Check size={14} className="text-green-400" /> {t('giftsPage.row.copied')}
               </>
             ) : (
               <>
-                <Copy size={12} /> {t('giftsPage.row.copySite', 'Ссылка на сайт')}
+                <Copy size={14} /> {t('giftsPage.row.copyGiftLink', 'Скопировать ссылку на подарок')}
               </>
             )}
           </button>

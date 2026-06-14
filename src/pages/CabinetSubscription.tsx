@@ -19,8 +19,7 @@ import { useAuthStore } from '@/store/auth';
 import { subscriptionApi } from '@/api/subscription';
 import { balanceApi } from '@/api/balance';
 import { giftApi, type SentGift } from '@/api/gift';
-import { brandingApi, type TelegramWidgetConfig } from '@/api/branding';
-import { buildGiftLinks } from '@/utils/giftLinks';
+import { giftSiteLink } from '@/utils/giftLinks';
 import { copyToClipboard } from '@/utils/clipboard';
 import { GiftDetailsModal } from '@/components/GiftDetailsModal';
 import { API } from '@/config/constants';
@@ -145,14 +144,6 @@ export default function CabinetSubscription() {
     staleTime: 60_000,
     retry: false,
   });
-
-  const { data: giftWidgetConfig } = useQuery<TelegramWidgetConfig>({
-    queryKey: ['telegram-widget-config'],
-    queryFn: brandingApi.getTelegramWidgetConfig,
-    staleTime: 60_000,
-  });
-  const giftBotUsername =
-    giftWidgetConfig?.bot_username || import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '';
 
   // ── Traffic refresh (parity с Dashboard / CabinetHome) ─────────────
   const [trafficData, setTrafficData] = useState<{
@@ -656,10 +647,7 @@ export default function CabinetSubscription() {
           <div className="space-y-3">
             {sentGifts.map((gift) => {
               const isAvailable = gift.status === 'paid' || gift.status === 'pending_activation';
-              const { telegram: tgLink, site: siteLink } = buildGiftLinks(
-                gift.token,
-                giftBotUsername,
-              );
+              const siteLink = giftSiteLink(gift.token);
               return (
                 <div
                   key={gift.token}
@@ -696,39 +684,23 @@ export default function CabinetSubscription() {
                       <span className="text-white/60">{formatDate(gift.created_at)}</span>
                     </div>
                   </div>
-                  {/* Копирование ссылок — ТОЛЬКО для неактивированных подарков.
-                      Для активированных токен скопировать нельзя (подарок уже использован). */}
+                  {/* Одна ссылка — ведёт на страницу, где получатель сам выберёт
+                      активацию в Telegram или по почте. Только для неактивированных. */}
                   {isAvailable ? (
-                    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                      {tgLink && (
-                        <button
-                          onClick={() => copyGiftLink(`${gift.token}:tg`, tgLink)}
-                          className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2 text-[13px] text-white/50 transition-colors hover:bg-white/[0.04]"
-                        >
-                          {giftCopiedKey === `${gift.token}:tg` ? (
-                            <>
-                              <Check size={12} className="text-green-400" />{' '}
-                              {t('subscriptionPage.copied')}
-                            </>
-                          ) : (
-                            <>
-                              <Copy size={12} /> {t('subscriptionPage.copyTelegram', 'Telegram')}
-                            </>
-                          )}
-                        </button>
-                      )}
+                    <div onClick={(e) => e.stopPropagation()}>
                       <button
-                        onClick={() => copyGiftLink(`${gift.token}:site`, siteLink)}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2 text-[13px] text-white/50 transition-colors hover:bg-white/[0.04]"
+                        onClick={() => copyGiftLink(gift.token, siteLink)}
+                        className="flex w-full items-center justify-center gap-2 rounded-full border border-white/15 py-2.5 text-[14px] text-white/70 transition-colors hover:bg-white/[0.05]"
+                        style={{ fontWeight: 500 }}
                       >
-                        {giftCopiedKey === `${gift.token}:site` ? (
+                        {giftCopiedKey === gift.token ? (
                           <>
-                            <Check size={12} className="text-green-400" />{' '}
+                            <Check size={14} className="text-green-400" />{' '}
                             {t('subscriptionPage.copied')}
                           </>
                         ) : (
                           <>
-                            <Copy size={12} /> {t('subscriptionPage.copySite', 'Сайт')}
+                            <Copy size={14} /> {t('subscriptionPage.copyGiftLink', 'Скопировать ссылку на подарок')}
                           </>
                         )}
                       </button>
