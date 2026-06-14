@@ -668,7 +668,7 @@ export default function CabinetSubscription() {
                 >
                   <div className="mb-3 flex items-start justify-between gap-3">
                     <p className="text-[15px] text-white/80" style={{ fontWeight: 500 }}>
-                      {gift.tariff_name || t('subscriptionPage.giftsHeader')}
+                      {gift.tariff_name || t('subscriptionPage.giftDefaultName', 'Подарок')}
                     </p>
                     <span
                       className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] ${
