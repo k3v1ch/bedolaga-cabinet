@@ -15,7 +15,9 @@ import type {
   SentGift,
   ReceivedGift,
 } from '@/api/gift';
+import { brandingApi, type TelegramWidgetConfig } from '@/api/branding';
 import { copyToClipboard } from '@/utils/clipboard';
+import { buildGiftLinks } from '@/utils/giftLinks';
 import { getApiErrorMessage } from '@/utils/api-error';
 import { formatPrice } from '@/utils/format';
 import { usePlatform, useHaptic } from '@/platform';
@@ -765,10 +767,21 @@ export default function CabinetGifts() {
 
 function SentGiftRow({ gift }: { gift: SentGift }) {
   const { t } = useTranslation();
-  const [copied, setCopied] = useState(false);
+  const [copiedTg, setCopiedTg] = useState(false);
+  const [copiedSite, setCopiedSite] = useState(false);
+
+  // Один общий запрос на всё дерево (react-query дедуплицирует по ключу).
+  const { data: widgetConfig } = useQuery<TelegramWidgetConfig>({
+    queryKey: ['telegram-widget-config'],
+    queryFn: brandingApi.getTelegramWidgetConfig,
+    staleTime: 60000,
+  });
+  const botUsername =
+    widgetConfig?.bot_username || import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '';
 
   const shortCode = gift.token.slice(0, 12);
   const giftCode = `GIFT-${shortCode}`;
+  const { telegram: tgLink, site: siteLink } = buildGiftLinks(gift.token, botUsername);
   const activated = isGiftActivated(gift);
   const available = !activated && isGiftAvailable(gift.status);
 
@@ -784,10 +797,16 @@ function SentGiftRow({ gift }: { gift: SentGift }) {
             ? t('giftsPage.status.expired')
             : gift.status;
 
-  const handleCopy = async () => {
-    await copyToClipboard(giftCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopyTg = async () => {
+    if (!tgLink) return;
+    await copyToClipboard(tgLink);
+    setCopiedTg(true);
+    setTimeout(() => setCopiedTg(false), 2000);
+  };
+  const handleCopySite = async () => {
+    await copyToClipboard(siteLink);
+    setCopiedSite(true);
+    setTimeout(() => setCopiedSite(false), 2000);
   };
 
   return (
@@ -834,17 +853,33 @@ function SentGiftRow({ gift }: { gift: SentGift }) {
       </div>
       {!activated && (
         <div className="flex gap-2">
+          {tgLink && (
+            <button
+              onClick={handleCopyTg}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2 text-[13px] text-white/50 transition-colors hover:bg-white/[0.04]"
+            >
+              {copiedTg ? (
+                <>
+                  <Check size={12} className="text-green-400" /> {t('giftsPage.row.copied')}
+                </>
+              ) : (
+                <>
+                  <Copy size={12} /> {t('giftsPage.row.copyTelegram', 'Ссылка Telegram')}
+                </>
+              )}
+            </button>
+          )}
           <button
-            onClick={handleCopy}
+            onClick={handleCopySite}
             className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2 text-[13px] text-white/50 transition-colors hover:bg-white/[0.04]"
           >
-            {copied ? (
+            {copiedSite ? (
               <>
                 <Check size={12} className="text-green-400" /> {t('giftsPage.row.copied')}
               </>
             ) : (
               <>
-                <Copy size={12} /> {t('giftsPage.row.copy')}
+                <Copy size={12} /> {t('giftsPage.row.copySite', 'Ссылка на сайт')}
               </>
             )}
           </button>

@@ -10,6 +10,7 @@ import { AnimatedCheckmark } from '@/components/ui/AnimatedCheckmark';
 import { AnimatedCrossmark } from '@/components/ui/AnimatedCrossmark';
 import { cn } from '@/lib/utils';
 import { copyToClipboard } from '@/utils/clipboard';
+import { buildGiftLinks } from '@/utils/giftLinks';
 import { CheckIcon, CopyIcon, InfoIcon, ExclamationIcon, ClockIcon } from '@/components/icons';
 
 const MAX_POLL_MS = 10 * 60 * 1000; // 10 minutes
@@ -53,7 +54,8 @@ function CodeOnlySuccessState({
 }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [copied, setCopied] = useState(false);
+  const [copiedTg, setCopiedTg] = useState(false);
+  const [copiedSite, setCopiedSite] = useState(false);
 
   // Bot username comes from the runtime branding config; the build-time env var
   // is only a fallback. Otherwise the "activate via bot" line silently vanishes
@@ -68,27 +70,28 @@ function CodeOnlySuccessState({
 
   const shortCode = purchaseToken.slice(0, 12);
   const giftCode = `GIFT-${shortCode}`;
-  // Telegram forwards the start parameter to the bot verbatim (no URL-decoding),
-  // and "_" is a valid start-param char — so use a literal "GIFT_" prefix to
-  // match the bot's `start_parameter.startswith('GIFT_')` handler. Encoding the
-  // underscore as %5F made the bot receive "GIFT%5F…" and silently fail.
-  const botLink = botUsername ? `https://t.me/${botUsername}?start=GIFT_${shortCode}` : null;
-  const cabinetLink = `${window.location.origin}/gift?tab=activate&code=${encodeURIComponent(shortCode)}`;
+  // KELDARI-UI: purchaseToken — это 32-символьный share-префикс токена (см.
+  // cabinet/routes/gift.py::_GIFT_SHARE_TOKEN_LEN). Обе ссылки активируют подарок
+  // по префиксу токена (Telegram deep-link / страница /buy/gift/:token). Telegram
+  // передаёт start-параметр боту дословно, "_" — валидный символ, поэтому префикс
+  // "GIFT_" не кодируем (см. utils/giftLinks.ts).
+  const { telegram: tgLink, site: siteLink } = buildGiftLinks(purchaseToken, botUsername);
 
-  const fullMessage = [
-    t('gift.shareText', 'I have a gift for you! Activate it here:'),
-    '',
-    botLink ? `${t('gift.shareModalActivateVia', 'Activate via bot:')} ${botLink}` : null,
-    `${t('gift.shareModalActivateViaCabinet', 'Or via website:')} ${cabinetLink}`,
-  ]
-    .filter(Boolean)
-    .join('\n');
-
-  const handleCopy = async () => {
+  const handleCopyTg = async () => {
+    if (!tgLink) return;
     try {
-      await copyToClipboard(fullMessage);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await copyToClipboard(tgLink);
+      setCopiedTg(true);
+      setTimeout(() => setCopiedTg(false), 2000);
+    } catch {
+      // fallback
+    }
+  };
+  const handleCopySite = async () => {
+    try {
+      await copyToClipboard(siteLink);
+      setCopiedSite(true);
+      setTimeout(() => setCopiedSite(false), 2000);
     } catch {
       // fallback
     }
@@ -121,56 +124,72 @@ function CodeOnlySuccessState({
         <p className="select-all font-mono text-lg font-bold text-accent-400">{giftCode}</p>
       </div>
 
-      {/* Share message preview */}
-      <div className="w-full rounded-xl border border-dark-700/30 bg-dark-800/40 p-4 text-left">
-        <p className="mb-3 text-sm font-medium text-dark-100">
-          {t('gift.shareText', 'I have a gift for you! Activate it here:')}
-        </p>
-
-        {botLink && (
-          <div className="mb-2">
+      {/* Share links — выбор: Telegram или сайт, у каждой своя кнопка копирования */}
+      <div className="w-full space-y-3">
+        {tgLink && (
+          <div className="rounded-xl border border-dark-700/30 bg-dark-800/40 p-3 text-left">
             <p className="mb-1 text-xs font-medium text-dark-400">
               {t('gift.shareModalActivateVia', 'Activate via bot:')}
             </p>
-            <p className="truncate rounded-lg bg-dark-900/60 px-3 py-2 text-sm text-accent-400">
-              {botLink}
+            <p className="mb-2 truncate rounded-lg bg-dark-900/60 px-3 py-2 text-sm text-accent-400">
+              {tgLink}
             </p>
+            <button
+              type="button"
+              onClick={handleCopyTg}
+              className={cn(
+                'flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 active:scale-[0.98]',
+                copiedTg
+                  ? 'bg-success-500/20 text-success-400'
+                  : 'bg-accent-500 text-white hover:bg-accent-400',
+              )}
+            >
+              {copiedTg ? (
+                <>
+                  <CheckIcon className="h-4 w-4" />
+                  {t('common.copied', 'Copied!')}
+                </>
+              ) : (
+                <>
+                  <CopyIcon className="h-4 w-4" />
+                  {t('gift.copyTelegramLink', 'Скопировать ссылку (Telegram)')}
+                </>
+              )}
+            </button>
           </div>
         )}
 
-        <div>
+        <div className="rounded-xl border border-dark-700/30 bg-dark-800/40 p-3 text-left">
           <p className="mb-1 text-xs font-medium text-dark-400">
             {t('gift.shareModalActivateViaCabinet', 'Or via website:')}
           </p>
-          <p className="truncate rounded-lg bg-dark-900/60 px-3 py-2 text-sm text-accent-400">
-            {cabinetLink}
+          <p className="mb-2 truncate rounded-lg bg-dark-900/60 px-3 py-2 text-sm text-accent-400">
+            {siteLink}
           </p>
+          <button
+            type="button"
+            onClick={handleCopySite}
+            className={cn(
+              'flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 active:scale-[0.98]',
+              copiedSite
+                ? 'bg-success-500/20 text-success-400'
+                : 'bg-accent-500 text-white hover:bg-accent-400',
+            )}
+          >
+            {copiedSite ? (
+              <>
+                <CheckIcon className="h-4 w-4" />
+                {t('common.copied', 'Copied!')}
+              </>
+            ) : (
+              <>
+                <CopyIcon className="h-4 w-4" />
+                {t('gift.copySiteLink', 'Скопировать ссылку (сайт)')}
+              </>
+            )}
+          </button>
         </div>
       </div>
-
-      {/* Copy button */}
-      <button
-        type="button"
-        onClick={handleCopy}
-        className={cn(
-          'flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-sm font-bold transition-all duration-200 active:scale-[0.98]',
-          copied
-            ? 'bg-success-500/20 text-success-400'
-            : 'bg-accent-500 text-white shadow-lg shadow-accent-500/25 hover:bg-accent-400',
-        )}
-      >
-        {copied ? (
-          <>
-            <CheckIcon className="h-4 w-4" />
-            {t('common.copied', 'Copied!')}
-          </>
-        ) : (
-          <>
-            <CopyIcon className="h-4 w-4" />
-            {t('gift.copyMessage', 'Copy message')}
-          </>
-        )}
-      </button>
 
       <button
         type="button"
