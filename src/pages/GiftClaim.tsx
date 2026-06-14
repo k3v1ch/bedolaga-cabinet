@@ -9,6 +9,7 @@ import { copyToClipboard } from '@/utils/clipboard';
 import { Spinner } from '@/components/ui/Spinner';
 import { AnimatedCheckmark } from '@/components/ui/AnimatedCheckmark';
 import { cn } from '@/lib/utils';
+import { Gift } from 'lucide-react';
 import { CheckCircleIcon, CheckIcon, CopyIcon } from '@/components/icons';
 
 const MAX_POLL_MS = 10 * 60 * 1000; // poll an unsettled payment for up to 10 min
@@ -243,8 +244,8 @@ export default function GiftClaim() {
         animate={{ opacity: 1, scale: 1 }}
         className="flex flex-col items-center gap-5 text-center"
       >
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/[0.06] text-3xl">
-          🎁
+        <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/[0.06]">
+          <Gift size={28} strokeWidth={1.5} className="text-white/85" />
         </div>
         <div>
           <h1 className="text-xl text-white" style={{ fontWeight: 700 }}>
