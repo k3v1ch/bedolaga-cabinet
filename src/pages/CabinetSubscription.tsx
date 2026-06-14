@@ -18,7 +18,11 @@ import {
 import { useAuthStore } from '@/store/auth';
 import { subscriptionApi } from '@/api/subscription';
 import { balanceApi } from '@/api/balance';
-import { giftApi } from '@/api/gift';
+import { giftApi, type SentGift } from '@/api/gift';
+import { brandingApi, type TelegramWidgetConfig } from '@/api/branding';
+import { buildGiftLinks } from '@/utils/giftLinks';
+import { copyToClipboard } from '@/utils/clipboard';
+import { GiftDetailsModal } from '@/components/GiftDetailsModal';
 import { API } from '@/config/constants';
 import type { Subscription } from '@/types';
 
@@ -81,7 +85,8 @@ export default function CabinetSubscription() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const [copied, setCopied] = useState(false);
-  const [giftCopiedToken, setGiftCopiedToken] = useState<string | null>(null);
+  const [giftCopiedKey, setGiftCopiedKey] = useState<string | null>(null);
+  const [selectedGift, setSelectedGift] = useState<SentGift | null>(null);
 
   // ── Data ────────────────────────────────────────────────────────────
   const { data: multiSubData } = useQuery({
@@ -140,6 +145,14 @@ export default function CabinetSubscription() {
     staleTime: 60_000,
     retry: false,
   });
+
+  const { data: giftWidgetConfig } = useQuery<TelegramWidgetConfig>({
+    queryKey: ['telegram-widget-config'],
+    queryFn: brandingApi.getTelegramWidgetConfig,
+    staleTime: 60_000,
+  });
+  const giftBotUsername =
+    giftWidgetConfig?.bot_username || import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '';
 
   // ── Traffic refresh (parity с Dashboard / CabinetHome) ─────────────
   const [trafficData, setTrafficData] = useState<{
@@ -295,11 +308,11 @@ export default function CabinetSubscription() {
     }
   };
 
-  const copyGiftCode = async (token: string) => {
+  const copyGiftLink = async (key: string, link: string) => {
     try {
-      await navigator.clipboard.writeText(token);
-      setGiftCopiedToken(token);
-      setTimeout(() => setGiftCopiedToken(null), 2000);
+      await copyToClipboard(link);
+      setGiftCopiedKey(key);
+      setTimeout(() => setGiftCopiedKey(null), 2000);
     } catch {
       /* no-op */
     }
@@ -643,13 +656,20 @@ export default function CabinetSubscription() {
           <div className="space-y-3">
             {sentGifts.map((gift) => {
               const isAvailable = gift.status === 'paid' || gift.status === 'pending_activation';
+              const { telegram: tgLink, site: siteLink } = buildGiftLinks(
+                gift.token,
+                giftBotUsername,
+              );
               return (
                 <div
                   key={gift.token}
-                  className="rounded-xl border border-white/[0.06] bg-white/[0.04] p-4"
+                  onClick={() => setSelectedGift(gift)}
+                  className="cursor-pointer rounded-xl border border-white/[0.06] bg-white/[0.04] p-4 transition-colors hover:bg-white/[0.06]"
                 >
                   <div className="mb-3 flex items-start justify-between gap-3">
-                    <p className="break-all font-mono text-[15px] text-white/70">{gift.token}</p>
+                    <p className="text-[15px] text-white/80" style={{ fontWeight: 500 }}>
+                      {gift.tariff_name || t('subscriptionPage.giftsHeader')}
+                    </p>
                     <span
                       className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] ${
                         isAvailable
@@ -664,23 +684,9 @@ export default function CabinetSubscription() {
                   </div>
                   <div className="mb-4 space-y-1 text-[13px]">
                     <div className="flex justify-between">
-                      <span className="text-white/35">{t('subscriptionPage.giftPlan')}</span>
-                      <span className="text-white/60">{gift.tariff_name || '—'}</span>
-                    </div>
-                    <div className="flex justify-between">
                       <span className="text-white/35">{t('subscriptionPage.giftDuration')}</span>
                       <span className="text-white/60">
                         {t('subscriptionPage.giftDurationDays', { days: gift.period_days })}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-white/35">{t('subscriptionPage.giftDevices')}</span>
-                      <span className="text-white/60">
-                        {gift.device_limit
-                          ? t('subscriptionPage.giftDevicesUpTo', {
-                              count: gift.device_limit,
-                            })
-                          : '∞'}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -690,29 +696,61 @@ export default function CabinetSubscription() {
                       <span className="text-white/60">{formatDate(gift.created_at)}</span>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => copyGiftCode(gift.token)}
-                      className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2 text-[13px] text-white/50 transition-colors hover:bg-white/[0.04]"
-                    >
-                      {giftCopiedToken === gift.token ? (
-                        <>
-                          <Check size={12} className="text-green-400" />{' '}
-                          {t('subscriptionPage.copied')}
-                        </>
-                      ) : (
-                        <>
-                          <Copy size={12} /> {t('subscriptionPage.copyLink')}
-                        </>
+                  {/* Копирование ссылок — ТОЛЬКО для неактивированных подарков.
+                      Для активированных токен скопировать нельзя (подарок уже использован). */}
+                  {isAvailable ? (
+                    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                      {tgLink && (
+                        <button
+                          onClick={() => copyGiftLink(`${gift.token}:tg`, tgLink)}
+                          className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2 text-[13px] text-white/50 transition-colors hover:bg-white/[0.04]"
+                        >
+                          {giftCopiedKey === `${gift.token}:tg` ? (
+                            <>
+                              <Check size={12} className="text-green-400" />{' '}
+                              {t('subscriptionPage.copied')}
+                            </>
+                          ) : (
+                            <>
+                              <Copy size={12} /> {t('subscriptionPage.copyTelegram', 'Telegram')}
+                            </>
+                          )}
+                        </button>
                       )}
-                    </button>
-                  </div>
+                      <button
+                        onClick={() => copyGiftLink(`${gift.token}:site`, siteLink)}
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2 text-[13px] text-white/50 transition-colors hover:bg-white/[0.04]"
+                      >
+                        {giftCopiedKey === `${gift.token}:site` ? (
+                          <>
+                            <Check size={12} className="text-green-400" />{' '}
+                            {t('subscriptionPage.copied')}
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={12} /> {t('subscriptionPage.copySite', 'Сайт')}
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-center text-[12px] text-white/30">
+                      {t('subscriptionPage.giftActivatedHint', 'Подарок активирован')}
+                    </p>
+                  )}
                 </div>
               );
             })}
           </div>
         )}
       </GlassCard>
+
+      {/* Детали подарка по клику */}
+      <AnimatePresence>
+        {selectedGift && (
+          <GiftDetailsModal gift={selectedGift} onClose={() => setSelectedGift(null)} />
+        )}
+      </AnimatePresence>
 
       {/* Buy devices popup */}
       <AnimatePresence>

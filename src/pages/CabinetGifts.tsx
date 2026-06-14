@@ -18,6 +18,7 @@ import type {
 import { brandingApi, type TelegramWidgetConfig } from '@/api/branding';
 import { copyToClipboard } from '@/utils/clipboard';
 import { buildGiftLinks } from '@/utils/giftLinks';
+import { GiftDetailsModal } from '@/components/GiftDetailsModal';
 import { getApiErrorMessage } from '@/utils/api-error';
 import { formatPrice } from '@/utils/format';
 import { usePlatform, useHaptic } from '@/platform';
@@ -769,6 +770,7 @@ function SentGiftRow({ gift }: { gift: SentGift }) {
   const { t } = useTranslation();
   const [copiedTg, setCopiedTg] = useState(false);
   const [copiedSite, setCopiedSite] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
   // Один общий запрос на всё дерево (react-query дедуплицирует по ключу).
   const { data: widgetConfig } = useQuery<TelegramWidgetConfig>({
@@ -810,7 +812,11 @@ function SentGiftRow({ gift }: { gift: SentGift }) {
   };
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-white/[0.04] p-4">
+    <>
+    <div
+      onClick={() => setShowDetails(true)}
+      className="cursor-pointer rounded-xl border border-white/[0.06] bg-white/[0.04] p-4 transition-colors hover:bg-white/[0.06]"
+    >
       <div className="mb-3 flex items-start justify-between gap-3">
         <p className="break-all font-mono text-[15px] text-white/70">{giftCode}</p>
         <span
@@ -852,7 +858,7 @@ function SentGiftRow({ gift }: { gift: SentGift }) {
         )}
       </div>
       {!activated && (
-        <div className="flex gap-2">
+        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
           {tgLink && (
             <button
               onClick={handleCopyTg}
@@ -886,6 +892,10 @@ function SentGiftRow({ gift }: { gift: SentGift }) {
         </div>
       )}
     </div>
+    <AnimatePresence>
+      {showDetails && <GiftDetailsModal gift={gift} onClose={() => setShowDetails(false)} />}
+    </AnimatePresence>
+    </>
   );
 }
 

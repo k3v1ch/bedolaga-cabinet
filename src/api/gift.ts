@@ -98,10 +98,12 @@ export interface SentGift {
   period_days: number;
   device_limit: number;
   status: string;
+  amount_kopeks: number;
   gift_recipient_value: string | null;
   gift_message: string | null;
   activated_by_username: string | null;
   created_at: string | null;
+  activated_at: string | null;
 }
 
 export interface ReceivedGift {
