@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -72,6 +72,7 @@ export default function CabinetGifts() {
   const { openInvoice, capabilities } = usePlatform();
   const haptic = useHaptic();
 
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialView: View = searchParams.get('action') === 'new' ? 'select' : 'main';
   const [view, setView] = useState<View>(initialView);
@@ -85,6 +86,14 @@ export default function CabinetGifts() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // KELDARI-UI: отдельная страница-список подарков /gifts убрана — она полностью
+  // дублирует секцию подарков на /subscriptions. Оставляем только флоу покупки
+  // (select/confirm); как только view становится 'main' (по умолчанию, по «Назад»
+  // или после оформления) — уводим на /subscriptions.
+  useEffect(() => {
+    if (view === 'main') navigate('/subscriptions', { replace: true });
+  }, [view, navigate]);
   const [selectedTariffId, setSelectedTariffId] = useState<number | null>(null);
   const [selectedPeriodDays, setSelectedPeriodDays] = useState<number | null>(null);
   const [paymentMode, setPaymentMode] = useState<'balance' | 'gateway'>('balance');
@@ -173,6 +182,7 @@ export default function CabinetGifts() {
               queryClient.invalidateQueries({ queryKey: ['balance'] });
               queryClient.invalidateQueries({ queryKey: ['gift-config'] });
               queryClient.invalidateQueries({ queryKey: ['gift-sent'] });
+              queryClient.invalidateQueries({ queryKey: ['sent-gifts'] });
               setView('main');
             } else if (status === 'failed') {
               haptic.notification('error');
@@ -190,6 +200,7 @@ export default function CabinetGifts() {
         queryClient.invalidateQueries({ queryKey: ['balance'] });
         queryClient.invalidateQueries({ queryKey: ['gift-config'] });
         queryClient.invalidateQueries({ queryKey: ['gift-sent'] });
+        queryClient.invalidateQueries({ queryKey: ['sent-gifts'] });
         setView('main');
       }
     },
@@ -328,7 +339,7 @@ export default function CabinetGifts() {
             {t('giftsPage.selectTitle')}
           </h1>
           <button
-            onClick={() => setView('main')}
+            onClick={() => navigate('/subscriptions')}
             className="text-[15px] text-white/30 transition-colors hover:text-white/50"
           >
             {t('giftsPage.back')}
@@ -677,6 +688,10 @@ export default function CabinetGifts() {
   }
 
   // ────────── MAIN VIEW ──────────
+  // Список-страница /gifts убрана (дубль /subscriptions): редирект выполняет effect
+  // выше, а сам список не рендерим, чтобы не мелькал.
+  if (view === 'main') return null;
+
   const activeGifts = (sentGifts ?? []).filter((g) => !isGiftActivated(g));
   const activatedGifts = (sentGifts ?? []).filter((g) => isGiftActivated(g));
   const myGiftsLoading = sentLoading || receivedLoading;
