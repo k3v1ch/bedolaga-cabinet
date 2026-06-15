@@ -18,7 +18,7 @@ import type {
 import { copyToClipboard } from '@/utils/clipboard';
 import { giftSiteLink } from '@/utils/giftLinks';
 import { GiftDetailsModal } from '@/components/GiftDetailsModal';
-import { useToast } from '@/components/Toast';
+import { GiftCreatedModal } from '@/components/GiftCreatedModal';
 import { getApiErrorMessage } from '@/utils/api-error';
 import { formatPrice } from '@/utils/format';
 import { usePlatform, useHaptic } from '@/platform';
@@ -73,7 +73,6 @@ export default function CabinetGifts() {
   const haptic = useHaptic();
 
   const navigate = useNavigate();
-  const { showToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialView: View = searchParams.get('action') === 'new' ? 'select' : 'main';
   const [view, setView] = useState<View>(initialView);
@@ -101,6 +100,8 @@ export default function CabinetGifts() {
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [selectedSubOption, setSelectedSubOption] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // KELDARI-UI: токен только что купленного подарка → показываем модалку со ссылкой.
+  const [createdGiftToken, setCreatedGiftToken] = useState<string | null>(null);
 
   const {
     data: config,
@@ -184,12 +185,7 @@ export default function CabinetGifts() {
               queryClient.invalidateQueries({ queryKey: ['gift-config'] });
               queryClient.invalidateQueries({ queryKey: ['gift-sent'] });
               queryClient.invalidateQueries({ queryKey: ['sent-gifts'] });
-              showToast({
-                type: 'success',
-                title: t('gift.createdToastTitle', 'Подарок создан 🎁'),
-                message: t('gift.createdToastMsg', 'Ищите его в разделе «Подарки» ниже — там ссылка для друга.'),
-              });
-              setView('main');
+              setCreatedGiftToken(result.purchase_token);
             } else if (status === 'failed') {
               haptic.notification('error');
               setSubmitError(
@@ -207,12 +203,7 @@ export default function CabinetGifts() {
         queryClient.invalidateQueries({ queryKey: ['gift-config'] });
         queryClient.invalidateQueries({ queryKey: ['gift-sent'] });
         queryClient.invalidateQueries({ queryKey: ['sent-gifts'] });
-        showToast({
-          type: 'success',
-          title: t('gift.createdToastTitle', 'Подарок создан 🎁'),
-          message: t('gift.createdToastMsg', 'Ищите его в разделе «Подарки» ниже — там ссылка для друга.'),
-        });
-        setView('main');
+        setCreatedGiftToken(result.purchase_token);
       }
     },
     onError: (err) => {
@@ -478,6 +469,15 @@ export default function CabinetGifts() {
         transition={{ duration: 0.4 }}
         style={{ fontFamily: 'Inter, sans-serif' }}
       >
+        {createdGiftToken && (
+          <GiftCreatedModal
+            token={createdGiftToken}
+            onClose={() => {
+              setCreatedGiftToken(null);
+              setView('main');
+            }}
+          />
+        )}
         <div className="mb-8 flex items-center justify-between">
           <h1
             className="text-white"
