@@ -1,9 +1,34 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
+import { Eye, EyeOff } from 'lucide-react';
 import { authApi } from '../api/auth';
 import LanguageSwitcher from '../components/LanguageSwitcher';
-import { CheckIcon } from '@/components/icons';
+import { AnimatedCheckmark } from '@/components/ui/AnimatedCheckmark';
+import { Spinner } from '@/components/ui/Spinner';
+import { cn } from '@/lib/utils';
+
+// KELDARI-UI: страница сброса пароля выровнена под кабинет — тёмный фон,
+// стеклянная карточка, шрифт Inter, белая pill-кнопка (как GiftClaim/CabinetSubscription).
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="flex min-h-dvh items-center justify-center bg-[#0A0A0A] px-4 py-10"
+      style={{ fontFamily: 'Inter, sans-serif' }}
+    >
+      <div className="fixed right-4 top-4 z-50">
+        <LanguageSwitcher />
+      </div>
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl sm:p-8">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+const PRIMARY_BTN =
+  'flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.98]';
 
 export default function ResetPassword() {
   const { t } = useTranslation();
@@ -13,6 +38,7 @@ export default function ResetPassword() {
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPwd, setShowPwd] = useState(false);
   const [status, setStatus] = useState<'form' | 'loading' | 'success' | 'error'>('form');
   const [error, setError] = useState('');
   // Track the post-success redirect timer so unmount cancels it instead of
@@ -57,136 +83,142 @@ export default function ResetPassword() {
     }
   };
 
+  // Missing / malformed reset link
   if (!token) {
     return (
-      <div className="min-h-viewport flex items-center justify-center px-4 py-8 sm:py-12">
-        <div className="fixed inset-0 bg-gradient-to-br from-dark-950 via-dark-900 to-dark-950" />
-        <div className="fixed right-4 top-4 z-50">
-          <LanguageSwitcher />
-        </div>
-        <div className="relative w-full max-w-md text-center">
-          <div className="card">
-            <div className="mb-4 text-5xl text-error-400">!</div>
-            <h2 className="mb-2 text-xl font-semibold text-dark-50">
-              {t('resetPassword.invalidToken', 'Invalid reset link')}
-            </h2>
-            <p className="mb-6 text-dark-400">
-              {t(
-                'resetPassword.tokenExpiredOrInvalid',
-                'This password reset link is invalid or has expired.',
-              )}
-            </p>
-            <Link to="/login" className="btn-primary inline-block w-full">
-              {t('auth.backToLogin', 'Back to login')}
-            </Link>
+      <Shell>
+        <div className="flex flex-col items-center gap-3 py-4 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full border border-red-400/20 bg-red-400/5 text-2xl text-red-400">
+            !
           </div>
+          <h1 className="text-lg text-white" style={{ fontWeight: 600 }}>
+            {t('resetPassword.invalidToken', 'Invalid reset link')}
+          </h1>
+          <p className="text-[14px] text-white/40">
+            {t(
+              'resetPassword.tokenExpiredOrInvalid',
+              'This password reset link is invalid or has expired.',
+            )}
+          </p>
+          <Link to="/login" className={cn(PRIMARY_BTN, 'mt-2')} style={{ fontWeight: 500 }}>
+            {t('auth.backToLogin', 'Back to login')}
+          </Link>
         </div>
-      </div>
+      </Shell>
     );
   }
 
+  // Success
+  if (status === 'success') {
+    return (
+      <Shell>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center gap-4 py-4 text-center"
+        >
+          <AnimatedCheckmark />
+          <h1 className="text-xl text-white" style={{ fontWeight: 700 }}>
+            {t('resetPassword.success', 'Password changed!')}
+          </h1>
+          <p className="text-[14px] text-white/40">
+            {t('resetPassword.redirectingToLogin', 'Redirecting to login...')}
+          </p>
+        </motion.div>
+      </Shell>
+    );
+  }
+
+  // Form
   return (
-    <div className="min-h-viewport flex items-center justify-center px-4 py-8 sm:py-12">
-      <div className="fixed inset-0 bg-gradient-to-br from-dark-950 via-dark-900 to-dark-950" />
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-accent-500/10 via-transparent to-transparent" />
-      <div className="fixed right-4 top-4 z-50">
-        <LanguageSwitcher />
+    <Shell>
+      <div className="text-center">
+        <h1 className="text-xl text-white" style={{ fontWeight: 700 }}>
+          {t('resetPassword.title', 'Set new password')}
+        </h1>
+        <p className="mt-1.5 text-[14px] text-white/40">
+          {t('resetPassword.enterNewPassword', 'Enter your new password below.')}
+        </p>
       </div>
 
-      <div className="relative w-full max-w-md">
-        <div className="card">
-          {status === 'success' ? (
-            <div className="text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-success-500/20">
-                <CheckIcon className="h-8 w-8 text-success-400" />
-              </div>
-              <h2 className="mb-2 text-xl font-bold text-dark-50">
-                {t('resetPassword.success', 'Password changed!')}
-              </h2>
-              <p className="mb-4 text-dark-400">
-                {t('resetPassword.redirectingToLogin', 'Redirecting to login...')}
-              </p>
-              <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-white/15 border-t-transparent" />
-            </div>
-          ) : (
-            <>
-              <h2 className="mb-2 text-center text-xl font-bold text-dark-50">
-                {t('resetPassword.title', 'Set new password')}
-              </h2>
-              <p className="mb-6 text-center text-dark-400">
-                {t('resetPassword.enterNewPassword', 'Enter your new password below.')}
-              </p>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="password" className="label">
-                    {t('auth.password', 'Password')}
-                  </label>
-                  <input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="input"
-                    autoComplete="new-password"
-                    disabled={status === 'loading'}
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="confirmPassword" className="label">
-                    {t('auth.confirmPassword', 'Confirm Password')}
-                  </label>
-                  <input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="input"
-                    autoComplete="new-password"
-                    disabled={status === 'loading'}
-                  />
-                </div>
-
-                {error && (
-                  <div
-                    role="alert"
-                    className="rounded-xl border border-error-500/30 bg-error-500/10 px-4 py-3 text-sm text-error-400"
-                  >
-                    {error}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={status === 'loading'}
-                  className="btn-primary w-full"
-                >
-                  {status === 'loading' ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                      {t('common.loading')}
-                    </span>
-                  ) : (
-                    t('resetPassword.setPassword', 'Set new password')
-                  )}
-                </button>
-              </form>
-
-              <div className="mt-4 text-center">
-                <Link
-                  to="/login"
-                  className="text-sm text-dark-400 transition-colors hover:text-dark-200"
-                >
-                  {t('auth.backToLogin', 'Back to login')}
-                </Link>
-              </div>
-            </>
-          )}
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <div className="space-y-1.5">
+          <label htmlFor="password" className="block text-[13px] text-white/50">
+            {t('auth.password', 'Password')}
+          </label>
+          <div className="relative">
+            <input
+              id="password"
+              type={showPwd ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 pr-11 text-[15px] text-white placeholder-white/30 outline-none transition-colors focus:border-white/25"
+              autoComplete="new-password"
+              disabled={status === 'loading'}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPwd((v) => !v)}
+              tabIndex={-1}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 transition-colors hover:text-white/60"
+              aria-label={showPwd ? 'Hide password' : 'Show password'}
+            >
+              {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </div>
+
+        <div className="space-y-1.5">
+          <label htmlFor="confirmPassword" className="block text-[13px] text-white/50">
+            {t('auth.confirmPassword', 'Confirm Password')}
+          </label>
+          <input
+            id="confirmPassword"
+            type={showPwd ? 'text' : 'password'}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="••••••••"
+            className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-[15px] text-white placeholder-white/30 outline-none transition-colors focus:border-white/25"
+            autoComplete="new-password"
+            disabled={status === 'loading'}
+          />
+        </div>
+
+        {error && (
+          <p
+            role="alert"
+            className="rounded-lg border border-red-400/20 bg-red-400/5 px-3 py-2.5 text-[13px] text-red-400"
+          >
+            {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={status === 'loading'}
+          className={cn(
+            PRIMARY_BTN,
+            status === 'loading' && 'cursor-not-allowed bg-white/10 text-white/40 hover:shadow-none',
+          )}
+          style={{ fontWeight: 500 }}
+        >
+          {status === 'loading' ? (
+            <Spinner className="h-5 w-5 border-2" />
+          ) : (
+            t('resetPassword.setPassword', 'Set new password')
+          )}
+        </button>
+      </form>
+
+      <div className="mt-5 text-center">
+        <Link
+          to="/login"
+          className="text-[13px] text-white/40 transition-colors hover:text-white/70"
+        >
+          {t('auth.backToLogin', 'Back to login')}
+        </Link>
       </div>
-    </div>
+    </Shell>
   );
 }
