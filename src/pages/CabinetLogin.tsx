@@ -101,8 +101,11 @@ export default function CabinetLogin() {
 
   const referralCode = getPendingReferralCode() || '';
 
+  // KELDARI-UI: вызывающий (напр. страница получения подарка) может попросить
+  // открыть сразу вкладку регистрации через navigate('/login', { state: { authMode } }).
+  const requestedAuthMode = (location.state as { authMode?: 'login' | 'register' })?.authMode;
   const [authMode, setAuthMode] = useState<'login' | 'register'>(() =>
-    referralCode ? 'register' : 'login',
+    requestedAuthMode ?? (referralCode ? 'register' : 'login'),
   );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

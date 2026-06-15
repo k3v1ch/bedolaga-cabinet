@@ -51,8 +51,17 @@ export default function VerifyEmail() {
         }
         checkAdminStatus();
         setStatus('success');
-        // Redirect to dashboard after short delay
-        redirectTimer = setTimeout(() => navigate('/', { replace: true }), 1500);
+        // KELDARI-UI: если пользователь подтверждал почту ради получения подарка —
+        // возвращаем его на страницу подарка, где активация завершится автоматически.
+        let target = '/';
+        try {
+          const pendingGift = localStorage.getItem('keldari_pending_gift');
+          if (pendingGift) target = `/buy/gift/${pendingGift}`;
+        } catch {
+          /* ignore */
+        }
+        // Redirect after short delay
+        redirectTimer = setTimeout(() => navigate(target, { replace: true }), 1500);
       } catch (err: unknown) {
         setStatus('error');
         const error = err as { response?: { data?: { detail?: string } } };

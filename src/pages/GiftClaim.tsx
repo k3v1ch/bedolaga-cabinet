@@ -1,11 +1,13 @@
-import { useMemo, useRef, useState } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { landingApi, type GiftClaimResult } from '../api/landings';
+import { useAuthStore } from '@/store/auth';
 import { getApiErrorMessage } from '../utils/api-error';
 import { copyToClipboard } from '@/utils/clipboard';
+import { saveReturnUrl } from '@/utils/token';
 import { Spinner } from '@/components/ui/Spinner';
 import { AnimatedCheckmark } from '@/components/ui/AnimatedCheckmark';
 import { cn } from '@/lib/utils';
@@ -14,9 +16,11 @@ import { CheckCircleIcon, CheckIcon, CopyIcon } from '@/components/icons';
 
 const MAX_POLL_MS = 10 * 60 * 1000; // poll an unsettled payment for up to 10 min
 
-function isValidEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
-}
+// KELDARI-UI: запоминаем намерение получить подарок по email. Получатель уходит
+// на /login (вход или регистрация с подтверждением почты) и возвращается уже
+// авторизованным — тогда активация завершается автоматически. localStorage
+// переживает переход между вкладками (письмо подтверждения открывается в новой).
+const PENDING_GIFT_KEY = 'keldari_pending_gift';
 
 // KELDARI-UI: стиль выровнен под кабинет — тёмный фон, стеклянная карточка,
 // шрифт Inter, белые pill-кнопки (как в CabinetSubscription).
@@ -44,13 +48,14 @@ export default function GiftClaim() {
   const { token } = useParams<{ token: string }>();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const startedAt = useRef(Date.now());
 
-  const [email, setEmail] = useState('');
-  const [showEmail, setShowEmail] = useState(false);
   const [claimError, setClaimError] = useState<string | null>(null);
   const [result, setResult] = useState<GiftClaimResult | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showAuthChoice, setShowAuthChoice] = useState(false);
 
   const {
     data: gift,
@@ -71,22 +76,38 @@ export default function GiftClaim() {
     },
   });
 
-  const claimMutation = useMutation({
-    mutationFn: () => landingApi.claimGift(token!, email.trim()),
-    onSuccess: (res) => {
-      // One-click cabinet login for a fresh email account; otherwise show the link.
-      if (res.auto_login_token) {
-        navigate(`/auto-login?token=${encodeURIComponent(res.auto_login_token)}`);
-        return;
-      }
-      setResult(res);
-    },
+  // KELDARI-UI: активация привязывается к залогиненному аккаунту (личность уже
+  // подтверждена входом/регистрацией) — никакого «молчаливого» аккаунта из почты.
+  const claimAuthMutation = useMutation({
+    mutationFn: () => landingApi.claimGiftAuthenticated(token!),
+    onSuccess: (res) => setResult(res),
     onError: (err) => {
       setClaimError(
         getApiErrorMessage(err, t('landing.giftClaim.error', 'Could not activate the gift.')),
       );
     },
   });
+
+  // Авто-завершение активации после возврата авторизованного получателя.
+  useEffect(() => {
+    if (!token || !isAuthenticated || !gift?.is_claimable) return;
+    if (gift.status === 'delivered' || result || claimAuthMutation.isPending) return;
+    let pending: string | null = null;
+    try {
+      pending = localStorage.getItem(PENDING_GIFT_KEY);
+    } catch {
+      /* ignore */
+    }
+    if (pending && pending === token) {
+      try {
+        localStorage.removeItem(PENDING_GIFT_KEY);
+      } catch {
+        /* ignore */
+      }
+      claimAuthMutation.mutate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, gift?.is_claimable, gift?.status, token, result]);
 
   const willReplace = gift?.status === 'pending_activation';
 
@@ -100,6 +121,18 @@ export default function GiftClaim() {
     } catch {
       /* ignore */
     }
+  };
+
+  // Уводим получателя войти/зарегистрироваться, сохранив намерение получить подарок.
+  const goAuth = (mode: 'login' | 'register') => {
+    if (!token) return;
+    try {
+      localStorage.setItem(PENDING_GIFT_KEY, token);
+    } catch {
+      /* ignore */
+    }
+    saveReturnUrl(); // sessionStorage-бэкап для возврата после обычного входа
+    navigate('/login', { state: { from: location.pathname, authMode: mode } });
   };
 
   const periodLabel = useMemo(() => {
@@ -236,7 +269,8 @@ export default function GiftClaim() {
     );
   }
 
-  // Claimable — offer Telegram + web arms
+  // Claimable — offer Telegram + cabinet (login/register) arms
+  const accountClaiming = claimAuthMutation.isPending;
   return (
     <Shell>
       <motion.div
@@ -281,44 +315,57 @@ export default function GiftClaim() {
           </a>
         )}
 
-        {/* Web/email arm */}
-        {!showEmail ? (
-          <button type="button" onClick={() => setShowEmail(true)} className={SECONDARY_BTN}>
-            {t('landing.giftClaim.activateWeb', 'Activate by email')}
-          </button>
-        ) : (
-          <div className="w-full space-y-3 text-left">
-            <label htmlFor="claim-email" className="block text-[13px] text-white/50">
-              {t('landing.giftClaim.emailLabel', 'Your email')}
-            </label>
-            <input
-              id="claim-email"
-              type="email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setClaimError(null);
-              }}
-              placeholder="email@example.com"
-              className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-[15px] text-white placeholder-white/30 outline-none transition-colors focus:border-white/25"
-            />
-            {claimError && <p className="text-[13px] text-red-400">{claimError}</p>}
+        {/* Cabinet / email arm — требует входа или регистрации (подтверждение почты) */}
+        {isAuthenticated ? (
+          <div className="w-full space-y-2">
             <button
               type="button"
-              disabled={!isValidEmail(email) || claimMutation.isPending}
-              onClick={() => claimMutation.mutate()}
+              disabled={accountClaiming}
+              onClick={() => {
+                setClaimError(null);
+                claimAuthMutation.mutate();
+              }}
               className={cn(
-                PRIMARY_BTN,
-                (!isValidEmail(email) || claimMutation.isPending) &&
-                  'cursor-not-allowed bg-white/10 text-white/40 hover:shadow-none',
+                gift.bot_claim_link ? SECONDARY_BTN : PRIMARY_BTN,
+                accountClaiming && 'cursor-not-allowed opacity-60',
               )}
-              style={{ fontWeight: 500 }}
+              style={gift.bot_claim_link ? undefined : { fontWeight: 500 }}
             >
-              {claimMutation.isPending ? (
+              {accountClaiming ? (
                 <Spinner className="h-5 w-5 border-2" />
               ) : (
-                t('landing.giftClaim.claimNow', 'Get my gift')
+                t('landing.giftClaim.claimToAccount', 'Получить подарок')
               )}
+            </button>
+            {claimError && <p className="text-[13px] text-red-400">{claimError}</p>}
+          </div>
+        ) : !showAuthChoice ? (
+          <button
+            type="button"
+            onClick={() => setShowAuthChoice(true)}
+            className={gift.bot_claim_link ? SECONDARY_BTN : PRIMARY_BTN}
+            style={gift.bot_claim_link ? undefined : { fontWeight: 500 }}
+          >
+            {t('landing.giftClaim.activateWeb', 'Получить по email')}
+          </button>
+        ) : (
+          <div className="w-full space-y-3">
+            <p className="text-[13px] text-white/45">
+              {t(
+                'landing.giftClaim.authPrompt',
+                'Войдите или зарегистрируйтесь — подарок привяжется к вашему аккаунту.',
+              )}
+            </p>
+            <button
+              type="button"
+              onClick={() => goAuth('login')}
+              className={PRIMARY_BTN}
+              style={{ fontWeight: 500 }}
+            >
+              {t('landing.giftClaim.login', 'Войти')}
+            </button>
+            <button type="button" onClick={() => goAuth('register')} className={SECONDARY_BTN}>
+              {t('landing.giftClaim.register', 'Зарегистрироваться')}
             </button>
           </div>
         )}

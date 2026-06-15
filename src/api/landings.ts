@@ -309,6 +309,13 @@ export const landingApi = {
     const response = await apiClient.post(`/cabinet/landing/gift/${token}/claim`, { email });
     return response.data;
   },
+
+  // KELDARI-UI: authed arm — binds the gift to the currently logged-in account
+  // (JWT). The recipient logs in / registers first, so e-mail ownership is proven.
+  claimGiftAuthenticated: async (token: string): Promise<GiftClaimResult> => {
+    const response = await apiClient.post(`/cabinet/landing/gift/${token}/claim-authenticated`);
+    return response.data;
+  },
 };
 
 export interface LandingDailyStat {
