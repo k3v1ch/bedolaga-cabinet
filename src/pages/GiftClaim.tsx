@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -7,7 +7,6 @@ import { landingApi, type GiftClaimResult } from '../api/landings';
 import { useAuthStore } from '@/store/auth';
 import { getApiErrorMessage } from '../utils/api-error';
 import { copyToClipboard } from '@/utils/clipboard';
-import { saveReturnUrl } from '@/utils/token';
 import { Spinner } from '@/components/ui/Spinner';
 import { AnimatedCheckmark } from '@/components/ui/AnimatedCheckmark';
 import { cn } from '@/lib/utils';
@@ -48,7 +47,6 @@ export default function GiftClaim() {
   const { token } = useParams<{ token: string }>();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const startedAt = useRef(Date.now());
 
@@ -123,7 +121,9 @@ export default function GiftClaim() {
     }
   };
 
-  // Уводим получателя войти/зарегистрироваться, сохранив намерение получить подарок.
+  // Уводим получателя на ОТДЕЛЬНУЮ страницу входа/регистрации под подарок
+  // (не «тупой» редирект на общий /login). Намерение сохраняем — после входа
+  // вернёмся сюда и активация завершится автоматически.
   const goAuth = (mode: 'login' | 'register') => {
     if (!token) return;
     try {
@@ -131,8 +131,7 @@ export default function GiftClaim() {
     } catch {
       /* ignore */
     }
-    saveReturnUrl(); // sessionStorage-бэкап для возврата после обычного входа
-    navigate('/login', { state: { from: location.pathname, authMode: mode } });
+    navigate(`/buy/gift/${token}/${mode}`);
   };
 
   const periodLabel = useMemo(() => {
@@ -207,8 +206,11 @@ export default function GiftClaim() {
     );
   }
 
-  // Successful web claim → show connection link
+  // Successful claim → success card with what they got + a button to the cabinet
   if (result) {
+    const resultPeriod = result.period_days
+      ? `${result.period_days} ${t('gift.days', 'дней')}`
+      : '';
     return (
       <Shell>
         <motion.div
@@ -217,33 +219,47 @@ export default function GiftClaim() {
           className="flex flex-col items-center gap-5 text-center"
         >
           <AnimatedCheckmark />
-          <h1 className="text-xl text-white" style={{ fontWeight: 700 }}>
-            {t('landing.giftClaim.successTitle', 'Gift activated!')}
-          </h1>
-          {result.subscription_url && (
-            <>
-              <p className="text-[14px] text-white/55">
-                {t('landing.giftClaim.connectDesc', 'Use this link to connect:')}
+          <div>
+            <h1 className="text-xl text-white" style={{ fontWeight: 700 }}>
+              {t('landing.giftClaim.successTitle', 'Подарок активирован!')}
+            </h1>
+            {result.tariff_name && (
+              <p className="mt-1.5 text-[15px] text-white/70" style={{ fontWeight: 500 }}>
+                {result.tariff_name}
+                {resultPeriod ? ` — ${resultPeriod}` : ''}
               </p>
-              <p className="w-full select-all truncate rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-[14px] text-white/70">
+            )}
+            <p className="mt-1 text-[13px] text-white/40">
+              {t('landing.giftClaim.successDesc', 'Подписка добавлена в ваш аккаунт.')}
+            </p>
+          </div>
+
+          {result.subscription_url && (
+            <div className="w-full space-y-2">
+              <p className="w-full select-all truncate rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-[13px] text-white/55">
                 {result.subscription_url}
               </p>
               <button
                 type="button"
                 onClick={handleCopyLink}
-                className={cn(
-                  PRIMARY_BTN,
-                  copied && 'bg-green-500/20 text-green-400 hover:shadow-none',
-                )}
-                style={{ fontWeight: 500 }}
+                className={cn(SECONDARY_BTN, copied && 'border-green-500/30 text-green-400')}
               >
                 {copied ? <CheckIcon className="h-4 w-4" /> : <CopyIcon className="h-4 w-4" />}
                 {copied
-                  ? t('common.copied', 'Copied!')
-                  : t('landing.giftClaim.copyLink', 'Copy link')}
+                  ? t('common.copied', 'Скопировано!')
+                  : t('landing.giftClaim.copyLink', 'Скопировать ссылку')}
               </button>
-            </>
+            </div>
           )}
+
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className={PRIMARY_BTN}
+            style={{ fontWeight: 500 }}
+          >
+            {t('landing.giftClaim.toCabinet', 'Перейти в личный кабинет')}
+          </button>
         </motion.div>
       </Shell>
     );

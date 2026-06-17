@@ -79,6 +79,11 @@ const AUTH_ENDPOINTS = [
 
 function isAuthEndpoint(url: string | undefined): boolean {
   if (!url) return false;
+  // The authed gift-claim arm lives under /cabinet/landing/ (so it matches the
+  // public-landing prefix below), but it DOES require the bearer token — the
+  // recipient must be logged in. Don't let the prefix strip its Authorization
+  // header, otherwise the backend rejects it with 401 "Authentication required".
+  if (url.includes('/claim-authenticated')) return false;
   return AUTH_ENDPOINTS.some((endpoint) => url.startsWith(endpoint));
 }
 

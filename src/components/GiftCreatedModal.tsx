@@ -56,7 +56,7 @@ export function GiftCreatedModal({ token, onClose }: { token: string; onClose: (
             <Gift size={26} strokeWidth={1.5} className="text-white/85" />
           </div>
           <h2 className="text-xl text-white" style={{ fontWeight: 700 }}>
-            {t('gift.createdToastTitle', 'Подарок создан 🎁')}
+            {t('gift.createdToastTitle', 'Подарок создан')}
           </h2>
           <p className="text-[14px] text-white/45">
             {t(
