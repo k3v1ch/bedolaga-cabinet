@@ -92,6 +92,7 @@ const ConnectionQR = lazyWithRetry(() => import('./pages/ConnectionQR'));
 const QuickPurchase = lazyWithRetry(() => import('./pages/QuickPurchase'));
 const PurchaseSuccess = lazyWithRetry(() => import('./pages/PurchaseSuccess'));
 const GiftClaim = lazyWithRetry(() => import('./pages/GiftClaim'));
+const GiftAuth = lazyWithRetry(() => import('./pages/GiftAuth'));
 const RenewSubscription = lazyWithRetry(() => import('./pages/RenewSubscription'));
 const AutoLogin = lazyWithRetry(() => import('./pages/AutoLogin'));
 const TopUpMethodSelect = lazyWithRetry(() => import('./pages/TopUpMethodSelect'));
@@ -108,6 +109,8 @@ const AdminTickets = lazyWithRetry(() => import('./pages/AdminTickets'));
 const AdminTicketSettings = lazyWithRetry(() => import('./pages/AdminTicketSettings'));
 const AdminSettings = lazyWithRetry(() => import('./pages/AdminSettings'));
 const AdminApps = lazyWithRetry(() => import('./pages/AdminApps'));
+const AdminCloneBots = lazyWithRetry(() => import('./pages/AdminCloneBots'));
+const AdminCloneBotDetail = lazyWithRetry(() => import('./pages/AdminCloneBotDetail'));
 const AdminWheel = lazyWithRetry(() => import('./pages/AdminWheel'));
 const AdminTariffs = lazyWithRetry(() => import('./pages/AdminTariffs'));
 const AdminTariffCreate = lazyWithRetry(() => import('./pages/AdminTariffCreate'));
@@ -344,6 +347,22 @@ function App() {
           element={
             <LazyPage>
               <GiftClaim />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="/buy/gift/:token/login"
+          element={
+            <LazyPage>
+              <GiftAuth />
+            </LazyPage>
+          }
+        />
+        <Route
+          path="/buy/gift/:token/register"
+          element={
+            <LazyPage>
+              <GiftAuth />
             </LazyPage>
           }
         />
@@ -703,6 +722,26 @@ function App() {
             <PermissionRoute permission="apps:read">
               <LazyPage>
                 <AdminApps />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/clone-bots"
+          element={
+            <PermissionRoute permission="clone_bots:read">
+              <LazyPage>
+                <AdminCloneBots />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/clone-bots/:id"
+          element={
+            <PermissionRoute permission="clone_bots:read">
+              <LazyPage>
+                <AdminCloneBotDetail />
               </LazyPage>
             </PermissionRoute>
           }
