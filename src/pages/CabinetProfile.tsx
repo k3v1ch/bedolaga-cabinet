@@ -654,9 +654,12 @@ export default function CabinetProfile() {
                 <div className="flex h-[30px] min-w-[64px] items-center overflow-hidden rounded-lg border border-white/[0.08] bg-white/[0.06]">
                   <input
                     type="number"
-                    value={notificationSettings.balance_low_threshold}
+                    value={Math.round(notificationSettings.balance_low_threshold / 100)}
                     onChange={(e) =>
-                      updateNotification('balance_low_threshold', Number(e.target.value))
+                      updateNotification(
+                        'balance_low_threshold',
+                        Math.max(0, Math.round(Number(e.target.value))) * 100,
+                      )
                     }
                     min={0}
                     className="h-full w-14 bg-transparent px-3 text-[13px] text-white/50 outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"

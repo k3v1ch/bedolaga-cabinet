@@ -710,9 +710,12 @@ export default function Profile() {
                     </span>
                     <input
                       type="number"
-                      value={notificationSettings.balance_low_threshold}
+                      value={Math.round(notificationSettings.balance_low_threshold / 100)}
                       onChange={(e) =>
-                        handleNotificationValue('balance_low_threshold', Number(e.target.value))
+                        handleNotificationValue(
+                          'balance_low_threshold',
+                          Math.max(0, Math.round(Number(e.target.value))) * 100,
+                        )
                       }
                       min={0}
                       className="input w-24 py-1"
