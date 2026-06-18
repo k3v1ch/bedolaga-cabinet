@@ -257,6 +257,12 @@ const sections: AdminSection[] = [
         to: '/admin/referral-network',
         permission: 'stats:read',
       },
+      {
+        name: 'admin.nav.cloneBots',
+        icon: 'app',
+        to: '/admin/clone-bots',
+        permission: 'clone_bots:read',
+      },
     ],
   },
   {
@@ -279,7 +285,6 @@ const sections: AdminSection[] = [
         permission: 'settings:read',
       },
       { name: 'admin.nav.apps', icon: 'app', to: '/admin/apps', permission: 'apps:read' },
-      { name: 'admin.nav.cloneBots', icon: 'app', to: '/admin/clone-bots', permission: 'clone_bots:read' },
       {
         name: 'admin.nav.servers',
         icon: 'server',
