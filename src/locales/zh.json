@@ -1206,6 +1206,7 @@
       "updates": "更新",
       "pinnedMessages": "置顶消息",
       "partners": "合作伙伴",
+      "tiktok": "TikTok",
       "withdrawals": "提现",
       "channelSubscriptions": "必订频道",
       "roles": "角色",
@@ -2576,6 +2577,48 @@
         "rejectDescription": "可选择添加备注说明拒绝原因。",
         "commentPlaceholder": "拒绝原因（可选）...",
         "confirmReject": "确认拒绝"
+      }
+    },
+    "tiktok": {
+      "title": "TikTok",
+      "subtitle": "TikTok 计划申请与作者",
+      "totalCreators": "作者",
+      "pendingApplications": "待处理申请",
+      "totalEarnings": "已发放总额",
+      "tabs": { "applications": "申请", "creators": "作者" },
+      "noApplications": "暂无待处理申请",
+      "noCreators": "暂无已批准的作者",
+      "noEarnings": "暂无收益记录",
+      "earned": "已发放",
+      "fields": {
+        "tiktok": "TikTok",
+        "otherPlatforms": "其他平台",
+        "audience": "受众",
+        "topic": "主题",
+        "description": "简介"
+      },
+      "actions": {
+        "approve": "批准",
+        "reject": "拒绝",
+        "revoke": "移除",
+        "addEarning": "+ 收益",
+        "journal": "收益记录",
+        "delete": "删除"
+      },
+      "prompts": {
+        "commentOptional": "备注（可选）",
+        "reasonOptional": "原因（可选）",
+        "revokeConfirm": "将作者移出计划？输入 OK 确认",
+        "revokeConfirmWord": "OK",
+        "amountRubles": "收益金额，₽（可为负）",
+        "amountInvalid": "请输入有效金额"
+      },
+      "toasts": {
+        "approved": "申请已批准",
+        "rejected": "申请已拒绝",
+        "revoked": "作者已移除",
+        "earningAdded": "已添加收益",
+        "earningDeleted": "已删除收益"
       }
     },
     "partners": {

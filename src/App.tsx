@@ -68,6 +68,7 @@ import CabinetSupport from './pages/CabinetSupport';
 import CabinetProfile from './pages/CabinetProfile';
 import CabinetReferral from './pages/CabinetReferral';
 import CabinetPartnerApply from './pages/CabinetPartnerApply';
+import CabinetTikTokApply from './pages/CabinetTikTokApply';
 import CabinetLanding from './pages/CabinetLanding';
 import CabinetGifts from './pages/CabinetGifts';
 const USE_NEW_SHELL = import.meta.env.VITE_USE_NEW_SHELL !== 'false';
@@ -130,6 +131,7 @@ const AdminCampaignCreate = lazyWithRetry(() => import('./pages/AdminCampaignCre
 const AdminCampaignStats = lazyWithRetry(() => import('./pages/AdminCampaignStats'));
 const AdminCampaignEdit = lazyWithRetry(() => import('./pages/AdminCampaignEdit'));
 const AdminPartners = lazyWithRetry(() => import('./pages/AdminPartners'));
+const AdminTikTok = lazyWithRetry(() => import('./pages/AdminTikTok'));
 const AdminPartnerSettings = lazyWithRetry(() => import('./pages/AdminPartnerSettings'));
 const AdminPartnerDetail = lazyWithRetry(() => import('./pages/AdminPartnerDetail'));
 const AdminApplicationReview = lazyWithRetry(() => import('./pages/AdminApplicationReview'));
@@ -516,6 +518,16 @@ function App() {
             <ProtectedRoute>
               <LazyPage>
                 {USE_NEW_SHELL ? <CabinetPartnerApply /> : <ReferralPartnerApply />}
+              </LazyPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/referral/tiktok/apply"
+          element={
+            <ProtectedRoute>
+              <LazyPage>
+                <CabinetTikTokApply />
               </LazyPage>
             </ProtectedRoute>
           }
@@ -1002,6 +1014,16 @@ function App() {
             <PermissionRoute permission="partners:read">
               <LazyPage>
                 <AdminPartners />
+              </LazyPage>
+            </PermissionRoute>
+          }
+        />
+        <Route
+          path="/admin/tiktok"
+          element={
+            <PermissionRoute permission="tiktok:read">
+              <LazyPage>
+                <AdminTikTok />
               </LazyPage>
             </PermissionRoute>
           }

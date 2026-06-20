@@ -1333,6 +1333,7 @@
       "updates": "Updates",
       "pinnedMessages": "Pinned Messages",
       "partners": "Partners",
+      "tiktok": "TikTok",
       "withdrawals": "Withdrawals",
       "channelSubscriptions": "Required Channels",
       "roles": "Roles",
@@ -2961,6 +2962,48 @@
         "rejectDescription": "Optionally add a comment explaining the reason for rejection.",
         "commentPlaceholder": "Reason for rejection (optional)...",
         "confirmReject": "Confirm Rejection"
+      }
+    },
+    "tiktok": {
+      "title": "TikTok",
+      "subtitle": "TikTok program applications and creators",
+      "totalCreators": "Creators",
+      "pendingApplications": "Pending applications",
+      "totalEarnings": "Total paid out",
+      "tabs": { "applications": "Applications", "creators": "Creators" },
+      "noApplications": "No pending applications",
+      "noCreators": "No approved creators yet",
+      "noEarnings": "No earnings yet",
+      "earned": "Paid out",
+      "fields": {
+        "tiktok": "TikTok",
+        "otherPlatforms": "Other platforms",
+        "audience": "Audience",
+        "topic": "Topic",
+        "description": "About"
+      },
+      "actions": {
+        "approve": "Approve",
+        "reject": "Reject",
+        "revoke": "Remove",
+        "addEarning": "+ Earning",
+        "journal": "Earnings journal",
+        "delete": "Delete"
+      },
+      "prompts": {
+        "commentOptional": "Comment (optional)",
+        "reasonOptional": "Reason (optional)",
+        "revokeConfirm": "Remove creator from the program? Type OK to confirm",
+        "revokeConfirmWord": "OK",
+        "amountRubles": "Earning amount, ₽ (can be negative)",
+        "amountInvalid": "Enter a valid amount"
+      },
+      "toasts": {
+        "approved": "Application approved",
+        "rejected": "Application rejected",
+        "revoked": "Creator removed",
+        "earningAdded": "Earning added",
+        "earningDeleted": "Earning deleted"
       }
     },
     "partners": {

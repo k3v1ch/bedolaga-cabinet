@@ -1356,6 +1356,7 @@
       "updates": "Обновления",
       "pinnedMessages": "Закреплённые",
       "partners": "Партнёры",
+      "tiktok": "TikTok",
       "withdrawals": "Выводы",
       "channelSubscriptions": "Обязательные каналы",
       "roles": "Роли",
@@ -3364,6 +3365,48 @@
         "rejectDescription": "При необходимости добавьте комментарий с причиной отклонения.",
         "commentPlaceholder": "Причина отклонения (необязательно)...",
         "confirmReject": "Подтвердить отклонение"
+      }
+    },
+    "tiktok": {
+      "title": "TikTok",
+      "subtitle": "Заявки и авторы TikTok-программы",
+      "totalCreators": "Авторов",
+      "pendingApplications": "Заявок на рассмотрении",
+      "totalEarnings": "Всего начислено",
+      "tabs": { "applications": "Заявки", "creators": "Авторы" },
+      "noApplications": "Нет заявок на рассмотрении",
+      "noCreators": "Пока нет одобренных авторов",
+      "noEarnings": "Начислений пока нет",
+      "earned": "Начислено",
+      "fields": {
+        "tiktok": "TikTok",
+        "otherPlatforms": "Другие площадки",
+        "audience": "Аудитория",
+        "topic": "Тематика",
+        "description": "О себе"
+      },
+      "actions": {
+        "approve": "Одобрить",
+        "reject": "Отклонить",
+        "revoke": "Исключить",
+        "addEarning": "+ Начисление",
+        "journal": "Журнал начислений",
+        "delete": "Удалить"
+      },
+      "prompts": {
+        "commentOptional": "Комментарий (необязательно)",
+        "reasonOptional": "Причина (необязательно)",
+        "revokeConfirm": "Исключить автора из программы? Введите ОК для подтверждения",
+        "revokeConfirmWord": "ОК",
+        "amountRubles": "Сумма начисления, ₽ (можно отрицательную)",
+        "amountInvalid": "Введите корректную сумму"
+      },
+      "toasts": {
+        "approved": "Заявка одобрена",
+        "rejected": "Заявка отклонена",
+        "revoked": "Автор исключён",
+        "earningAdded": "Начисление добавлено",
+        "earningDeleted": "Начисление удалено"
       }
     },
     "partners": {

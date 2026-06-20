@@ -14,6 +14,7 @@ import { UI } from '@/config/constants';
 import { cn } from '@/lib/utils';
 
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { PromptDialogHost } from '@/components/PromptDialogHost';
 
 import { useDevState } from './DevStateContext';
 
@@ -281,6 +282,9 @@ export function CabinetShell({ children }: CabinetShellProps) {
           })}
         </div>
       </div>
+
+      {/* Global prompt dialog host for usePrompt() (legacy AppShell has its own). */}
+      <PromptDialogHost />
     </div>
   );
 }

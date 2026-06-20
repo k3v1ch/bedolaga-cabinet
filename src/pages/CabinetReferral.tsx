@@ -14,11 +14,13 @@ import {
   Clock,
   Wallet,
   AlertCircle,
+  Video,
 } from 'lucide-react';
 
 import { useAuthStore } from '@/store/auth';
 import { referralApi } from '@/api/referral';
 import { partnerApi } from '@/api/partners';
+import { tiktokApi } from '@/api/tiktok';
 import { withdrawalApi } from '@/api/withdrawals';
 import { brandingApi } from '@/api/branding';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -135,6 +137,13 @@ export default function CabinetReferral() {
   });
 
   const isPartner = partnerStatus?.partner_status === 'approved';
+
+  const { data: tiktokStatus } = useQuery({
+    queryKey: ['tiktok-status'],
+    queryFn: tiktokApi.getStatus,
+    enabled: isAuthenticated,
+  });
+  const tiktokStatusValue = tiktokStatus?.tiktok_status ?? 'none';
 
   const { data: withdrawalBalance } = useQuery({
     queryKey: ['withdrawal-balance'],
@@ -567,6 +576,97 @@ export default function CabinetReferral() {
               defaultValue: `Ваша комиссия: ${partnerStatus?.commission_percent ?? 0}%`,
             })}
           </p>
+        </GlassCard>
+      )}
+
+      {/* ── TikTok program section (separate from partner) ────────── */}
+      {tiktokStatusValue === 'none' && (
+        <GlassCard className="mb-5 p-7">
+          <div className="mb-2 flex items-center gap-2">
+            <Video size={16} className="text-white/25" />
+            <span className="text-[15px] text-white/50" style={{ fontWeight: 500 }}>
+              {t('referral.tiktok.title', { defaultValue: 'Зарабатывай на TikTok' })}
+            </span>
+          </div>
+          <p className="mb-4 text-[13px] text-white/25" style={{ lineHeight: 1.6 }}>
+            {t('referral.tiktok.desc', {
+              defaultValue:
+                'Снимай короткие ролики, продвигай VPN и получай вознаграждение за просмотры. После одобрения результаты отправляешь в поддержку.',
+            })}
+          </p>
+          <Link
+            to="/referral/tiktok/apply"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-[15px] text-white/60 transition-colors hover:bg-white/[0.05]"
+          >
+            {t('referral.tiktok.applyButton', { defaultValue: 'Подать заявку' })}{' '}
+            <ChevronRight size={14} />
+          </Link>
+        </GlassCard>
+      )}
+
+      {tiktokStatusValue === 'pending' && (
+        <GlassCard className="mb-5 border-yellow-500/20 p-7">
+          <div className="mb-2 flex items-center gap-2">
+            <Clock size={16} className="text-yellow-400/60" />
+            <span className="text-[15px] text-white/50" style={{ fontWeight: 500 }}>
+              {t('referral.tiktok.underReview', { defaultValue: 'Заявка на TikTok на рассмотрении' })}
+            </span>
+          </div>
+          <p className="text-[13px] text-white/30" style={{ lineHeight: 1.6 }}>
+            {t('referral.tiktok.underReviewDesc', {
+              defaultValue: 'Мы рассмотрим вашу заявку в ближайшее время.',
+            })}
+          </p>
+        </GlassCard>
+      )}
+
+      {tiktokStatusValue === 'rejected' && (
+        <GlassCard className="mb-5 border-red-500/20 p-7">
+          <div className="mb-2 flex items-center gap-2">
+            <AlertCircle size={16} className="text-red-400/60" />
+            <span className="text-[15px] text-white/50" style={{ fontWeight: 500 }}>
+              {t('referral.tiktok.rejected', { defaultValue: 'Заявка на TikTok отклонена' })}
+            </span>
+          </div>
+          {tiktokStatus?.latest_application?.admin_comment && (
+            <p className="mb-4 text-[13px] text-white/35" style={{ lineHeight: 1.6 }}>
+              {tiktokStatus.latest_application.admin_comment}
+            </p>
+          )}
+          <Link
+            to="/referral/tiktok/apply"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-[15px] text-white/60 transition-colors hover:bg-white/[0.05]"
+          >
+            {t('referral.tiktok.reapplyButton', { defaultValue: 'Подать снова' })}{' '}
+            <ChevronRight size={14} />
+          </Link>
+        </GlassCard>
+      )}
+
+      {tiktokStatusValue === 'approved' && (
+        <GlassCard className="mb-5 border-green-500/20 p-7">
+          <div className="mb-2 flex items-center gap-2">
+            <Video size={16} className="text-green-400/60" />
+            <span className="text-[15px] text-white/50" style={{ fontWeight: 500 }}>
+              {t('referral.tiktok.memberStatus', { defaultValue: 'TikTok-программа' })}
+            </span>
+            <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-[11px] text-green-400/70">
+              {t('referral.tiktok.active', { defaultValue: 'Активна' })}
+            </span>
+          </div>
+          {tiktokStatus?.total_earned_kopeks != null && tiktokStatus.total_earned_kopeks > 0 && (
+            <p className="mb-4 text-[13px] text-white/30" style={{ lineHeight: 1.6 }}>
+              {t('referral.tiktok.earned', { defaultValue: 'Начислено' })}:{' '}
+              {(tiktokStatus.total_earned_kopeks / 100).toLocaleString()} ₽
+            </p>
+          )}
+          <Link
+            to="/referral/tiktok/apply"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-[15px] text-white/60 transition-colors hover:bg-white/[0.05]"
+          >
+            {t('referral.tiktok.sendResults', { defaultValue: 'Отправить результаты' })}{' '}
+            <ChevronRight size={14} />
+          </Link>
         </GlassCard>
       )}
 

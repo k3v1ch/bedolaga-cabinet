@@ -246,6 +246,12 @@ const sections: AdminSection[] = [
         permission: 'partners:read',
       },
       {
+        name: 'admin.nav.tiktok',
+        icon: 'sparkle',
+        to: '/admin/tiktok',
+        permission: 'tiktok:read',
+      },
+      {
         name: 'admin.nav.withdrawals',
         icon: 'arrow-up',
         to: '/admin/withdrawals',
