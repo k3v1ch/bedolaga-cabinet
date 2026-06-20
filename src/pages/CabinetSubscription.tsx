@@ -201,6 +201,13 @@ export default function CabinetSubscription() {
     refreshTrafficMutation.mutate();
   }, [subscription, refreshTrafficMutation]);
 
+  // ── Layout decisions ────────────────────────────────────────────────
+  const isActiveSub =
+    !!subscription &&
+    !subscription.is_expired &&
+    subscription.status !== 'disabled' &&
+    !subscription.is_limited;
+
   // ── Devices: delete / buy / reduce ──────────────────────────────────
   const deleteDeviceMutation = useMutation({
     mutationFn: (hwid: string) => subscriptionApi.deleteDevice(hwid, subscription?.id),
@@ -218,6 +225,14 @@ export default function CabinetSubscription() {
     queryKey: ['device-price', subscription?.id, buyQty],
     queryFn: () => subscriptionApi.getDevicePrice(buyQty, subscription?.id),
     enabled: showBuy && !!subscription,
+  });
+
+  // Capacity probe (qty=1) — drives the "Buy" button disabled state before the
+  // popup is opened. Shares the cache key with buyPriceData when buyQty === 1.
+  const { data: buyCapacity } = useQuery({
+    queryKey: ['device-price', subscription?.id, 1],
+    queryFn: () => subscriptionApi.getDevicePrice(1, subscription?.id),
+    enabled: isActiveSub && !!subscription && !subscription.is_trial,
   });
 
   const buyDevicesMutation = useMutation({
@@ -240,8 +255,17 @@ export default function CabinetSubscription() {
   const { data: reductionInfo } = useQuery({
     queryKey: ['device-reduction-info', subscription?.id],
     queryFn: () => subscriptionApi.getDeviceReductionInfo(subscription?.id),
-    enabled: showReduce && !!subscription,
+    // Loaded eagerly (not just when the popup opens) so we know upfront whether
+    // the user is already at the minimum and can disable the "Reduce" button.
+    enabled: !!subscription && (showReduce || (isActiveSub && !subscription.is_trial)),
   });
+
+  // Backend is the source of truth for limits (no hardcoded min/max):
+  //  • can't buy  → already at the tariff's max device limit
+  //  • can't reduce → already at the minimum device limit
+  const buyDisabled = buyCapacity?.available === false;
+  const reduceDisabled =
+    reductionInfo?.available === false || (reductionInfo?.can_reduce ?? 1) <= 0;
 
   const reduceMutation = useMutation({
     mutationFn: () => {
@@ -259,13 +283,6 @@ export default function CabinetSubscription() {
       queryClient.invalidateQueries({ queryKey: ['balance'] });
     },
   });
-
-  // ── Layout decisions ────────────────────────────────────────────────
-  const isActiveSub =
-    !!subscription &&
-    !subscription.is_expired &&
-    subscription.status !== 'disabled' &&
-    !subscription.is_limited;
 
   const traffic = useMemo(() => {
     if (trafficData) return trafficData;
@@ -597,28 +614,32 @@ export default function CabinetSubscription() {
               <p className="mb-4 text-[13px] text-white/30">{t('subscriptionPage.noDevicesYet')}</p>
             )}
 
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  setBuyQty(1);
-                  setBuyState('idle');
-                  setShowBuy(true);
-                }}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2.5 text-[15px] text-white/50 transition-colors hover:bg-white/[0.04]"
-              >
-                <Plus size={14} /> {t('subscriptionPage.buyDevicesShort')}
-              </button>
-              <button
-                onClick={() => {
-                  setReduceQty(1);
-                  setReduceState('idle');
-                  setShowReduce(true);
-                }}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2.5 text-[15px] text-white/50 transition-colors hover:bg-white/[0.04]"
-              >
-                <Minus size={14} /> {t('subscriptionPage.reduceDevicesShort')}
-              </button>
-            </div>
+            {!subscription.is_trial && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setBuyQty(1);
+                    setBuyState('idle');
+                    setShowBuy(true);
+                  }}
+                  disabled={buyDisabled}
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2.5 text-[15px] text-white/50 transition-colors hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+                >
+                  <Plus size={14} /> {t('subscriptionPage.buyDevicesShort')}
+                </button>
+                <button
+                  onClick={() => {
+                    setReduceQty(1);
+                    setReduceState('idle');
+                    setShowReduce(true);
+                  }}
+                  disabled={reduceDisabled}
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/[0.08] py-2.5 text-[15px] text-white/50 transition-colors hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+                >
+                  <Minus size={14} /> {t('subscriptionPage.reduceDevicesShort')}
+                </button>
+              </div>
+            )}
           </GlassCard>
         </>
       )}
