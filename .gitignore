@@ -13,6 +13,9 @@ build/
 .env.local
 .env.*.local
 
+# Dev-only infra (keldari stack — not for prod/shared repo)
+docker-compose.keldari.yml
+
 # Logs
 *.log
 npm-debug.log*
