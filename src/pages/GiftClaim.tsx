@@ -19,7 +19,7 @@ const MAX_POLL_MS = 10 * 60 * 1000; // poll an unsettled payment for up to 10 mi
 // на /login (вход или регистрация с подтверждением почты) и возвращается уже
 // авторизованным — тогда активация завершается автоматически. localStorage
 // переживает переход между вкладками (письмо подтверждения открывается в новой).
-const PENDING_GIFT_KEY = 'keldari_pending_gift';
+const PENDING_GIFT_KEY = 'verno_pending_gift';
 
 // KELDARI-UI: стиль выровнен под кабинет — тёмный фон, стеклянная карточка,
 // шрифт Inter, белые pill-кнопки (как в CabinetSubscription).

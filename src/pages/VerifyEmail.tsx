@@ -55,7 +55,7 @@ export default function VerifyEmail() {
         // возвращаем его на страницу подарка, где активация завершится автоматически.
         let target = '/';
         try {
-          const pendingGift = localStorage.getItem('keldari_pending_gift');
+          const pendingGift = localStorage.getItem('verno_pending_gift');
           if (pendingGift) target = `/buy/gift/${pendingGift}`;
         } catch {
           /* ignore */

@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 // Повторяют email-функционал кабинетного логина, но в стиле страницы подарка и с
 // возвратом на /buy/gift/<token> (вместо «тупого» редиректа на общий /login).
 // Ключ переживает переход между вкладками: письмо подтверждения открывается в новой.
-const PENDING_GIFT_KEY = 'keldari_pending_gift';
+const PENDING_GIFT_KEY = 'verno_pending_gift';
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
