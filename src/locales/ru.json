@@ -755,6 +755,7 @@
     "statusLimited": "Ограничена",
     "statusTrial": "Триал",
     "insufficientBalanceAmount": "Недостаточно средств. Не хватает {{missing}}",
+    "topUpBalanceFor": "Пополнить баланс на {{amount}}",
     "tariff_label": "Тариф",
     "deleteWarning": "Подписка будет удалена безвозвратно. Все данные, устройства и настройки будут потеряны.",
     "allTariffsPurchasedDesc": "Вы уже приобрели все доступные тарифы. Продлить подписку можно на странице тарифа."

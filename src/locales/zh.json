@@ -654,6 +654,7 @@
       "title": "升级订阅"
     },
     "insufficientBalanceAmount": "余额不足。还差 {{missing}}",
+    "topUpBalanceFor": "充值 {{amount}}",
     "tariff_label": "套餐",
     "deleteWarning": "订阅将被永久删除。所有数据、设备和设置将丢失。",
     "allTariffsPurchasedDesc": "您已购买所有可用套餐。续订请在套餐页操作。"

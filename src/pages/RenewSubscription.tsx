@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import { AlertTriangle, User, Users, Building2 } from 'lucide-react';
 import { subscriptionApi } from '../api/subscription';
 import { useTheme } from '../hooks/useTheme';
@@ -27,6 +27,7 @@ export default function RenewSubscription() {
 
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const { isDark } = useTheme();
   const g = getGlassColors(isDark);
@@ -320,6 +321,24 @@ export default function RenewSubscription() {
     const activePriceKopeks = activeDiscountResult?.price ?? rawActivePriceKopeks;
     const activeOriginalPrice = activeDiscountResult?.original ?? rawActiveOriginalPrice;
     const activeAffordable = activePriceKopeks != null ? balanceKopeks >= activePriceKopeks : false;
+    const insufficientBalance =
+      activePriceKopeks != null && activePriceKopeks > 0 && !activeAffordable;
+    const missingForActiveKopeks =
+      activePriceKopeks != null && activePriceKopeks > balanceKopeks
+        ? activePriceKopeks - balanceKopeks
+        : 0;
+
+    // Not enough balance for the selected tariff/period: send the user straight
+    // to the payment-method picker with the missing amount pre-filled; after a
+    // successful top-up they return here (returnTo) to finish the purchase.
+    const handleTopUp = () => {
+      if (missingForActiveKopeks <= 0) return;
+      impact('light');
+      const params = new URLSearchParams();
+      params.set('amount', String(Math.ceil(missingForActiveKopeks / 100)));
+      params.set('returnTo', location.pathname);
+      navigate(`/balance/top-up?${params.toString()}`);
+    };
 
     const isSwitchAction =
       isMultiTariff && activeTariffId != null && activeTariffId !== currentTariffId;
@@ -609,10 +628,7 @@ export default function RenewSubscription() {
                       )} ${currencySymbol}`,
                     },
                   )}{' '}
-                  <button
-                    onClick={() => navigate('/balance')}
-                    className="underline-offset-2 hover:underline"
-                  >
+                  <button onClick={handleTopUp} className="underline-offset-2 hover:underline">
                     {t('common.topUpBalance', 'Пополнить баланс')}
                   </button>
                 </p>
@@ -638,18 +654,22 @@ export default function RenewSubscription() {
 
         {/* CTA */}
         <button
-          onClick={handleSubmit}
-          disabled={
-            activeDays == null || activePriceKopeks == null || !activeAffordable || isSubmitting
-          }
+          onClick={insufficientBalance ? handleTopUp : handleSubmit}
+          disabled={activeDays == null || activePriceKopeks == null || isSubmitting}
           className="w-full rounded-full bg-white py-3.5 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40"
           style={{ fontWeight: 500 }}
         >
           {isSubmitting
             ? t('common.processing', 'Обработка...')
-            : isSwitchAction
-              ? t('subscription.switchTariff.submit', 'Сменить тариф')
-              : t('subscription.extend', 'Продлить подписку')}
+            : insufficientBalance
+              ? t('subscription.topUpBalanceFor', 'Пополнить баланс на {{amount}}', {
+                  amount: `${formatAmount(missingForActiveKopeks / 100)} ${currencySymbol}`,
+                })
+              : !hasActiveSubToRenew
+                ? t('subscription.getSubscription', 'Оформить подписку')
+                : isSwitchAction
+                  ? t('subscription.switchTariff.submit', 'Сменить тариф')
+                  : t('subscription.extend', 'Продлить подписку')}
         </button>
       </div>
     );

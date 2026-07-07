@@ -725,6 +725,7 @@
     "statusLimited": "Limited",
     "statusTrial": "Trial",
     "insufficientBalanceAmount": "Insufficient funds. Missing {{missing}}",
+    "topUpBalanceFor": "Top up balance by {{amount}}",
     "tariff_label": "Plan",
     "deleteWarning": "The subscription will be deleted permanently. All data, devices and settings will be lost.",
     "allTariffsPurchasedDesc": "You have already purchased all available plans. Renewals are managed on each plan page."
