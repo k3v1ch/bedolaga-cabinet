@@ -41,6 +41,7 @@ export default function RenewSubscription() {
   const [selectedPeriod, setSelectedPeriod] = useState<number | null>(null);
   const [selectedTariffId, setSelectedTariffId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isPreparingTopUp, setIsPreparingTopUp] = useState(false);
 
   // Load subscription detail for tariff name
   const { data: subscriptionResponse } = useQuery({
@@ -328,18 +329,6 @@ export default function RenewSubscription() {
         ? activePriceKopeks - balanceKopeks
         : 0;
 
-    // Not enough balance for the selected tariff/period: send the user straight
-    // to the payment-method picker with the missing amount pre-filled; after a
-    // successful top-up they return here (returnTo) to finish the purchase.
-    const handleTopUp = () => {
-      if (missingForActiveKopeks <= 0) return;
-      impact('light');
-      const params = new URLSearchParams();
-      params.set('amount', String(Math.ceil(missingForActiveKopeks / 100)));
-      params.set('returnTo', location.pathname);
-      navigate(`/balance/top-up?${params.toString()}`);
-    };
-
     const isSwitchAction =
       isMultiTariff && activeTariffId != null && activeTariffId !== currentTariffId;
 
@@ -364,6 +353,45 @@ export default function RenewSubscription() {
       } else {
         handleRenew(activeDays);
       }
+    };
+
+    // Not enough balance for the selected tariff/period. Before redirecting to
+    // the payment-method picker we fire the real purchase/renew/switch call:
+    // the backend rejects it with 402 AND saves the cart, so after a successful
+    // top-up auto_purchase_saved_cart_after_topup completes the purchase
+    // automatically (same UX as the bot). If the call unexpectedly succeeds
+    // (balance changed meanwhile) we're done — go to the subscriptions list.
+    const handleTopUp = async () => {
+      if (missingForActiveKopeks <= 0 || activeDays == null) return;
+      impact('light');
+      setError(null);
+      setIsPreparingTopUp(true);
+      try {
+        if (!hasActiveSubToRenew) {
+          if (isMultiTariff && activeTariffId != null) {
+            await subscriptionApi.purchaseTariff(activeTariffId, activeDays);
+          } else {
+            await subscriptionApi.submitPurchase({ period_days: activeDays });
+          }
+        } else if (isSwitchAction && activeTariffId != null) {
+          await subscriptionApi.switchTariff(activeTariffId, subId);
+        } else {
+          await subscriptionApi.renewSubscription(activeDays, subId);
+        }
+        queryClient.invalidateQueries({ queryKey: ['subscription'] });
+        queryClient.invalidateQueries({ queryKey: ['subscriptions-list'] });
+        queryClient.invalidateQueries({ queryKey: ['balance'] });
+        navigate('/subscriptions', { replace: true });
+        return;
+      } catch {
+        // Expected insufficient_funds — the cart is saved server-side now.
+      } finally {
+        setIsPreparingTopUp(false);
+      }
+      const params = new URLSearchParams();
+      params.set('amount', String(Math.ceil(missingForActiveKopeks / 100)));
+      params.set('returnTo', location.pathname);
+      navigate(`/balance/top-up?${params.toString()}`);
     };
 
     return (
@@ -651,12 +679,14 @@ export default function RenewSubscription() {
 
         {/* CTA */}
         <button
-          onClick={insufficientBalance ? handleTopUp : handleSubmit}
-          disabled={activeDays == null || activePriceKopeks == null || isSubmitting}
+          onClick={insufficientBalance ? () => void handleTopUp() : handleSubmit}
+          disabled={
+            activeDays == null || activePriceKopeks == null || isSubmitting || isPreparingTopUp
+          }
           className="w-full rounded-full bg-white py-3.5 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40"
           style={{ fontWeight: 500 }}
         >
-          {isSubmitting
+          {isSubmitting || isPreparingTopUp
             ? t('common.processing', 'Обработка...')
             : insufficientBalance
               ? t('subscription.topUpBalanceFor', 'Пополнить баланс на {{amount}}', {
