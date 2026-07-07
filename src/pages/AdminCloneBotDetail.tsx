@@ -8,7 +8,7 @@ import {
 } from '../api/adminCloneBots';
 import { BackIcon } from '@/components/icons';
 import { useToast } from '../components/Toast';
-import { useDestructiveConfirm } from '../platform/hooks/useNativeDialog';
+import { useDestructiveConfirm, useNativeDialog } from '../platform/hooks/useNativeDialog';
 import { copyToClipboard } from '@/utils/clipboard';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -32,7 +32,41 @@ const ERROR_LABEL: Record<string, string> = {
   token_wrong_bot: 'Это токен другого бота — нужен новый токен этого же бота',
   links_limit_reached: 'Достигнут лимит рекламных ссылок',
   invalid_name: 'Название ссылки: от 1 до 50 символов',
+  invalid_channel_ref: 'Не похоже на @юзернейм канала (пример: @my_channel)',
+  clone_unavailable: 'Не удалось подключиться к клон-боту, попробуйте позже',
+  channel_not_found: 'Канал не найден — проверьте @юзернейм публичного канала',
+  not_a_channel: 'Это не канал — нужен @юзернейм именно канала',
+  bot_not_admin: 'Клон-бот не админ канала. Добавьте его администратором и повторите',
+  no_public_link: 'Канал должен быть публичным (с @юзернеймом)',
+  channel_not_set: 'Сначала укажите канал',
+  text_too_long: 'Слишком длинный текст',
+  invalid_text: 'Нужен текст рассылки (или фото)',
+  invalid_photo: 'Файл не похож на изображение',
+  photo_too_large: 'Фото больше 10 МБ',
+  invalid_button: 'Кнопка: нужны и текст, и ссылка (https://…)',
+  broadcasts_limit_reached: 'Лимит рассылок в сутки исчерпан',
+  no_recipients: 'У бота пока нет клиентов — некому отправлять',
 };
+
+const BC_STATUS: Record<string, string> = {
+  in_progress: '▶️ Идёт',
+  completed: '✅ Завершена',
+  failed: '❌ Ошибка',
+};
+
+function fmtDateTime(iso: string | null): string {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleString('ru-RU', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return '—';
+  }
+}
 
 function errMsg(e: unknown): string {
   const detail = (e as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail;
@@ -87,6 +121,7 @@ export default function AdminCloneBotDetail() {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const confirmDelete = useDestructiveConfirm();
+  const dialog = useNativeDialog();
   const { id } = useParams<{ id: string }>();
   const cloneId = Number(id);
 
@@ -95,6 +130,13 @@ export default function AdminCloneBotDetail() {
   const [titleInput, setTitleInput] = useState('');
   const [tokenInput, setTokenInput] = useState('');
   const [linkName, setLinkName] = useState('');
+  const [subChannelInput, setSubChannelInput] = useState('');
+  const [subTextInput, setSubTextInput] = useState('');
+  const [bcText, setBcText] = useState('');
+  const [bcButtonText, setBcButtonText] = useState('');
+  const [bcButtonUrl, setBcButtonUrl] = useState('');
+  const [bcTariffs, setBcTariffs] = useState(false);
+  const [bcPhoto, setBcPhoto] = useState<File | null>(null);
 
   const { data: c, isLoading } = useQuery({
     queryKey: ['admin-clone-bot', cloneId],
@@ -112,6 +154,15 @@ export default function AdminCloneBotDetail() {
     queryKey: ['admin-clone-bot-links', cloneId],
     queryFn: () => adminCloneBotsApi.links(cloneId),
     enabled: Number.isFinite(cloneId),
+  });
+
+  const { data: bc } = useQuery({
+    queryKey: ['admin-clone-bot-broadcasts', cloneId],
+    queryFn: () => adminCloneBotsApi.broadcasts(cloneId),
+    enabled: Number.isFinite(cloneId),
+    // Пока идёт рассылка — обновляем счётчики.
+    refetchInterval: (query) =>
+      query.state.data?.items.some((b) => b.status === 'in_progress') ? 4000 : false,
   });
 
   const invalidateDetail = () => {
@@ -188,6 +239,81 @@ export default function AdminCloneBotDetail() {
     },
     onError: (e) => showToast({ type: 'error', message: errMsg(e) }),
   });
+
+  const onSubState = () => {
+    invalidateDetail();
+  };
+  const setSubChannel = useMutation({
+    mutationFn: (channel: string) => adminCloneBotsApi.setSubChannel(cloneId, channel),
+    onSuccess: (s) => {
+      onSubState();
+      setSubChannelInput('');
+      showToast({
+        type: 'success',
+        message: `Канал «${s.channel_title ?? s.channel_link ?? ''}» привязан. Теперь включите подписку`,
+      });
+    },
+    onError: (e) => showToast({ type: 'error', message: errMsg(e) }),
+  });
+  const toggleSub = useMutation({
+    mutationFn: () => adminCloneBotsApi.toggleSub(cloneId),
+    onSuccess: (s) => {
+      onSubState();
+      showToast({
+        type: 'success',
+        message: s.enabled ? 'Обязательная подписка включена' : 'Обязательная подписка выключена',
+      });
+    },
+    onError: (e) => showToast({ type: 'error', message: errMsg(e) }),
+  });
+  const setSubText = useMutation({
+    mutationFn: (text: string | null) => adminCloneBotsApi.setSubText(cloneId, text),
+    onSuccess: (s) => {
+      onSubState();
+      setSubTextInput('');
+      showToast({
+        type: 'success',
+        message: s.text ? 'Текст заглушки обновлён' : 'Текст сброшен на стандартный',
+      });
+    },
+    onError: (e) => showToast({ type: 'error', message: errMsg(e) }),
+  });
+
+  const sendBroadcast = useMutation({
+    mutationFn: () =>
+      adminCloneBotsApi.createBroadcast(cloneId, {
+        text: bcText.trim() || undefined,
+        buttonText: bcButtonText.trim() || undefined,
+        buttonUrl: bcButtonUrl.trim() || undefined,
+        showTariffs: bcTariffs,
+        photo: bcPhoto,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-clone-bot-broadcasts', cloneId] });
+      setBcText('');
+      setBcButtonText('');
+      setBcButtonUrl('');
+      setBcTariffs(false);
+      setBcPhoto(null);
+      showToast({ type: 'success', message: 'Рассылка запущена' });
+    },
+    onError: (e) => showToast({ type: 'error', message: errMsg(e) }),
+  });
+
+  const submitBroadcast = async () => {
+    if (!bcText.trim() && !bcPhoto) {
+      showToast({ type: 'error', message: 'Нужен текст или фото' });
+      return;
+    }
+    if (!!bcButtonText.trim() !== !!bcButtonUrl.trim()) {
+      showToast({ type: 'error', message: 'Кнопка: заполните и текст, и ссылку' });
+      return;
+    }
+    const ok = await dialog.confirm(
+      `Отправить рассылку ${bc?.recipients ?? '?'} получателям от имени @${c?.bot_username ?? ''}?`,
+    );
+    if (ok) sendBroadcast.mutate();
+  };
 
   const submitMarkup = () => {
     const pct = Number(markupInput.trim().replace('%', ''));
@@ -472,6 +598,175 @@ export default function AdminCloneBotDetail() {
                   </button>
                 </div>
               )}
+            </div>
+
+            {/* Рассылки */}
+            <SectionTitle>
+              Рассылки ({bc ? `${bc.used_today}/${bc.per_day_limit} за сутки` : '…'})
+            </SectionTitle>
+            <div className="mb-5 space-y-3">
+              {(bc?.items ?? []).length > 0 && (
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-sm">
+                  {bc!.items.map((b) => (
+                    <div key={b.id} className="flex items-center justify-between gap-3 py-1">
+                      <div className="min-w-0 text-white/70">
+                        <span className="text-white/40">{fmtDateTime(b.created_at)}</span>
+                        {' · '}
+                        {BC_STATUS[b.status] ?? b.status}
+                        {b.media_type === 'photo' ? ' · 🖼' : ''}
+                      </div>
+                      <div className="shrink-0 text-xs text-white/50">
+                        ✅ {b.sent_count} · 🚫 {b.failed_count} из {b.total_count}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="space-y-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                <div className="text-sm">Новая рассылка</div>
+                <p className="text-xs text-white/50">
+                  Уйдёт всем клиентам бота ({bc?.recipients ?? '…'}) от его имени. Текст или фото с
+                  подписью, опционально URL-кнопка и кнопка «Перейти к тарифам».
+                </p>
+                <textarea
+                  value={bcText}
+                  onChange={(e) => setBcText(e.target.value)}
+                  placeholder="Текст поста…"
+                  rows={4}
+                  className={inputCls}
+                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setBcPhoto(e.target.files?.[0] ?? null)}
+                    className="text-xs text-white/50 file:mr-2 file:rounded-full file:border file:border-white/15 file:bg-transparent file:px-3 file:py-1 file:text-xs file:text-white/70"
+                  />
+                  {bcPhoto && (
+                    <button
+                      onClick={() => setBcPhoto(null)}
+                      className="text-xs text-white/40 hover:text-white/70"
+                    >
+                      убрать фото ✕
+                    </button>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    value={bcButtonText}
+                    onChange={(e) => setBcButtonText(e.target.value)}
+                    placeholder="Текст кнопки (необязательно)"
+                    className={inputCls}
+                  />
+                  <input
+                    value={bcButtonUrl}
+                    onChange={(e) => setBcButtonUrl(e.target.value)}
+                    placeholder="https://ссылка"
+                    className={inputCls}
+                  />
+                </div>
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-white/70">
+                  <input
+                    type="checkbox"
+                    checked={bcTariffs}
+                    onChange={(e) => setBcTariffs(e.target.checked)}
+                    className="accent-white"
+                  />
+                  Кнопка «🛒 Перейти к тарифам»
+                </label>
+                <button
+                  onClick={submitBroadcast}
+                  disabled={sendBroadcast.isPending || (!bcText.trim() && !bcPhoto)}
+                  className={smallBtnCls}
+                >
+                  {sendBroadcast.isPending ? 'Запуск…' : '🚀 Отправить'}
+                </button>
+              </div>
+            </div>
+
+            {/* Обязательная подписка */}
+            <SectionTitle>Обязательная подписка</SectionTitle>
+            <div className="mb-5 space-y-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0 text-sm">
+                  <div>
+                    Статус:{' '}
+                    <span className="font-semibold">
+                      {c.channel_sub?.enabled ? '🔔 включена' : '🔕 выключена'}
+                    </span>
+                  </div>
+                  <div className="mt-0.5 text-white/50">
+                    Канал:{' '}
+                    {c.channel_sub?.has_channel ? (
+                      <a
+                        href={c.channel_sub.channel_link ?? undefined}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-white/80 underline decoration-white/30 hover:text-white"
+                      >
+                        {c.channel_sub.channel_title ?? c.channel_sub.channel_link}
+                      </a>
+                    ) : (
+                      '—'
+                    )}
+                    {' · текст: '}
+                    {c.channel_sub?.text ? 'свой' : 'стандартный'}
+                  </div>
+                </div>
+                <button
+                  onClick={() => toggleSub.mutate()}
+                  disabled={toggleSub.isPending || !c.channel_sub?.has_channel}
+                  className={smallBtnCls}
+                  title={!c.channel_sub?.has_channel ? 'Сначала укажите канал' : undefined}
+                >
+                  {c.channel_sub?.enabled ? '🔕 Выключить' : '🔔 Включить'}
+                </button>
+              </div>
+              <p className="text-xs text-white/50">
+                Клиенты бота не смогут пользоваться им, пока не подпишутся на канал. Клон-бот должен
+                быть админом канала (без особых прав) — иначе Telegram не даст проверять подписку.
+              </p>
+              <div className="flex gap-2">
+                <input
+                  value={subChannelInput}
+                  onChange={(e) => setSubChannelInput(e.target.value)}
+                  onKeyDown={(e) =>
+                    e.key === 'Enter' &&
+                    subChannelInput.trim() &&
+                    setSubChannel.mutate(subChannelInput.trim())
+                  }
+                  placeholder="@юзернейм канала"
+                  className={inputCls}
+                />
+                <button
+                  onClick={() => setSubChannel.mutate(subChannelInput.trim())}
+                  disabled={setSubChannel.isPending || !subChannelInput.trim()}
+                  className={smallBtnCls}
+                >
+                  {setSubChannel.isPending ? 'Проверка…' : 'Привязать'}
+                </button>
+              </div>
+              <div>
+                <div className="mb-1 text-xs text-white/50">
+                  Текст заглушки (пусто = вернуть стандартный):
+                </div>
+                <div className="flex gap-2">
+                  <textarea
+                    value={subTextInput}
+                    onChange={(e) => setSubTextInput(e.target.value)}
+                    placeholder={c.channel_sub?.text ?? 'Стандартный текст…'}
+                    rows={2}
+                    className={inputCls}
+                  />
+                  <button
+                    onClick={() => setSubText.mutate(subTextInput.trim() || null)}
+                    disabled={setSubText.isPending}
+                    className={smallBtnCls}
+                  >
+                    Сохранить
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Пользователи */}

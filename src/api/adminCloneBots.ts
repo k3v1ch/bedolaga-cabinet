@@ -40,10 +40,19 @@ export interface CloneBroughtUser {
   created_at: string | null;
 }
 
+export interface ChannelSubState {
+  enabled: boolean;
+  has_channel: boolean;
+  channel_link: string | null;
+  channel_title: string | null;
+  text: string | null; // null = стандартный текст заглушки
+}
+
 export interface CloneBotDetail extends CloneBotItem {
   owner: CloneOwner | null;
   active_subscribers: number;
   users: CloneBroughtUser[];
+  channel_sub: ChannelSubState | null;
 }
 
 export type CloneStatsPeriod = 'day' | 'week' | 'month' | 'all';
@@ -70,6 +79,35 @@ export interface CloneLinkItem {
 export interface CloneLinksResponse {
   items: CloneLinkItem[];
   max_links: number;
+}
+
+export interface CloneBroadcastItem {
+  id: number;
+  status: string;
+  message_text: string | null;
+  media_type: string | null;
+  button_text: string | null;
+  button_url: string | null;
+  show_tariffs_button: boolean;
+  sent_count: number;
+  failed_count: number;
+  total_count: number;
+  created_at: string | null;
+}
+
+export interface CloneBroadcastsResponse {
+  items: CloneBroadcastItem[];
+  used_today: number;
+  per_day_limit: number;
+  recipients: number;
+}
+
+export interface CreateBroadcastInput {
+  text?: string;
+  buttonText?: string;
+  buttonUrl?: string;
+  showTariffs: boolean;
+  photo?: File | null;
 }
 
 export const adminCloneBotsApi = {
@@ -137,5 +175,45 @@ export const adminCloneBotsApi = {
   },
   deleteLink: async (id: number, linkId: number): Promise<void> => {
     await apiClient.delete(`/cabinet/admin/clone-bots/${id}/links/${linkId}`);
+  },
+  setSubChannel: async (id: number, channel: string): Promise<ChannelSubState> => {
+    const { data } = await apiClient.put<ChannelSubState>(
+      `/cabinet/admin/clone-bots/${id}/channel-sub/channel`,
+      { channel },
+    );
+    return data;
+  },
+  toggleSub: async (id: number): Promise<ChannelSubState> => {
+    const { data } = await apiClient.post<ChannelSubState>(
+      `/cabinet/admin/clone-bots/${id}/channel-sub/toggle`,
+    );
+    return data;
+  },
+  setSubText: async (id: number, text: string | null): Promise<ChannelSubState> => {
+    const { data } = await apiClient.patch<ChannelSubState>(
+      `/cabinet/admin/clone-bots/${id}/channel-sub/text`,
+      { text },
+    );
+    return data;
+  },
+  broadcasts: async (id: number): Promise<CloneBroadcastsResponse> => {
+    const { data } = await apiClient.get<CloneBroadcastsResponse>(
+      `/cabinet/admin/clone-bots/${id}/broadcasts`,
+    );
+    return data;
+  },
+  createBroadcast: async (id: number, input: CreateBroadcastInput): Promise<CloneBroadcastItem> => {
+    const form = new FormData();
+    if (input.text) form.append('text', input.text);
+    if (input.buttonText) form.append('button_text', input.buttonText);
+    if (input.buttonUrl) form.append('button_url', input.buttonUrl);
+    form.append('show_tariffs', String(input.showTariffs));
+    if (input.photo) form.append('photo', input.photo);
+    const { data } = await apiClient.post<CloneBroadcastItem>(
+      `/cabinet/admin/clone-bots/${id}/broadcasts`,
+      form,
+      { headers: { 'Content-Type': 'multipart/form-data' } },
+    );
+    return data;
   },
 };
