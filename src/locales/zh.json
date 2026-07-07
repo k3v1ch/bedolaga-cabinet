@@ -761,6 +761,7 @@
     "missing": "缺少",
     "noPaymentMethods": "支付方式不可用",
     "selectPaymentMethod": "选择支付方式",
+    "topUpAmountHint": "充值金额：{{amount}}",
     "topUpToComplete": "充值以完成购买",
     "pendingPayments": {
       "title": "待支付",

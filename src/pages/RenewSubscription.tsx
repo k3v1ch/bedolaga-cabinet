@@ -627,10 +627,7 @@ export default function RenewSubscription() {
                         (activePriceKopeks - balanceKopeks) / 100,
                       )} ${currencySymbol}`,
                     },
-                  )}{' '}
-                  <button onClick={handleTopUp} className="underline-offset-2 hover:underline">
-                    {t('common.topUpBalance', 'Пополнить баланс')}
-                  </button>
+                  )}
                 </p>
               </div>
             )}

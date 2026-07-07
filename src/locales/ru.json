@@ -890,6 +890,7 @@
     "paymentOption": "Способ оплаты",
     "selectPaymentOption": "Выберите способ оплаты",
     "selectPaymentMethod": "Выберите способ оплаты",
+    "topUpAmountHint": "К пополнению: {{amount}}",
     "insufficientFunds": "Недостаточно средств",
     "topUpToComplete": "Пополните баланс для завершения покупки",
     "missing": "Не хватает",
