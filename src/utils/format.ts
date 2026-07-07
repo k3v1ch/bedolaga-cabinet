@@ -1,5 +1,15 @@
 export const USER_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 
+// Payment method/option names come from the backend decorated with emojis
+// (e.g. "🏦 СБП", "💰 Криптовалюта") — the cabinet UI renders its own icons,
+// so we strip pictographs, flags, keycaps and joiners before display.
+export function stripEmoji(text: string): string {
+  return text
+    .replace(/\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}]|\uFE0F|\u200D|\u20E3/gu, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 export function formatUptime(seconds: number): string {
   const days = Math.floor(seconds / 86400);
   const hours = Math.floor((seconds % 86400) / 3600);

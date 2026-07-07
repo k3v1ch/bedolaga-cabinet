@@ -12,6 +12,7 @@ import { useCloseOnSuccessNotification } from '@/store/successNotification';
 import { useHaptic, usePlatform } from '@/platform';
 import type { PaymentMethod, PaymentMethodOption } from '@/types';
 import { saveTopUpPendingInfo } from '@/utils/topUpStorage';
+import { stripEmoji } from '@/utils/format';
 
 interface GlassCardProps {
   children: ReactNode;
@@ -272,11 +273,10 @@ export default function CabinetTopUp() {
   const methodKey = method.id.toLowerCase().replace(/-/g, '_');
   const isStarsMethod = methodKey.includes('stars');
   const methodName =
-    t(`balance.paymentMethods.${methodKey}.name`, { defaultValue: '' }) || method.name;
+    t(`balance.paymentMethods.${methodKey}.name`, { defaultValue: '' }) || stripEmoji(method.name);
   const methodDesc =
     t(`balance.paymentMethods.${methodKey}.description`, { defaultValue: '' }) ||
-    method.description ||
-    '';
+    stripEmoji(method.description || '');
   const Icon = getMethodIcon(method.id);
 
   const handleSubmit = () => {
@@ -383,7 +383,7 @@ export default function CabinetTopUp() {
                     className={`text-[15px] ${isSelected ? 'text-white/80' : 'text-white/55'}`}
                     style={{ fontWeight: 500 }}
                   >
-                    {opt.name}
+                    {stripEmoji(opt.name)}
                   </p>
                   {isSelected && (
                     <span className="absolute right-2.5 top-2.5 inline-flex h-1.5 w-1.5 rounded-full bg-white/70" />

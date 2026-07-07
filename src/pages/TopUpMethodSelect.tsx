@@ -6,6 +6,7 @@ import { ArrowLeft, Bitcoin, ChevronRight, CreditCard, QrCode, Sparkles } from '
 
 import { balanceApi } from '../api/balance';
 import { useCurrency } from '../hooks/useCurrency';
+import { stripEmoji } from '../utils/format';
 
 function getMethodIcon(methodId: string) {
   const id = methodId.toLowerCase();
@@ -116,11 +117,11 @@ export default function TopUpMethodSelect() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-[15px] text-white/70" style={{ fontWeight: 500 }}>
-                        {translatedName || method.name}
+                        {translatedName || stripEmoji(method.name)}
                       </p>
                       <p className="mt-0.5 text-[13px] text-white/25">
                         {(translatedDesc || method.description) &&
-                          `${translatedDesc || method.description} · `}
+                          `${translatedDesc || stripEmoji(method.description || '')} · `}
                         {formatAmount(method.min_amount_kopeks / 100, 0)} –{' '}
                         {formatAmount(method.max_amount_kopeks / 100, 0)} {currencySymbol}
                       </p>
