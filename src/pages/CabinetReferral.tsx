@@ -347,12 +347,24 @@ export default function CabinetReferral() {
                 })}
               </p>
             )}
+            {/* Сначала — что получает друг, затем — что получаете вы */}
+            {terms.first_topup_bonus_kopeks > 0 && (
+              <p>
+                •{' '}
+                {t('referral.condition.newUserBonus', {
+                  amount: formatPositive(terms.first_topup_bonus_rubles),
+                  defaultValue: `Друг получает бонус ${formatPositive(
+                    terms.first_topup_bonus_rubles,
+                  )} на первое пополнение`,
+                })}
+              </p>
+            )}
             {isPartner && (info?.commission_percent ?? 0) > 0 && (
               <p>
                 •{' '}
                 {t('referral.condition.partnerCommission', {
                   percent: info?.commission_percent,
-                  defaultValue: `Вам одобрена партнёрская ставка ${info?.commission_percent}% — вы получаете её с каждого пополнения реферала`,
+                  defaultValue: `Вы — партнёр: с каждого пополнения реферала вам начисляется ${info?.commission_percent}% на баланс`,
                 })}
               </p>
             )}
@@ -362,17 +374,6 @@ export default function CabinetReferral() {
                 {t('referral.condition.commission', {
                   percent: terms.commission_percent,
                   defaultValue: `Вы получаете ${terms.commission_percent}% с каждого его пополнения`,
-                })}
-              </p>
-            )}
-            {terms.first_topup_bonus_kopeks > 0 && (
-              <p>
-                •{' '}
-                {t('referral.condition.newUserBonus', {
-                  amount: formatPositive(terms.first_topup_bonus_rubles),
-                  defaultValue: `Друг получает бонус ${formatPositive(
-                    terms.first_topup_bonus_rubles,
-                  )} на первое пополнение`,
                 })}
               </p>
             )}
@@ -609,7 +610,9 @@ export default function CabinetReferral() {
           <div className="mb-2 flex items-center gap-2">
             <Clock size={16} className="text-yellow-400/60" />
             <span className="text-[15px] text-white/50" style={{ fontWeight: 500 }}>
-              {t('referral.tiktok.underReview', { defaultValue: 'Заявка на TikTok на рассмотрении' })}
+              {t('referral.tiktok.underReview', {
+                defaultValue: 'Заявка на TikTok на рассмотрении',
+              })}
             </span>
           </div>
           <p className="text-[13px] text-white/30" style={{ lineHeight: 1.6 }}>

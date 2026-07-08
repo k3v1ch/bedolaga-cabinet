@@ -997,7 +997,7 @@
       "inviterBonus": "您获得一次性奖励 {{amount}}",
       "maxPayments": "佣金按前 {{count}} 笔充值计算",
       "inviterDays": "好友每次充值 {{amount}} 以上，您将获得 +{{days}} 天订阅时长",
-      "partnerCommission": "您的合作伙伴费率为 {{percent}}%——推荐用户每次充值您都将获得该比例收益"
+      "partnerCommission": "您是合作伙伴：推荐用户每次充值，其中 {{percent}}% 将计入您的余额"
     }
   },
   "support": {

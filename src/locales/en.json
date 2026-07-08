@@ -1112,7 +1112,7 @@
       "inviterBonus": "You get a one-time {{amount}} bonus for an invitee",
       "maxPayments": "Commission is paid for the first {{count}} top-ups",
       "inviterDays": "You get +{{days}} days of subscription for every friend top-up of {{amount}} or more",
-      "partnerCommission": "Your approved partner rate is {{percent}}% — you earn it on every referral top-up"
+      "partnerCommission": "You are a partner: {{percent}}% of every referral top-up is credited to your balance"
     }
   },
   "support": {
