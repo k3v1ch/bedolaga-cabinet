@@ -91,12 +91,22 @@ export const authApi = {
     // code was mailed to it and must be verified before a merge token is issued.
     merge_verification?: 'email_code';
     merge_token?: string | null;
+    // Fresh-email linking: a 6-digit code was mailed to the address; nothing is
+    // applied to the account until it is confirmed via confirmEmailLink().
+    verification?: 'email_code';
   }> => {
     const response = await apiClient.post('/cabinet/auth/email/register', {
       email,
       password,
       yandex_cid: getYandexCid() || undefined,
     });
+    return response.data;
+  },
+
+  // Finish linking a fresh email: confirms the mailed code, the backend then
+  // applies the staged email+password and marks the email verified.
+  confirmEmailLink: async (code: string): Promise<{ message: string; email?: string }> => {
+    const response = await apiClient.post('/cabinet/auth/email/register/confirm', { code });
     return response.data;
   },
 

@@ -2587,7 +2587,10 @@
       "totalCreators": "作者",
       "pendingApplications": "待处理申请",
       "totalEarnings": "已发放总额",
-      "tabs": { "applications": "申请", "creators": "作者" },
+      "tabs": {
+        "applications": "申请",
+        "creators": "作者"
+      },
       "noApplications": "暂无待处理申请",
       "noCreators": "暂无已批准的作者",
       "noEarnings": "暂无收益记录",
@@ -4213,7 +4216,7 @@
     "name": "姓名",
     "registeredAt": "注册时间",
     "emailAuth": "邮箱认证",
-    "linkEmailDescription": "绑定邮箱以便无需Telegram登录。绑定后将收到验证邮件。",
+    "linkEmailDescription": "绑定邮箱即可在没有 Telegram 的情况下登录。我们将向其发送 6 位确认码。",
     "linkEmail": "绑定邮箱",
     "emailRequired": "请输入邮箱",
     "invalidEmail": "请输入有效的电子邮件地址",
@@ -4304,6 +4307,9 @@
       "backToAccounts": "返回账户列表"
     },
     "emailMergePasswordRequired": "该邮箱已属于另一个账户。要合并账户，请输入该账户的密码。",
+    "emailLinkCodeSent": "我们已向该邮箱发送了 6 位验证码。请输入验证码以完成绑定。",
+    "emailLinkConfirm": "确认绑定",
+    "emailLinkSuccess": "邮箱已绑定！现在可以使用邮箱和密码登录。",
     "emailMergeCodeSent": "确认码已发送至该邮箱。",
     "emailMergeCodeDescription": "该邮箱已属于另一个账户。我们已向其发送验证码——请输入以确认所有权并合并账户。",
     "emailMergeCodeLabel": "邮件中的验证码",
@@ -4684,6 +4690,7 @@
     "expired": "合并链接已过期，请重试。",
     "success": "账户合并成功！",
     "error": "合并失败，请稍后重试。",
+    "wrongAccount": "只有发起此合并的账户才能完成合并。请使用该账户登录后重试。",
     "expiresIn": "剩余 {{minutes}} 分钟",
     "merging": "合并中..."
   },

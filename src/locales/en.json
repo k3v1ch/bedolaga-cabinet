@@ -2972,7 +2972,10 @@
       "totalCreators": "Creators",
       "pendingApplications": "Pending applications",
       "totalEarnings": "Total paid out",
-      "tabs": { "applications": "Applications", "creators": "Creators" },
+      "tabs": {
+        "applications": "Applications",
+        "creators": "Creators"
+      },
       "noApplications": "No pending applications",
       "noCreators": "No approved creators yet",
       "noEarnings": "No earnings yet",
@@ -4670,7 +4673,7 @@
     "name": "Name",
     "registeredAt": "Registered",
     "emailAuth": "Email Authentication",
-    "linkEmailDescription": "Link your email to log in without Telegram. After linking, you'll receive a verification email.",
+    "linkEmailDescription": "Link an email to sign in without Telegram. We will send a 6-digit confirmation code to it.",
     "linkEmail": "Link Email",
     "emailRequired": "Email is required",
     "invalidEmail": "Please enter a valid email address",
@@ -4761,6 +4764,9 @@
       "backToAccounts": "Back to accounts"
     },
     "emailMergePasswordRequired": "This email already belongs to another account. To merge the accounts, enter that account's password.",
+    "emailLinkCodeSent": "We sent a 6-digit code to that email. Enter it to finish linking.",
+    "emailLinkConfirm": "Confirm linking",
+    "emailLinkSuccess": "Email linked! You can now sign in with email and password.",
     "emailMergeCodeSent": "A confirmation code was sent to that email.",
     "emailMergeCodeDescription": "This email already belongs to another account. We sent a code to it — enter it to confirm ownership and merge the accounts.",
     "emailMergeCodeLabel": "Code from the email",
@@ -5026,6 +5032,7 @@
     "expired": "The merge link has expired. Please try again.",
     "success": "Accounts merged successfully!",
     "error": "Failed to merge accounts. Please try again later.",
+    "wrongAccount": "Only the account that started this merge can complete it. Sign in with that account and try again.",
     "expiresIn": "Expires in {{minutes}}",
     "merging": "Merging..."
   },

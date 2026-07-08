@@ -209,26 +209,40 @@ function TelegramLinkWidget() {
       }
     }, LINK_SCRIPT_LOAD_TIMEOUT_MS);
 
+    const onLoad = () => {
+      clearTimeout(timeoutId);
+      initTelegramLogin();
+    };
+    const onError = () => {
+      clearTimeout(timeoutId);
+      handleScriptFailed();
+    };
+
     if (!script) {
       script = document.createElement('script');
       script.id = scriptId;
       script.src = 'https://oauth.telegram.org/js/telegram-login.js?3';
       script.async = true;
-      script.onload = () => {
-        clearTimeout(timeoutId);
-        initTelegramLogin();
-      };
-      script.onerror = () => {
-        clearTimeout(timeoutId);
-        handleScriptFailed();
-      };
+      script.addEventListener('load', onLoad);
+      script.addEventListener('error', onError);
       document.head.appendChild(script);
-    } else {
+    } else if (window.Telegram?.Login) {
       clearTimeout(timeoutId);
       initTelegramLogin();
+    } else {
+      // Элемент скрипта уже добавлен другой страницей (логин), но сам скрипт ещё
+      // не загрузился (или не загрузится — oauth.telegram.org недоступен). Ждём
+      // его load/error и НЕ гасим таймаут, иначе кнопка останется вечно disabled
+      // без фолбэка на @бота.
+      script.addEventListener('load', onLoad);
+      script.addEventListener('error', onError);
     }
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      script?.removeEventListener('load', onLoad);
+      script?.removeEventListener('error', onError);
+    };
   }, [
     isOIDC,
     widgetConfig?.oidc_client_id,
@@ -394,9 +408,11 @@ export default function ConnectedAccounts() {
   const [emailConfirmPassword, setEmailConfirmPassword] = useState('');
   const [emailError, setEmailError] = useState<string | null>(null);
   const [emailSuccess, setEmailSuccess] = useState<string | null>(null);
-  // Email-merge confirmation: the target email belongs to another account, so a
-  // one-time code was mailed to it; verifying the code yields the merge token.
-  const [emailMergeCodePending, setEmailMergeCodePending] = useState(false);
+  // Шаг ввода кода из письма:
+  //  'link'  — свежий email: бэкенд НИЧЕГО не сохраняет, пока код не подтверждён;
+  //  'merge' — email занят другим аккаунтом: код подтверждает владение той почтой,
+  //            после чего выдаётся merge-токен.
+  const [emailCodeStep, setEmailCodeStep] = useState<null | 'link' | 'merge'>(null);
   const [emailMergeCode, setEmailMergeCode] = useState('');
   const setUser = useAuthStore((state) => state.setUser);
 
@@ -479,9 +495,18 @@ export default function ConnectedAccounts() {
       // The email belongs to another account: a one-time code was mailed to it.
       // Switch to the code step; verifying it yields the merge token.
       if (response.merge_required && response.merge_verification === 'email_code') {
-        setEmailMergeCodePending(true);
+        setEmailCodeStep('merge');
         setEmailMergeCode('');
         setEmailSuccess(t('profile.emailMergeCodeSent'));
+        setEmailError(null);
+        return;
+      }
+      // Свежий email: код отправлен на него, привязка завершится только после
+      // подтверждения кода (аккаунт до этого не меняется).
+      if (response.verification === 'email_code') {
+        setEmailCodeStep('link');
+        setEmailMergeCode('');
+        setEmailSuccess(t('profile.emailLinkCodeSent'));
         setEmailError(null);
         return;
       }
@@ -526,7 +551,30 @@ export default function ConnectedAccounts() {
     },
   });
 
-  const handleVerifyMergeCode = (e: React.SyntheticEvent) => {
+  // Завершение привязки свежего email: бэкенд применяет отложенные email+пароль
+  // только после верного кода.
+  const confirmEmailLinkMutation = useMutation({
+    mutationFn: (code: string) => authApi.confirmEmailLink(code),
+    onSuccess: async () => {
+      setEmailCodeStep(null);
+      setEmailMergeCode('');
+      setEmailFormOpen(false);
+      setEmailValue('');
+      setEmailPassword('');
+      setEmailConfirmPassword('');
+      setEmailError(null);
+      setEmailSuccess(null);
+      showToast({ type: 'success', message: t('profile.emailLinkSuccess') });
+      queryClient.invalidateQueries({ queryKey: ['linked-providers'] });
+      const updatedUser = await authApi.getMe();
+      setUser(updatedUser);
+    },
+    onError: (err: { response?: { data?: { detail?: string } } }) => {
+      setEmailError(err.response?.data?.detail || t('profile.emailMergeCodeInvalid'));
+    },
+  });
+
+  const handleVerifyEmailCode = (e: React.SyntheticEvent) => {
     e.preventDefault();
     setEmailError(null);
     const code = emailMergeCode.trim();
@@ -534,11 +582,15 @@ export default function ConnectedAccounts() {
       setEmailError(t('profile.emailMergeCodeInvalid'));
       return;
     }
-    verifyEmailMergeMutation.mutate(code);
+    if (emailCodeStep === 'link') {
+      confirmEmailLinkMutation.mutate(code);
+    } else {
+      verifyEmailMergeMutation.mutate(code);
+    }
   };
 
-  const cancelEmailMerge = () => {
-    setEmailMergeCodePending(false);
+  const cancelEmailCode = () => {
+    setEmailCodeStep(null);
     setEmailMergeCode('');
     setEmailError(null);
     setEmailSuccess(null);
@@ -665,6 +717,8 @@ export default function ConnectedAccounts() {
         <PrimaryPillButton
           onClick={() => {
             setEmailFormOpen((prev) => !prev);
+            setEmailCodeStep(null);
+            setEmailMergeCode('');
             setEmailError(null);
             setEmailSuccess(null);
           }}
@@ -819,10 +873,10 @@ export default function ConnectedAccounts() {
                     className="overflow-hidden"
                   >
                     <div className="mt-5 border-t border-white/[0.06] pt-5">
-                      {emailMergeCodePending ? (
-                        /* Email принадлежит другому аккаунту: на него отправлен
-                           одноразовый код, подтверждение даёт merge-токен. */
-                        <form onSubmit={handleVerifyMergeCode} className="space-y-3">
+                      {emailCodeStep !== null ? (
+                        /* Шаг кода: 'link' — подтверждение свежего email завершает
+                           привязку; 'merge' — код с чужой почты даёт merge-токен. */
+                        <form onSubmit={handleVerifyEmailCode} className="space-y-3">
                           <div>
                             <label
                               htmlFor="email-merge-code"
@@ -854,18 +908,24 @@ export default function ConnectedAccounts() {
                           )}
                           <button
                             type="submit"
-                            disabled={verifyEmailMergeMutation.isPending}
+                            disabled={
+                              verifyEmailMergeMutation.isPending ||
+                              confirmEmailLinkMutation.isPending
+                            }
                             className="mt-1 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-white py-3 text-[15px] text-black transition-all hover:shadow-lg hover:shadow-white/10 active:scale-[0.97] disabled:opacity-50"
                             style={{ fontWeight: 500 }}
                           >
-                            {verifyEmailMergeMutation.isPending && (
+                            {(verifyEmailMergeMutation.isPending ||
+                              confirmEmailLinkMutation.isPending) && (
                               <Loader2 size={14} className="animate-spin" />
                             )}
-                            {t('profile.emailMergeConfirm')}
+                            {emailCodeStep === 'link'
+                              ? t('profile.emailLinkConfirm')
+                              : t('profile.emailMergeConfirm')}
                           </button>
                           <button
                             type="button"
-                            onClick={cancelEmailMerge}
+                            onClick={cancelEmailCode}
                             className="w-full text-[13px] text-white/35 transition-colors hover:text-white/60"
                           >
                             {t('common.cancel')}
