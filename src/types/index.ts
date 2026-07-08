@@ -87,6 +87,9 @@ export interface Subscription {
   servers: ServerInfo[];
   autopay_enabled: boolean;
   autopay_days_before: number;
+  // Период продления автоплатежом; null = период тарифа по умолчанию
+  autopay_period_days?: number | null;
+  available_renewal_periods?: number[];
   subscription_url: string | null;
   hide_subscription_link: boolean;
   is_active: boolean;

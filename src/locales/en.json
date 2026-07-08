@@ -4782,7 +4782,16 @@
     "sendResetLink": "Send link",
     "passwordResetSent": "Email sent",
     "passwordResetSentDesc": "Open the link from the email to set a new password.",
-    "passwordResetDescription": "A password reset link will be sent to {{email}}."
+    "passwordResetDescription": "A password reset link will be sent to {{email}}.",
+    "autopay": {
+      "title": "Auto-renewal",
+      "enable": "Subscription auto-renewal",
+      "enableDesc": "Automatically renew the subscription from your balance before it expires",
+      "daysBefore": "Charge",
+      "daysValue": "{{count}} d.",
+      "period": "Renewal period",
+      "periodDefault": "Default"
+    }
   },
   "theme": {
     "colors": "Theme Colors",

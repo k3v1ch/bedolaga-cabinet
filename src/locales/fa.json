@@ -4280,7 +4280,16 @@
     "sendResetLink": "ارسال لینک",
     "passwordResetSent": "ایمیل ارسال شد",
     "passwordResetSentDesc": "برای تنظیم گذرواژه جدید، لینک داخل ایمیل را باز کنید.",
-    "passwordResetDescription": "لینک بازنشانی گذرواژه به {{email}} ارسال می‌شود."
+    "passwordResetDescription": "لینک بازنشانی گذرواژه به {{email}} ارسال می‌شود.",
+    "autopay": {
+      "title": "تمدید خودکار",
+      "enable": "تمدید خودکار اشتراک",
+      "enableDesc": "اشتراک قبل از پایان به‌طور خودکار از موجودی تمدید می‌شود",
+      "daysBefore": "برداشت",
+      "daysValue": "{{count}} روز",
+      "period": "دوره تمدید",
+      "periodDefault": "پیش‌فرض"
+    }
   },
   "theme": {
     "colors": "رنگ‌های تم",

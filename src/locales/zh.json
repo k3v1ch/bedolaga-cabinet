@@ -4325,7 +4325,16 @@
     "sendResetLink": "发送链接",
     "passwordResetSent": "邮件已发送",
     "passwordResetSentDesc": "请打开邮件中的链接以设置新密码。",
-    "passwordResetDescription": "重置密码链接将发送至 {{email}}。"
+    "passwordResetDescription": "重置密码链接将发送至 {{email}}。",
+    "autopay": {
+      "title": "自动续订",
+      "enable": "订阅自动续订",
+      "enableDesc": "在订阅到期前自动从余额续订",
+      "daysBefore": "扣款提前",
+      "daysValue": "{{count}} 天",
+      "period": "续订周期",
+      "periodDefault": "默认"
+    }
   },
   "theme": {
     "colors": "主题颜色",

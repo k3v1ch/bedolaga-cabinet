@@ -5335,7 +5335,16 @@
     "sendResetLink": "Отправить ссылку",
     "passwordResetSent": "Письмо отправлено",
     "passwordResetSentDesc": "Перейдите по ссылке из письма, чтобы задать новый пароль.",
-    "passwordResetDescription": "На адрес {{email}} будет отправлена ссылка для сброса пароля."
+    "passwordResetDescription": "На адрес {{email}} будет отправлена ссылка для сброса пароля.",
+    "autopay": {
+      "title": "Автопродление",
+      "enable": "Автопродление подписки",
+      "enableDesc": "Автоматически продлевать подписку с баланса до её окончания",
+      "daysBefore": "Списание за",
+      "daysValue": "{{count}} дн.",
+      "period": "Период продления",
+      "periodDefault": "По умолчанию"
+    }
   },
   "theme": {
     "colors": "Цвета темы",

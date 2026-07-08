@@ -14,7 +14,10 @@ import {
   type NotificationSettings,
   type NotificationSettingsUpdate,
 } from '@/api/notifications';
+import { subscriptionApi } from '@/api/subscription';
+import type { SubscriptionStatusResponse } from '@/types';
 import { isValidEmail } from '@/utils/validation';
+import { copyToClipboard } from '@/utils/clipboard';
 import { UI } from '@/config/constants';
 
 interface GlassCardProps {
@@ -42,7 +45,7 @@ const formatDate = (iso: string | null | undefined) => {
 function CopyField({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
   const copy = () => {
-    navigator.clipboard.writeText(value);
+    void copyToClipboard(value);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -390,6 +393,57 @@ export default function CabinetProfile() {
     updateNotificationsMutation.mutate(update);
   };
 
+  // ── Autopay (паритет с ботом: вкл/выкл, дни списания, период продления) ──
+  const { data: subscriptionStatus } = useQuery({
+    queryKey: ['subscription'],
+    queryFn: () => subscriptionApi.getSubscription(),
+    staleTime: 30_000,
+  });
+  const autopaySub = subscriptionStatus?.subscription ?? null;
+
+  const autopayMutation = useMutation({
+    mutationFn: (update: {
+      enabled: boolean;
+      daysBefore?: number;
+      periodDays?: number | 'default';
+    }) =>
+      subscriptionApi.updateAutopay(
+        update.enabled,
+        update.daysBefore,
+        undefined,
+        update.periodDays,
+      ),
+    onMutate: async (update) => {
+      await queryClient.cancelQueries({ queryKey: ['subscription'] });
+      const previous = queryClient.getQueryData<SubscriptionStatusResponse>(['subscription']);
+      if (previous?.subscription) {
+        queryClient.setQueryData<SubscriptionStatusResponse>(['subscription'], {
+          ...previous,
+          subscription: {
+            ...previous.subscription,
+            autopay_enabled: update.enabled,
+            autopay_days_before: update.daysBefore ?? previous.subscription.autopay_days_before,
+            autopay_period_days:
+              update.periodDays === undefined
+                ? previous.subscription.autopay_period_days
+                : update.periodDays === 'default'
+                  ? null
+                  : update.periodDays,
+          },
+        });
+      }
+      return { previous };
+    },
+    onError: (_err, _update, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['subscription'], context.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
+    },
+  });
+
   // ── Derived ─────────────────────────────────────────────────────────
   const tgLinked = !!user?.telegram_id;
   const tgUsername = user?.username ? `@${user.username}` : null;
@@ -695,6 +749,54 @@ export default function CabinetProfile() {
           </p>
         )}
       </GlassCard>
+
+      {/* Autopay — недоступно для триала и суточных тарифов (бэкенд отклонит) */}
+      {autopaySub && !autopaySub.is_trial && !autopaySub.is_daily && (
+        <GlassCard className="p-7">
+          <p
+            className="mb-4 text-[13px] text-white/40"
+            style={{ fontWeight: 500, letterSpacing: '0.05em' }}
+          >
+            {t('profile.autopay.title', { defaultValue: 'АВТОПРОДЛЕНИЕ' }).toUpperCase()}
+          </p>
+
+          <Toggle
+            label={t('profile.autopay.enable', { defaultValue: 'Автопродление подписки' })}
+            desc={t('profile.autopay.enableDesc', {
+              defaultValue: 'Автоматически продлевать подписку с баланса до её окончания',
+            })}
+            checked={autopaySub.autopay_enabled}
+            disabled={autopayMutation.isPending}
+            onChange={(v) => autopayMutation.mutate({ enabled: v })}
+          >
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5">
+              <SmallSelect<number>
+                label={t('profile.autopay.daysBefore', { defaultValue: 'Списание за' })}
+                options={[1, 3, 7, 14]}
+                value={autopaySub.autopay_days_before}
+                formatLabel={(v) =>
+                  t('profile.autopay.daysValue', { defaultValue: '{{count}} дн.', count: v })
+                }
+                onChange={(v) => autopayMutation.mutate({ enabled: true, daysBefore: v })}
+              />
+              <SmallSelect<number | 'default'>
+                label={t('profile.autopay.period', { defaultValue: 'Период продления' })}
+                options={['default', ...(autopaySub.available_renewal_periods ?? [])]}
+                value={autopaySub.autopay_period_days ?? 'default'}
+                formatLabel={(v) =>
+                  v === 'default'
+                    ? t('profile.autopay.periodDefault', { defaultValue: 'По умолчанию' })
+                    : t('profile.autopay.daysValue', {
+                        defaultValue: '{{count}} дн.',
+                        count: v as number,
+                      })
+                }
+                onChange={(v) => autopayMutation.mutate({ enabled: true, periodDays: v })}
+              />
+            </div>
+          </Toggle>
+        </GlassCard>
+      )}
 
       {/* ── Email popups ─────────────────────────────────────────── */}
       <AnimatePresence>

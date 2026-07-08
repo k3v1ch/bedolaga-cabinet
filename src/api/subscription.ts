@@ -336,14 +336,17 @@ export const subscriptionApi = {
     enabled: boolean,
     daysBefore?: number,
     subscriptionId?: number,
+    // Период продления в днях; 'default' = сбросить на период тарифа
+    periodDays?: number | 'default',
   ): Promise<{
     message: string;
     autopay_enabled: boolean;
     autopay_days_before: number;
+    autopay_period_days: number | null;
   }> => {
     const response = await apiClient.patch(
       '/cabinet/subscription/autopay',
-      { enabled, days_before: daysBefore },
+      { enabled, days_before: daysBefore, period_days: periodDays },
       withSubId(subscriptionId),
     );
     return response.data;
