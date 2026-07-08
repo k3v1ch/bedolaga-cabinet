@@ -195,7 +195,7 @@ function DeliveredState({
       <button
         type="button"
         onClick={() => navigate('/')}
-        className="flex w-full items-center justify-center rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-400"
+        className="flex w-full items-center justify-center rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-on-accent transition-colors hover:bg-accent-400"
       >
         {t('gift.backToDashboard', 'Back to dashboard')}
       </button>
@@ -262,7 +262,7 @@ function PendingActivationState({
       <button
         type="button"
         onClick={() => navigate('/')}
-        className="flex w-full items-center justify-center rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-400"
+        className="flex w-full items-center justify-center rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-on-accent transition-colors hover:bg-accent-400"
       >
         {t('gift.backToDashboard', 'Back to dashboard')}
       </button>
@@ -294,7 +294,7 @@ function FailedState() {
       <button
         type="button"
         onClick={() => navigate('/gift')}
-        className="flex w-full items-center justify-center rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-400"
+        className="flex w-full items-center justify-center rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-on-accent transition-colors hover:bg-accent-400"
       >
         {t('gift.tryAgain', 'Try again')}
       </button>
@@ -331,7 +331,7 @@ function PollErrorState() {
       <button
         type="button"
         onClick={() => navigate('/')}
-        className="flex w-full items-center justify-center rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-400"
+        className="flex w-full items-center justify-center rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-on-accent transition-colors hover:bg-accent-400"
       >
         {t('gift.backToDashboard', 'Back to dashboard')}
       </button>
@@ -365,7 +365,7 @@ function PollTimedOutState({ onRetry }: { onRetry: () => void }) {
       <button
         type="button"
         onClick={onRetry}
-        className="rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-400"
+        className="rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-on-accent transition-colors hover:bg-accent-400"
       >
         {t('gift.retry', 'Retry')}
       </button>
@@ -395,7 +395,7 @@ function NoTokenState() {
       <button
         type="button"
         onClick={() => navigate('/gift')}
-        className="rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-400"
+        className="rounded-xl bg-accent-500 px-6 py-3 text-sm font-medium text-on-accent transition-colors hover:bg-accent-400"
       >
         {t('gift.backToGift', 'Go back')}
       </button>
