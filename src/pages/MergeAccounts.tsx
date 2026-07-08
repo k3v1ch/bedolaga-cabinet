@@ -2,6 +2,7 @@ import { useState, useEffect, type ReactNode } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
 import { motion } from 'framer-motion';
 import { AlertTriangle, Clock, Check, Loader2 } from 'lucide-react';
 import { authApi } from '../api/auth';
@@ -272,7 +273,8 @@ export default function MergeAccounts() {
   const [expiresIn, setExpiresIn] = useState(0);
   const [isExpired, setIsExpired] = useState(false);
 
-  // Fetch merge preview (no auth required)
+  // Fetch merge preview. Требует JWT: бэкенд отдаёт preview/execute только
+  // аккаунту-инициатору merge (анти-угон по утёкшему токену).
   const { data, isLoading, error } = useQuery({
     queryKey: ['merge-preview', mergeToken],
     queryFn: () => {
@@ -360,8 +362,12 @@ export default function MergeAccounts() {
       showToast({ type: 'success', message: t('merge.success') });
       navigate('/profile/accounts', { replace: true });
     },
-    onError: () => {
-      showToast({ type: 'error', message: t('merge.error') });
+    onError: (err: unknown) => {
+      const status = isAxiosError(err) ? err.response?.status : undefined;
+      showToast({
+        type: 'error',
+        message: status === 403 ? t('merge.wrongAccount') : t('merge.error'),
+      });
     },
   });
 
@@ -390,9 +396,15 @@ export default function MergeAccounts() {
     return <LoadingSkeleton />;
   }
 
-  // Fetch error (404 = expired/invalid token)
+  // Fetch error (404 = expired/invalid token, 403 = merge начал другой аккаунт)
   if (error || !data) {
-    return <CenteredStatus variant="error" message={t('merge.error')} />;
+    const status = isAxiosError(error) ? error.response?.status : undefined;
+    return (
+      <CenteredStatus
+        variant="error"
+        message={status === 403 ? t('merge.wrongAccount') : t('merge.error')}
+      />
+    );
   }
 
   // Timer expired

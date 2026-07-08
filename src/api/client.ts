@@ -70,7 +70,8 @@ const AUTH_ENDPOINTS = [
   '/cabinet/auth/password/forgot',
   '/cabinet/auth/password/reset',
   '/cabinet/auth/oauth/',
-  '/cabinet/auth/merge/',
+  // NOTE: '/cabinet/auth/merge/' намеренно НЕ здесь. Бэкенд привязывает merge к
+  // инициатору (JWT обязателен), поэтому preview/execute должны идти с токеном.
   '/cabinet/auth/account/link/server-complete',
   '/cabinet/auth/deeplink/',
   '/cabinet/auth/login/auto',

@@ -98,16 +98,22 @@ export default function CabinetTelegramLogin({ referralCode }: Props) {
       }
     };
 
+    const onLoad = () => init();
     if (!script) {
       script = document.createElement('script');
       script.id = scriptId;
       script.src = 'https://oauth.telegram.org/js/telegram-login.js?3';
       script.async = true;
-      script.onload = init;
+      script.addEventListener('load', onLoad);
       document.head.appendChild(script);
-    } else {
+    } else if (window.Telegram?.Login) {
       init();
+    } else {
+      // Элемент добавлен другой страницей, но скрипт ещё грузится — дождаться load,
+      // иначе кнопка останется disabled (oidcScriptReady так и не станет true).
+      script.addEventListener('load', onLoad);
     }
+    return () => script?.removeEventListener('load', onLoad);
   }, [isOIDC, widgetConfig?.oidc_client_id, widgetConfig?.request_access]);
 
   // ── Legacy Telegram Login Widget (non-OIDC) ───────────────────────────────

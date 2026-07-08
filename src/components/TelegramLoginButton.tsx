@@ -133,28 +133,40 @@ export default function TelegramLoginButton({ referralCode }: TelegramLoginButto
       }
     }, SCRIPT_LOAD_TIMEOUT_MS);
 
+    const onLoad = () => {
+      clearTimeout(timeoutId);
+      setScriptLoaded(true);
+      initTelegramLogin();
+    };
+    const onError = () => {
+      clearTimeout(timeoutId);
+      handleScriptFailed();
+    };
+
     if (!script) {
       script = document.createElement('script');
       script.id = scriptId;
       script.src = 'https://oauth.telegram.org/js/telegram-login.js?3';
       script.async = true;
-      script.onload = () => {
-        clearTimeout(timeoutId);
-        setScriptLoaded(true);
-        initTelegramLogin();
-      };
-      script.onerror = () => {
-        clearTimeout(timeoutId);
-        handleScriptFailed();
-      };
+      script.addEventListener('load', onLoad);
+      script.addEventListener('error', onError);
       document.head.appendChild(script);
-    } else {
+    } else if (window.Telegram?.Login) {
       clearTimeout(timeoutId);
       setScriptLoaded(true);
       initTelegramLogin();
+    } else {
+      // Элемент скрипта создан другой страницей, но скрипт ещё не загрузился —
+      // ждём load/error, таймаут остаётся как страховка от вечно disabled кнопки.
+      script.addEventListener('load', onLoad);
+      script.addEventListener('error', onError);
     }
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      script?.removeEventListener('load', onLoad);
+      script?.removeEventListener('error', onError);
+    };
   }, [
     isOIDC,
     widgetConfig?.oidc_client_id,
